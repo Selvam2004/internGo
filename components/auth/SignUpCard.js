@@ -1,11 +1,13 @@
 import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, KeyboardAvoidingView } from 'react-native'
 import React, { useState } from 'react'
-import { axiosInstance } from '../utils/axiosInstance';
+import { axiosInstance } from '../../utils/axiosInstance';
 
-const LoginCard = ({navigation}) => {
+const SignUpCard = ({navigation}) => {
     const [user,setUser] = useState({
+        name:"",
         email:"",
-        password:""
+        password:"",
+        confirmPassword:""
     })
     const [error,setError] = useState("");
     const handleChange = (name,text)=>{
@@ -16,7 +18,13 @@ const LoginCard = ({navigation}) => {
     }
     const handleSubmit = ()=>{
         const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        if(!user.email){
+        if(!user.name){
+            setError("*Please enter your name");
+        }
+        else if(user.name.length<4){
+            setError("*Please enter valid name");
+        }
+        else if(!user.email){
             setError("*Please enter your email");
         }
         else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)){
@@ -24,26 +32,35 @@ const LoginCard = ({navigation}) => {
         }
         else if(!user.password){
             setError("*Please enter password");
-        } 
+        }
+        else if(!passwordRegex.test(user.password)){
+            setError("*Please enter strong password");
+        }
+        else if(!user.confirmPassword){
+            setError("*Please enter confirm password");
+        }
+        else if(user.confirmPassword!==user.password){
+            setError("*Password didn't match");
+        }
         else{
-            setError("");
+            register();
             console.log('submitted');
-            login();
         }
     }
-    const login = async()=>{
+
+    const register = async()=>{
         try{
             console.log("sending")
-            const response = await axiosInstance.post('/api/auth/signin',{ 
+            const response = await axiosInstance.post('/api/auth/signup',{
+                name:user.name,
                 email:user.email,
                 password:user.password
             });
             
             if(response.data){
                 setError("");
-                navigation.navigate('dashboard');
+                navigation.navigate('login');
                 console.log(response.data.message);
-                console.log(response.data);
             } 
         }
         catch(err){
@@ -53,10 +70,14 @@ const LoginCard = ({navigation}) => {
   return (
     <KeyboardAvoidingView behavior='padding' style={Styles.container}>
         <View style={Styles.heading}>
-         <Text style={{fontWeight:"bold",fontSize:24}}>Login</Text>
+         <Text style={{fontWeight:"bold",fontSize:24}}>SignUp</Text>
         </View>
         <View>
             <Text style={Styles.error}>{error}</Text>
+        </View>
+        <View style={Styles.userName}>
+            <Text style={{fontSize:16 }}>Name:</Text>
+            <TextInput style={Styles.loginInp} placeholder='Enter your Name' value={user.name} onChangeText={(text)=>handleChange('name',text)}/>
         </View>
         <View style={Styles.userName}>
             <Text style={{fontSize:16 }}>Email:</Text>
@@ -66,15 +87,19 @@ const LoginCard = ({navigation}) => {
             <Text style={{fontSize:16}}>Password:</Text>
             <TextInput style={Styles.loginInp} placeholder='Enter your Password'  value={user.password} onChangeText={(text)=>handleChange('password',text)} secureTextEntry/>
         </View>
+        <View style={Styles.password}>
+            <Text style={{fontSize:16}}>Confirm Password:</Text>
+            <TextInput style={Styles.loginInp} placeholder='Confirm your Password'  value={user.confirmPassword} onChangeText={(text)=>handleChange('confirmPassword',text)} secureTextEntry/>
+        </View>
         <View style={Styles.loginBtn}>
             <TouchableOpacity onPress={handleSubmit}>
-                <Text style={Styles.btnText}>Login</Text>
+                <Text style={Styles.btnText}>Sign Up</Text>
             </TouchableOpacity>
         </View>
        <View>
-       <TouchableOpacity onPress={()=>navigation.navigate('signup')}>
-        <Text style={Styles.bottom} >Don't have an Account?<Text style={{color:"blue"}}> Click Here</Text></Text>
-        </TouchableOpacity>
+         <TouchableOpacity onPress={()=>navigation.navigate('login')}>
+         <Text style={Styles.bottom}>Already have an Account?<Text style={{color:"blue"}}> Click Here</Text></Text>
+         </TouchableOpacity>
        </View> 
        <View>
         <Text style={[Styles.bottom,{marginBottom:20}]}>Forgot Password?<Text style={{color:"blue"}}> Click Here</Text></Text>
@@ -100,7 +125,7 @@ const Styles = StyleSheet.create({
         marginHorizontal:'auto', 
     },
     userName:{
-        marginTop:30, 
+        marginTop:20, 
     },
     password:{
         marginTop:20
@@ -135,4 +160,4 @@ const Styles = StyleSheet.create({
 
 })
 
-export default LoginCard
+export default SignUpCard

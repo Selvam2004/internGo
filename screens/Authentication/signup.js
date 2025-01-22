@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import SignUpCard from '../../components/SignUpCard'
+import SignUpCard from '../../components/auth/SignUpCard'
  
 
 const SignUp = ({navigation}) => {

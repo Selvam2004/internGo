@@ -1,34 +1,14 @@
 import { View, Text, StyleSheet ,Image, TouchableOpacity} from 'react-native'
 import React from 'react'
-import Photo from '../../assets/photo.png'
-import { launchImageLibrary } from 'react-native-image-picker';
+import Photo from '../../assets/photo.png' 
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
 export default function Intro() {
-    const handleEditPress = async () => {
-        try {
-          const result = await launchImageLibrary({
-            mediaType: 'photo',
-            selectionLimit: 1, // Allows selecting only one image
-          });
-      
-          if (result.didCancel) {
-            console.log('User cancelled image picker');
-          } else if (result.errorMessage) {
-            console.error('ImagePicker Error:', result.errorMessage);
-          } else if (result.assets && result.assets.length > 0) {
-            const uri = result.assets[0].uri;
-            console.log('Selected Image URI:', uri);
-            // Update your UI or state with the selected image URI
-          }
-        } catch (error) {
-          console.error('An error occurred while picking the image:', error);
-        }
-      };
+ 
   return (
     <View style={styles.profileCnt}>
     <View style={styles.imageContainer}>
       <Image source={Photo} style={styles.profile} />
-      <TouchableOpacity onPress={handleEditPress}>
+      <TouchableOpacity>
         <Icon name="edit" style={styles.editIcon} size={24} color="white" />
       </TouchableOpacity>
     </View>

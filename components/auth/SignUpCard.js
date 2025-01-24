@@ -67,7 +67,7 @@ const SignUpCard = ({navigation}) => {
             } 
         }
         catch(err){
-            setError(err.message); 
+            setError(err.response.data.message); 
         }
         finally{
             setLoading(false);

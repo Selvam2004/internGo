@@ -35,7 +35,7 @@ export default function PersonalDetails() {
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={styles.heading}>Employee Details</Text>
-        <TouchableOpacity style={[styles.editButton, { flexDirection: 'row' ,display:role=='admin'?'':'none'}]} onPress={handleEdit}>
+        <TouchableOpacity style={[styles.editButton, { flexDirection: 'row' ,display:role=='Admins'?'':'none'}]} onPress={handleEdit}>
           <Icon name="edit" style={styles.editIcon} size={18} color="white" />
           <Text style={styles.editText}>Edit</Text>
         </TouchableOpacity>

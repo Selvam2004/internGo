@@ -1,9 +1,10 @@
+import { View, Text } from 'react-native'
 import React from 'react'
 
-function CreateRoadmap() {
+export default function CreateRoadmap() {
   return (
-    <div>CreateRoadmap</div>
+    <View>
+      <Text>CreateRoadmap</Text>
+    </View>
   )
 }
-
-export default CreateRoadmap 

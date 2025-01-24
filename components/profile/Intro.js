@@ -30,8 +30,7 @@ export default function Intro() {
     });
 
     if (!result.canceled) {
-      setImageUri(`data:image/jpeg;base64,${result.assets[0].base64}`); 
-      console.log(result.assets[0].base64)
+      setImageUri(`data:image/jpeg;base64,${result.assets[0].base64}`);  
     }
   };
 
@@ -39,10 +38,11 @@ export default function Intro() {
     const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       quality: 1,
+      base64:true
     });
 
     if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
+      setImageUri(`data:image/jpeg;base64,${result.assets[0].base64}`); 
     }
   };
 

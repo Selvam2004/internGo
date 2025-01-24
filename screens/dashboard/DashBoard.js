@@ -18,11 +18,15 @@ import Records from '../Admin/Records'
 import CreateAnnouncement from '../Admin/CreateAnnouncement';
 import PendingTickets from '../Admin/PendingTickets';
 import NoPermission from '../User/NoPermission';
-import Icon from 'react-native-vector-icons/MaterialIcons'; 
-import { createStackNavigator } from '@react-navigation/stack' 
+import Icon from 'react-native-vector-icons/MaterialIcons';  
 import Resources from '../Admin/Resources';
-
-const Stack = createStackNavigator();
+import User from 'react-native-vector-icons/EvilIcons';
+import FA from 'react-native-vector-icons/FontAwesome5'; 
+import EP from 'react-native-vector-icons/Entypo';
+import MI from 'react-native-vector-icons/MaterialIcons';
+import AD from 'react-native-vector-icons/AntDesign';
+import Home from '../User/Home';
+ 
 
 export default function DashBoard() {
   const dispatch = useDispatch();
@@ -36,68 +40,101 @@ export default function DashBoard() {
   
   const tabs = [
     {
+      name: 'Home',
+      permission: 'home',
+      component: Home,
+      icon:EP,
+      label:'home'
+    },
+    {
       name: 'Profile',
       permission: 'profile.update',
-      component: Profile
+      component: Profile,
+      icon:EP,
+      label:'user'
     },
     {
       name: 'Daily Update',
       permission: 'tasks.update',
-      component: DailyUpdate
+      component: DailyUpdate,
+      icon:FA,
+      label:'list-ul'
     },
     {
       name: 'RoadMap',
       permission: 'RoadMap',
-      component: Roadmap
+      component: Roadmap,
+      icon:FA,
+      label:'map-marked-alt'
     },
     {
       name: 'Help',
       permission: 'Help',
-      component: Help
+      component: Help,
+      icon:MI,
+      label:'contact-support'
     },
     {
       name: 'Create RoadMap',
-      permission: 'Create RoadMap',
-      component: CreateRoadmap
+      permission: 'roadmaps.view',
+      component: CreateRoadmap,
+      icon:FA,
+      label:'map-marked-alt'
     },
     {
       name: 'FeedBack',
       permission: 'feedback.view',
-      component: Feedback
+      component: Feedback,
+      icon:EP,
+      label:'chat'
     },
     {
       name: 'Interactions',
       permission: 'interactions.view',
-      component: Interactions
+      component: Interactions,
+      icon:AD,
+      label:'calender' 
     },
     {
       name: 'Create Plan',
-      permission: 'Create Plan',
-      component: CreatePlan
+      permission: 'plans.create',
+      component: CreatePlan,
+      icon:FA,
+      label:'sitemap'
     },
     {
       name: 'Interaction Schedule',
       permission: 'Interaction Schedule',
-      component: InteractionSchedule
+      component: InteractionSchedule,
+      icon:AD,
+      label:'calender'
     },
     {
       name: 'Records',
-      permission: 'profile.update',
-      component: Records
+      permission: 'users.view',
+      component: Records,
+      icon:AD,
+      label:'folderopen'
     },
     {
       name: 'Pending Tickets',
-      permission: 'Pending Tickets',
-      component: PendingTickets
+      permission: 'plans.create',
+      component: PendingTickets,
+      icon:MI,
+      label:'pending-actions'
     },    {
       name: 'Create Announcement',
-      permission: 'Create Announcement',
-      component: CreateAnnouncement
+      permission: 'plans.create',
+      component: CreateAnnouncement,
+      icon:AD,
+      label:'notification'
     },
     {
       name: 'Resources',
-      permission: 'profile.update',
-      component: Resources
+      permission: 'users.manage',
+      component: Resources,
+      icon:FA,
+      label:'users'
     },
   ]
 
@@ -139,7 +176,11 @@ export default function DashBoard() {
       {Array.isArray(permission) && permission.length>0 ? tabs.map((tab, id) => {
         return (
           permission.includes(tab.permission) && (
-            <Drawer.Screen name={tab.name} component={tab.component} key={id}  />
+            <Drawer.Screen name={tab.name} component={tab.component} key={id} options={{
+              drawerLabel: () => (
+                <DrawerItem label={tab.label} icon={tab.icon} name={tab.name} />
+              ),
+            }} />
           )
         );
       }):<Drawer.Screen name='Blank' component={NoPermission}/>} 
@@ -150,6 +191,15 @@ export default function DashBoard() {
      </>
   )
 }
+
+const DrawerItem = ({ icon: IconComponent, name,label }) => {
+  return (
+    <View style={{flexDirection:'row'}}>
+      {IconComponent&&<IconComponent  name={label} size={20} style={{marginLeft:10}}/>}
+      <Text style={{marginLeft:20}}>{name}</Text>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   drawerHeader: {

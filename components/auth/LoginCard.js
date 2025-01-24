@@ -36,10 +36,10 @@ const LoginCard = ({navigation}) => {
         }
     }
     const login = async()=>{ 
-        try{ 
+        try{  
             dispatch(loginAction({
                 data:{
-                    permissions:['profile.update']
+                    permissions:['profile.update','users.manage','plans.create','users.view']
                 }
             }));
             setLoading(true); 
@@ -50,15 +50,18 @@ const LoginCard = ({navigation}) => {
             });
             console.log('finished');
             if(response.data){
-                setError(""); 
-                console.log(response.data.message);
-                console.log(response.data);
+                setError("");  
+                const token = response.data.data?.token;
+                if (token) {
+                    console.log(token);
+                    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                }
                 dispatch(loginAction(response.data));
             } 
         }
         catch(err){
-            setError(err.message); 
-            console.log('error')
+            setError(err.response.data.message); 
+            console.log(err.response.data.message)
         }
         finally {
             setLoading(false);  

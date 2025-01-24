@@ -19,6 +19,10 @@ import CreateAnnouncement from '../Admin/CreateAnnouncement';
 import PendingTickets from '../Admin/PendingTickets';
 import NoPermission from '../User/NoPermission';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
+import { createStackNavigator } from '@react-navigation/stack' 
+import Resources from '../Admin/Resources';
+
+const Stack = createStackNavigator();
 
 export default function DashBoard() {
   const dispatch = useDispatch();
@@ -78,7 +82,7 @@ export default function DashBoard() {
     },
     {
       name: 'Records',
-      permission: 'Records',
+      permission: 'profile.update',
       component: Records
     },
     {
@@ -90,9 +94,15 @@ export default function DashBoard() {
       permission: 'Create Announcement',
       component: CreateAnnouncement
     },
+    {
+      name: 'Resources',
+      permission: 'profile.update',
+      component: Resources
+    },
   ]
 
   return (
+    <>
      <Drawer.Navigator screenOptions={{
       headerTitle: () => (
       <Image
@@ -129,11 +139,15 @@ export default function DashBoard() {
       {Array.isArray(permission) && permission.length>0 ? tabs.map((tab, id) => {
         return (
           permission.includes(tab.permission) && (
-            <Drawer.Screen name={tab.name} component={tab.component} key={id} />
+            <Drawer.Screen name={tab.name} component={tab.component} key={id}  />
           )
         );
       }):<Drawer.Screen name='Blank' component={NoPermission}/>} 
-     </Drawer.Navigator>
+      
+     </Drawer.Navigator> 
+      
+   
+     </>
   )
 }
 

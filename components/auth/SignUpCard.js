@@ -1,15 +1,17 @@
-import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, KeyboardAvoidingView } from 'react-native'
+import { View, Text, StyleSheet, TextInput,  ActivityIndicator , TouchableOpacity, KeyboardAvoidingView } from 'react-native'
 import React, { useState } from 'react'
 import { axiosInstance } from '../../utils/axiosInstance';
 
 const SignUpCard = ({navigation}) => {
+    const [loading, setLoading] = useState(false);
+    const [error,setError] = useState("");
     const [user,setUser] = useState({
         name:"",
         email:"",
         password:"",
         confirmPassword:""
     })
-    const [error,setError] = useState("");
+    
     const handleChange = (name,text)=>{
         setUser((prev)=>({
             ...prev,
@@ -51,6 +53,7 @@ const SignUpCard = ({navigation}) => {
     const register = async()=>{
         try{
             console.log("sending")
+            setLoading(true)
             const response = await axiosInstance.post('/api/auth/signup',{
                 name:user.name,
                 email:user.email,
@@ -66,7 +69,11 @@ const SignUpCard = ({navigation}) => {
         catch(err){
             setError(err.message); 
         }
+        finally{
+            setLoading(false);
+        }
     }
+
   return (
     <KeyboardAvoidingView behavior='padding' style={Styles.container}>
         <View style={Styles.heading}>
@@ -104,6 +111,14 @@ const SignUpCard = ({navigation}) => {
        <View>
         <Text style={[Styles.bottom,{marginBottom:20}]}>Forgot Password?<Text style={{color:"blue"}}> Click Here</Text></Text>
        </View> 
+
+       {loading && (
+                <View style={Styles.loadingContainer}> 
+                    <ActivityIndicator size="large" color="#0000ff" />
+                    <Text style={Styles.loadingText}>Signing up...</Text>
+                </View>
+        )}
+
     </KeyboardAvoidingView>
   )
 }
@@ -156,7 +171,25 @@ const Styles = StyleSheet.create({
     error:{
         color:'red',
         textAlign:'center'
+    },
+    loadingContainer: {
+        position: 'absolute',
+        flexDirection:'row',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+        zIndex: 1,  
+    },
+    loadingText: { 
+        padding:5,
+        fontSize: 16,
+        color: '#000',  
     }
+
 
 })
 

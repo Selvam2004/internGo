@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView } from 'react-native' 
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView , ActivityIndicator} from 'react-native' 
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { login as loginAction } from '../../redux/AuthSlice';
@@ -6,6 +6,7 @@ import { axiosInstance } from '../../utils/axiosInstance';
 
 const LoginCard = ({navigation}) => {
     const [error,setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const [user,setUser] = useState({
         email:"",
         password:""
@@ -36,12 +37,18 @@ const LoginCard = ({navigation}) => {
     }
     const login = async()=>{ 
         try{ 
+            dispatch(loginAction({
+                data:{
+                    permissions:['profile.update']
+                }
+            }));
+            setLoading(true); 
             console.log("sending")
             const response = await axiosInstance.post('/api/auth/signin',{ 
                 email:user.email,
                 password:user.password
             });
-            
+            console.log('finished');
             if(response.data){
                 setError(""); 
                 console.log(response.data.message);
@@ -51,6 +58,10 @@ const LoginCard = ({navigation}) => {
         }
         catch(err){
             setError(err.message); 
+            console.log('error')
+        }
+        finally {
+            setLoading(false);  
         }
     }
   return (
@@ -83,6 +94,14 @@ const LoginCard = ({navigation}) => {
        <View>
         <Text style={[Styles.bottom,{marginBottom:20}]}>Forgot Password?<Text style={{color:"blue"}}> Click Here</Text></Text>
        </View> 
+
+            {loading && (
+                <View style={Styles.loadingContainer}> 
+                    <ActivityIndicator size="large" color="#0000ff" />
+                    <Text style={Styles.loadingText}>Logging in...</Text>
+                </View>
+            )}
+
     </KeyboardAvoidingView>
   )
 }
@@ -135,6 +154,23 @@ const Styles = StyleSheet.create({
     error:{
         color:'red',
         textAlign:'center'
+    },
+    loadingContainer: {
+        position: 'absolute',
+        flexDirection:'row',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+        zIndex: 1,  
+    },
+    loadingText: { 
+        padding:5,
+        fontSize: 16,
+        color: '#000',  
     }
 
 })

@@ -1,13 +1,17 @@
-import { View, Text, StyleSheet ,Image, TouchableOpacity} from 'react-native'
+import { View, Text, StyleSheet ,Image, TouchableOpacity, ScrollView} from 'react-native'
 import React from 'react'
 import Intro from '../../components/profile/Intro'
+import PersonalDetails from '../../components/profile/PersonalDetails'
+import CompanyDetails from '../../components/profile/CompanyDetails'
 
 
 export default function Profile() {
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Intro/>
-    </View>
+      <PersonalDetails/>
+      <CompanyDetails/>
+    </ScrollView>
   )
 }
 

@@ -3,18 +3,20 @@ import React, { useState } from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
 
-
 export default function PersonalDetails() {
   const [isModalVisible, setModalVisible] = useState(false);
   const role = useSelector(state=>state.auth.data?.data.role);  
   const [editableFields, setEditableFields] = useState({
-    Name: 'Selvam S',
-    Email: 'selvam@finestcoder.com',
-    DOB: '29/03/2004',
-    Contact: '9876543210',
-    Education: 'B.Tech IT',
-    Gender:'Male',
-    'Blood Group': 'O+',
+    Designation:'Front-End developer',
+    Department :'Intern', 
+    "Employee ID":'FC001', 
+    Status:'Active',
+    'Asset No':'3453',
+    'Date of Joining':'16-Sep-2024',
+    Batch:'1/2025',
+    Phase:'1',
+    'Training status':'DSA'
+
   });
 
   const handleEdit = () => {
@@ -32,8 +34,8 @@ export default function PersonalDetails() {
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.heading}>Personal Details</Text>
-        <TouchableOpacity style={[styles.editButton, { flexDirection: 'row' ,display:role=='admin'?'none':''}]} onPress={handleEdit}>
+        <Text style={styles.heading}>Employee Details</Text>
+        <TouchableOpacity style={[styles.editButton, { flexDirection: 'row' ,display:role=='admin'?'':'none'}]} onPress={handleEdit}>
           <Icon name="edit" style={styles.editIcon} size={18} color="white" />
           <Text style={styles.editText}>Edit</Text>
         </TouchableOpacity>
@@ -49,32 +51,33 @@ export default function PersonalDetails() {
       </View>
  
       <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isModalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalHeading}>Edit Personal Details</Text>
-            <ScrollView>
-              {Object.entries(editableFields).map(([name, value], i) => (
-                <View key={i} style={styles.modalField}>
-                  <Text style={styles.modalLabel}>{name}</Text>
-                  <TextInput
-                    style={styles.modalInput}
-                    value={value}
-                    onChangeText={(text) => handleChange(name, text)}
-                  />
-                </View>
-              ))}
-            </ScrollView>
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
+  animationType="slide"
+  transparent={true}
+  visible={isModalVisible}
+  onRequestClose={() => setModalVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalHeading}>Edit Employee Details</Text>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {Object.entries(editableFields).map(([name, value], i) => (
+          <View key={i} style={styles.modalField}>
+            <Text style={styles.modalLabel}>{name}</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={value}
+              onChangeText={(text) => handleChange(name, text)}
+            />
           </View>
-        </View>
-      </Modal>
+        ))}
+      </ScrollView>
+      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <Text style={styles.saveButtonText}>Save</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
     </View>
   );
 }
@@ -82,6 +85,7 @@ export default function PersonalDetails() {
 const styles = StyleSheet.create({
   container: {
     marginTop: 15,
+    marginBottom:20
   },
   headerRow: {
     flexDirection: 'row',
@@ -138,17 +142,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalContent: {
-    backgroundColor: '#fff',
-    width: '90%',
-    borderRadius: 8,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 5,
-  },
+ modalContent: {
+  backgroundColor: '#fff',
+  width: '90%',
+  maxHeight: '80%', 
+  borderRadius: 8,
+  padding: 20,
+  shadowColor: '#000',
+  shadowOpacity: 0.2,
+  shadowRadius: 5,
+  shadowOffset: { width: 0, height: 2 },
+  elevation: 5,
+},
+scrollContainer: {
+  paddingBottom: 20,  
+},
   modalHeading: {
     fontSize: 18,
     fontWeight: 'bold',

@@ -1,10 +1,9 @@
-import { View, Text } from 'react-native'
 import React from 'react'
+import Years from '../../components/records/Years'
+
 
 export default function Records() {
   return (
-    <View>
-      <Text>Records</Text>
-    </View>
+    <Years/>
   )
 }

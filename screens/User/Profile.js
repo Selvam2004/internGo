@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet ,Image, TouchableOpacity, ScrollView} from 'react-native'
+import { View, Text, StyleSheet ,Image, TouchableOpacity, ScrollView, ActivityIndicator} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Intro from '../../components/profile/Intro'
 import PersonalDetails from '../../components/profile/PersonalDetails'
@@ -12,9 +12,12 @@ export default function Profile() {
   const {userId,email,token} = useSelector((state)=> state.auth.data?.data);   
   const [currentUser,setCurrentUser] = useState('');
   const [error,setError] = useState(false); 
+  const [loading,setLoading] = useState(false); 
 
   const fetchUser = async()=>{
     try{
+      setLoading(true);
+      setError(false);
       const response = await axiosInstance.get(`/api/users/${userId}`,
         {
           headers: {
@@ -28,9 +31,12 @@ export default function Profile() {
        }
     }
     catch(error){
-      console.log(error.response.data.message);
+      console.log(error.response.data);
+      setError(error.response.data.message)
     }
-    
+    finally{
+      setLoading(false);
+    }
 
   }
  
@@ -49,6 +55,12 @@ export default function Profile() {
       ) : (
         <ErrorPage onRetry={fetchUser} />
       )}
+            {loading && (
+                <View style={styles.loadingContainer}> 
+                    <ActivityIndicator size="large" color="#0000ff" />
+                    <Text style={styles.loadingText}>loading...</Text>
+                </View>
+      )}
     </ScrollView>
   )
 }
@@ -58,4 +70,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginTop:10
   },   
+  loadingContainer: {
+    position: 'absolute',
+    flexDirection:'row',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+    zIndex: 1,  
+},
+loadingText: { 
+    padding:5,
+    fontSize: 16,
+    color: '#000',  
+}
 })

@@ -11,8 +11,7 @@ import EP from 'react-native-vector-icons/Entypo';
 import * as ImageManipulator from 'expo-image-manipulator';
 export default function Intro({user,edit,token,fetchUser}) {
   const [isVisible, setIsVisible] = useState(false);
-  const [imageUrl, setImageUrl] = useState(user.profilePhoto); 
-  const [loading,setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState(user.profilePhoto);  
   const role = useSelector(state=>state.auth.data?.data.role);   
   useEffect(() => {
     requestPermissions(); 

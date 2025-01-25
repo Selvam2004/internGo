@@ -1,11 +1,12 @@
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { useSelector } from 'react-redux';
+import { axiosInstance } from '../../utils/axiosInstance';
 
 const DEFAULT = "N/A";
-export default function PersonalDetails({user,edit}) {
+export default function PersonalDetails({user,edit,token,fetchUser}) {
   const [isModalVisible, setModalVisible] = useState(false);
   const role = useSelector(state=>state.auth.data?.data.role);   
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false); 
@@ -13,8 +14,7 @@ export default function PersonalDetails({user,edit}) {
 
 
   const [editableFields, setEditableFields] = useState({
-    Name:  DEFAULT,
-    Email:   DEFAULT,
+    Name:  DEFAULT, 
     DOB:  DEFAULT,
     Contact:   DEFAULT ,
     Education:  DEFAULT ,
@@ -23,27 +23,30 @@ export default function PersonalDetails({user,edit}) {
   });
 
   const [displayFields, setDisplayFields] = useState({
-    Name: user.name || DEFAULT,
-    Email: user.email || DEFAULT,
-    DOB: user.dateOfBirth || DEFAULT,
-    Contact: user.phone_no || DEFAULT ,
-    Education: user.education || DEFAULT ,
-    Gender:user.gender || DEFAULT,
-    'Blood Group': user.bloodGroup || DEFAULT,
+    Name:  DEFAULT, 
+    Email: DEFAULT,
+    DOB:  DEFAULT,
+    Contact:   DEFAULT ,
+    Education:  DEFAULT ,
+    Gender:  DEFAULT,
+    'Blood Group':  DEFAULT,
   });
   useEffect(() => {
     if (user) {
-      const updatedFields = {
-        Name: user.name || DEFAULT,
-        Email: user.email || DEFAULT,
-        DOB: user.dateOfBirth || DEFAULT,
+      const date = new Date(user.dateOfBirth) 
+      const day = String(date?.getDate()) ;  
+      const month = String(date?.getMonth() + 1) ;  
+      const year = String(date?.getFullYear());  
+      const dt =day+"/"+month+"/"+year
+      const updatedFields = {               
+        DOB:  date?dt: DEFAULT,
         Contact: user.phone_no || DEFAULT,
         Education: user.education || DEFAULT,
         Gender: user.gender || DEFAULT,
         "Blood Group": user.bloodGroup || DEFAULT,
       };
-      setEditableFields(updatedFields);
-      setDisplayFields(updatedFields);
+      setEditableFields({Name: user.name || DEFAULT,...updatedFields});
+      setDisplayFields({Name: user.name || DEFAULT, Email: user.email || DEFAULT,...updatedFields});
     }
   }, [user]);
 
@@ -60,10 +63,12 @@ export default function PersonalDetails({user,edit}) {
     
   }
   const handleConfirm = (date) => {
-    const day = String(date.getDate()) ;  
-    const month = String(date.getMonth() + 1) ;  
-    const year = date.getFullYear();  
-    setEditableFields({ ...editableFields, DOB: day+"/"+month+"/"+year});
+    const day = String(date.getDate()).padStart(2, '0') ;  
+    const month = String(date.getMonth() + 1).padStart(2, '0') ;  
+    const year = String(date.getFullYear());  
+    const dt =year+"-"+month+"-"+day
+    console.log(dt);
+    setEditableFields({ ...editableFields, DOB:dt});
     hideDatePicker(); 
   };
 
@@ -72,9 +77,29 @@ export default function PersonalDetails({user,edit}) {
     setModalVisible(true);
   };
 
-  const handleSave = () => {
-    alert('hi')
-    setModalVisible(false); 
+  const handleSave = async() => {
+    try{
+      setLoading(true)
+      const response = await axiosInstance.patch(`/api/users/update/${user.id}`,{  
+        dateOfBirth: editableFields.DOB, 
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
+      })
+      if(response){
+        fetchUser();
+      }
+    }
+    catch(err){
+      console.log(err);
+    }
+    finally{
+      setModalVisible(false); 
+      setLoading(false);
+    }
+    
   };
 
   const handleClose = () => {
@@ -152,7 +177,7 @@ export default function PersonalDetails({user,edit}) {
       {loading && (
                 <View style={styles.loadingContainer}> 
                     <ActivityIndicator size="large" color="#0000ff" />
-                    <Text style={Styles.loadingText}>Please wait...</Text>
+                    <Text style={styles.loadingText}>Please wait...</Text>
                 </View>
       )}
     </View>

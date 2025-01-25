@@ -1,5 +1,5 @@
 import { Image ,View,Text, StyleSheet, TouchableOpacity} from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import 'react-native-gesture-handler'
 import { useDispatch ,useSelector} from 'react-redux'
 import { logout } from '../../redux/AuthSlice';
@@ -19,24 +19,24 @@ import CreateAnnouncement from '../Admin/CreateAnnouncement';
 import PendingTickets from '../Admin/PendingTickets';
 import NoPermission from '../User/NoPermission';
 import Icon from 'react-native-vector-icons/MaterialIcons';  
-import Resources from '../Admin/Resources';
-import User from 'react-native-vector-icons/EvilIcons';
+import Resources from '../Admin/Resources'; 
 import FA from 'react-native-vector-icons/FontAwesome5'; 
 import EP from 'react-native-vector-icons/Entypo';
 import MI from 'react-native-vector-icons/MaterialIcons';
 import AD from 'react-native-vector-icons/AntDesign';
-import Home from '../User/Home';
+import Home from '../User/Home'; 
  
 
 export default function DashBoard() {
   const dispatch = useDispatch();
   const data = useSelector(state=>state.auth.data?.data?.permissions); 
+
   const permission = data || null;
   const handleLogOut = ()=>{
     dispatch(logout());
   }
   const Drawer = createDrawerNavigator()
-  const [badgeCount, setBadgeCount] = useState(10);
+  const [badgeCount, setBadgeCount] = useState(10); 
   
   const tabs = [
     {
@@ -93,7 +93,7 @@ export default function DashBoard() {
       permission: 'interactions.view',
       component: Interactions,
       icon:AD,
-      label:'calender' 
+      label:'calendar' 
     },
     {
       name: 'Create Plan',
@@ -104,10 +104,10 @@ export default function DashBoard() {
     },
     {
       name: 'Interaction Schedule',
-      permission: 'Interaction Schedule',
+      permission: 'interactions.schedule',
       component: InteractionSchedule,
       icon:AD,
-      label:'calender'
+      label:'calendar'
     },
     {
       name: 'Records',

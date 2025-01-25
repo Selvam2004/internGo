@@ -56,7 +56,7 @@ export default function Home() {
       </ScrollView>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2023 InternGo. All rights reserved.</Text>
+        <Text style={styles.footerText}>© 2025 InternGo. All rights reserved.</Text> 
       </View>
     </ScrollView>
   );

@@ -3,19 +3,20 @@ import React, { useState } from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
 
-export default function PersonalDetails() {
+const DEFAULT = 'N/A'
+export default function EmployeeDetails({user}) {
   const [isModalVisible, setModalVisible] = useState(false);
   const role = useSelector(state=>state.auth.data?.data.role);  
   const [editableFields, setEditableFields] = useState({
-    Designation:'Front-End developer',
-    Department :'Intern', 
-    "Employee ID":'FC001', 
-    Status:'Active',
-    'Asset No':'3453',
-    'Date of Joining':'16-Sep-2024',
-    Batch:'1/2025',
-    Phase:'1',
-    'Training status':'DSA'
+    Designation:user.designation || DEFAULT,
+    Department :user.department || DEFAULT, 
+    "Employee ID":user.employeeId || DEFAULT, 
+    Status:user.status || DEFAULT,
+    'Asset No':'3453' || DEFAULT,
+    'Date of Joining':user.dateOfJoining || DEFAULT,
+    Batch:user.year || DEFAULT,
+    Phase:user.phase || DEFAULT,
+    'Training status':'DSA' || DEFAULT
 
   });
 

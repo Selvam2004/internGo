@@ -1,17 +1,29 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Modal, TouchableWithoutFeedback, Alert } from 'react-native';
+import React, { use, useEffect, useState } from 'react';
 import Photo from '../../assets/photo.png';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import FileIcon from 'react-native-vector-icons/AntDesign';  
 import CameraIcon from 'react-native-vector-icons/FontAwesome';   
 import * as ImagePicker from 'expo-image-picker';
-
-export default function Intro() {
+import { axiosInstance } from '../../utils/axiosInstance';
+import { useSelector } from 'react-redux';
+import EP from 'react-native-vector-icons/Entypo';
+import * as ImageManipulator from 'expo-image-manipulator';
+export default function Intro({user,edit,token,fetchUser}) {
   const [isVisible, setIsVisible] = useState(false);
-  const [imageUri, setImageUri] = useState(null);
+  const [imageUrl, setImageUrl] = useState(user.profilePhoto); 
+  const [loading,setLoading] = useState(false);
+  const role = useSelector(state=>state.auth.data?.data.role);   
   useEffect(() => {
     requestPermissions(); 
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      setImageUrl(user.profilePhoto);
+    }
+  }, [user]);
+
   const requestPermissions = async () => {
     const { status } = await ImagePicker.getMediaLibraryPermissionsAsync();
   if (status !== 'granted') { 
@@ -21,6 +33,18 @@ export default function Intro() {
     }
   }
   };
+  const convert = async(image)=>{
+    const manipResult = await ImageManipulator.manipulateAsync(
+      image,  
+      [{ resize: { width: 200, height: 200 } }], 
+      {
+        compress: 1,  
+        format: ImageManipulator.SaveFormat.JPEG,  
+        base64: true,  
+      }
+    );
+    return manipResult
+  }
   const selectImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypes,
@@ -30,8 +54,12 @@ export default function Intro() {
     });
 
     if (!result.canceled) {
-      setImageUri(`data:image/jpeg;base64,${result.assets[0].base64}`);  
+      const image = `data:image/jpeg;base64,${result.assets[0].base64}`
+      const resized =(await convert(image)).base64;  
+      handleImageChange(resized);  
+      setIsVisible(false);
     }
+    
   };
 
   const takePhoto = async () => {
@@ -42,26 +70,53 @@ export default function Intro() {
     });
 
     if (!result.canceled) {
-      setImageUri(`data:image/jpeg;base64,${result.assets[0].base64}`); 
-    }
+      const image = `data:image/jpeg;base64,${result.assets[0].base64}`
+      const resized =(await convert(image)).base64;  
+      handleImageChange(resized);  
+      setIsVisible(false);
+    } 
   };
+  
+    const handleImageChange = async (image)=>{
+      try{
+        console.log('started'); 
+        const response = await axiosInstance.patch(`/api/users/update/${user.id}`,{
+          profilePhoto:image
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          },
+        })
+        console.log('finished');
+        if(response){
+          console.log(response.data.data);
+          fetchUser();
+        }
+      }
+      catch(error){
+        console.log(error);
+        console.log(error.response.data.message) 
+      }
+    } 
+
 
   return (
     <View style={styles.profileCnt}>
       <View style={styles.imageContainer}>
-      {imageUri ? <Image source={{ uri: imageUri }} style={styles.profile} />:
-        <Image source={Photo} style={styles.profile} />}
+      {imageUrl ? <Image source={{ uri: imageUrl }} style={styles.profile} />:
+        <EP name='user' size={100} style={styles.profile} />}
         <TouchableOpacity onPress={() => setIsVisible(true)}>
-          <Icon name="edit" style={styles.editIcon} size={24} color="white" />
+          <Icon name="edit" style={[styles.editIcon,{display:role=='Admins'?edit?'':'none':''}]} size={24} color="white" />
         </TouchableOpacity>
       </View>
 
       <View style={{ marginLeft: 15, marginTop: 5, overflow: 'hidden' }}>
         <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Profile</Text>
-        <Text style={{ fontSize: 15, color: 'green', fontWeight: '600', marginTop: 5 }}>Selvam S</Text>
-        <Text style={{ fontSize: 12, marginTop: 5 }}>selvam@finestcoder.com</Text>
-        <Text style={{ fontSize: 12, marginTop: 5 }}>Phase 1 Batch 1</Text>
-        <Text style={{ fontSize: 12, marginTop: 5 }}>Front-end Developer</Text>
+        <Text style={{ fontSize: 15, color: 'green', fontWeight: '600', marginTop: 5 }}>{user.name}</Text>
+        <Text style={{ fontSize: 12, marginTop: 5 }}>{user.email}</Text>
+        <Text style={{ fontSize: 12, marginTop: 5 }}>Phase {user.phase} Batch {user.batch}</Text>
+        <Text style={{ fontSize: 12, marginTop: 5 }}>{user.designation}</Text>
       </View>
 
       <Modal
@@ -101,6 +156,7 @@ const styles = StyleSheet.create({
     borderRadius: 75,
     borderWidth: 2,
     borderColor: '#ccc',
+    textAlign:'center'
   },
   profileCnt: {
     backgroundColor: 'white',

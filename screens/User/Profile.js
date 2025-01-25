@@ -6,6 +6,7 @@ import CompanyDetails from '../../components/profile/CompanyDetails'
 import { useSelector } from 'react-redux'
 import { axiosInstance } from '../../utils/axiosInstance'
 import ErrorPage from './Error'
+import ProgressBarCard from '../../components/profile/ProgressBar'
 
 
 export default function Profile() {
@@ -43,14 +44,20 @@ export default function Profile() {
   useEffect(()=>{
     fetchUser();
   },[])
-
+  const props = {
+    user: currentUser ,
+    token: token,
+    fetchUser: fetchUser , 
+    edit: email === currentUser .mail,
+  };
   return (
     <ScrollView style={styles.container}>
       {error === false ? (
         <View>
-          <Intro user={currentUser} token={token} fetchUser={fetchUser} edit={email==currentUser.mail}/>
-          <PersonalDetails  user={currentUser} token={token} fetchUser={fetchUser} edit={email==currentUser.mail}/>
-          <CompanyDetails  user={currentUser}/>
+          <Intro  {...props}/>
+          <ProgressBarCard progress={currentUser.profilePercentage}/>
+          <PersonalDetails  {...props}/>
+          <CompanyDetails  {...props} />
         </View>
       ) : (
         <ErrorPage onRetry={fetchUser} />

@@ -114,7 +114,7 @@ export default function Intro({user,edit,token,fetchUser}) {
         <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Profile</Text>
         <Text style={{ fontSize: 15, color: 'green', fontWeight: '600', marginTop: 5 }}>{user.name}</Text>
         <Text style={{ fontSize: 12, marginTop: 5 }}>{user.email}</Text>
-        <Text style={{ fontSize: 12, marginTop: 5 }}>Phase {user.phase} Batch {user.batch}</Text>
+        <Text style={{ fontSize: 12, marginTop: 5 }}>{user.phase}  {user.batch}</Text>
         <Text style={{ fontSize: 12, marginTop: 5 }}>{user.designation}</Text>
       </View>
 
@@ -144,6 +144,7 @@ export default function Intro({user,edit,token,fetchUser}) {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+      
     </View>
   );
 }

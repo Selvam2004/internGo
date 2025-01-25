@@ -1,146 +1,165 @@
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ScrollView, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { Picker } from '@react-native-picker/picker';
 import { useSelector } from 'react-redux';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { axiosInstance } from '../../utils/axiosInstance';
 
 const DEFAULT = "N/A";
-export default function PersonalDetails({user,edit,token,fetchUser}) {
+
+export default function PersonalDetails({ user, edit ,fetchUser,token}) {
   const [isModalVisible, setModalVisible] = useState(false);
-  const role = useSelector(state=>state.auth.data?.data.role);   
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false); 
-  const [loading,setLoading] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false); 
+  const [error,setError] = useState(); 
+  const role = useSelector((state) => state.auth.data?.data.role);
 
-
-  const [editableFields, setEditableFields] = useState({
-    Name:  DEFAULT, 
-    DOB:  DEFAULT,
-    Contact:   DEFAULT ,
-    Education:  DEFAULT ,
-    Gender:  DEFAULT,
-    'Blood Group':  DEFAULT,
+ 
+  const [fields, setFields] = useState({ 
+    dob: user.dateOfBirth?.split('T')[0] || DEFAULT,
+    contact: user.phone_no || DEFAULT, 
+    gender: user.gender || "Select Gender",
+    bloodGroup: user.bloodGroup || "Select Blood Group",
   });
-
-  const [displayFields, setDisplayFields] = useState({
-    Name:  DEFAULT, 
-    Email: DEFAULT,
-    DOB:  DEFAULT,
-    Contact:   DEFAULT ,
-    Education:  DEFAULT ,
-    Gender:  DEFAULT,
-    'Blood Group':  DEFAULT,
-  });
-  useEffect(() => {
-    if (user) {
-      const date = new Date(user.dateOfBirth) 
-      const day = String(date?.getDate()) ;  
-      const month = String(date?.getMonth() + 1) ;  
-      const year = String(date?.getFullYear());  
-      const dt =day+"/"+month+"/"+year
-      const updatedFields = {               
-        DOB:  date?dt: DEFAULT,
-        Contact: user.phone_no || DEFAULT,
-        Education: user.education || DEFAULT,
-        Gender: user.gender || DEFAULT,
-        "Blood Group": user.bloodGroup || DEFAULT,
-      };
-      setEditableFields({Name: user.name || DEFAULT,...updatedFields});
-      setDisplayFields({Name: user.name || DEFAULT, Email: user.email || DEFAULT,...updatedFields});
+  useEffect(()=>{
+    if(user){
+      setFields({ 
+        dob: user.dateOfBirth?.split('T')[0] || DEFAULT,
+        contact: user.phone_no || DEFAULT, 
+        gender: user.gender || "Select Gender",
+        bloodGroup: user.bloodGroup || "Select Blood Group",
+      })
     }
-  }, [user]);
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-  const handleDate=(name)=>{
-    if(name=="DOB"){
-      setDatePickerVisibility(true);
-    }
-    else{
-      setDatePickerVisibility(false);
-    }
-    
-  }
-  const handleConfirm = (date) => {
-    const day = String(date.getDate()).padStart(2, '0') ;  
-    const month = String(date.getMonth() + 1).padStart(2, '0') ;  
-    const year = String(date.getFullYear());  
-    const dt =year+"-"+month+"-"+day
-    console.log(dt);
-    setEditableFields({ ...editableFields, DOB:dt});
-    hideDatePicker(); 
-  };
-
-
+  },[user]);
   const handleEdit = () => {
     setModalVisible(true);
   };
 
-  const handleSave = async() => {
-    try{
-      setLoading(true)
-      const response = await axiosInstance.patch(`/api/users/update/${user.id}`,{  
-        dateOfBirth: editableFields.DOB, 
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, 
-        },
-      })
+  const handleSave = () => {
+    let err = "";
+    let update ={}
+    setError('');
+    if(fields.dob!=DEFAULT&&fields.dob!=user.dateOfBirth){
+      update.dateOfBirth=fields.dob;
+    }
+    if(fields.contact!=DEFAULT&&fields.contact!=user.phone_no){
+      if(fields.contact.length!=10){
+        err  = "*Enter valid contact number"
+      }
+      else{
+        update.phone_no=fields.contact;
+      } 
+    }    
+    if(fields.gender!="Select Gender"&&fields.gender!=user.gender){
+      update.gender=fields.gender;
+    }
+    if(fields.bloodGroup!="Select Blood Group"&&fields.bloodGroup!=user.bloodGroup){
+      update.bloodGroup=fields.bloodGroup;
+    }
+    if(err){
+      setError(err);
+    }
+    else{
+      handleSubmit(update);
+    }
+    console.log(update);
+    
+  };
+
+  const handleSubmit = async(update)=>{
+    try{ 
+      const response = await axiosInstance.patch(`/api/users/update/${user.id}`,{...update},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        }
+      );
       if(response){
         fetchUser();
       }
     }
     catch(err){
-      console.log(err);
+      console.log(err.response.data);
     }
-    finally{
+    finally{ 
       setModalVisible(false); 
-      setLoading(false);
+      fetch();
     }
-    
-  };
-
-  const handleClose = () => {
-    setModalVisible(false); 
-  };
+  }
 
   const handleChange = (field, value) => {
-    if(field=="DOB"){
-      setDatePickerVisibility(true);
-    }
-    else{
-      setEditableFields({ ...editableFields, [field]: value });
-    }
-    
+    setFields((prev) => ({ ...prev, [field]: value }));
+  };
+ 
+  const showDatePicker = () => {
+    setDatePickerVisible(true);
   };
 
+  const hideDatePicker = () => {
+    setDatePickerVisible(false);
+  };
+
+  const handleDateConfirm = (date) => {
+    const formattedDate = date.toISOString().split('T')[0];  
+    handleChange('dob', formattedDate);
+    hideDatePicker();
+  };
+  
+  const handleClose = ()=>{
+    setModalVisible(false);
+  }
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={styles.heading}>Personal Details</Text>
-        <TouchableOpacity style={[styles.editButton, { flexDirection: 'row' ,display:role=='Admins'?edit?'':'none':''}]} onPress={handleEdit}>
+        <TouchableOpacity
+          style={[
+            styles.editButton,
+            { flexDirection: 'row', display: role === 'Admins' ? (edit ? '' : 'none') : '' },
+          ]}
+          onPress={handleEdit}
+        >
           <Icon name="edit" style={styles.editIcon} size={18} color="white" />
           <Text style={styles.editText}>Edit</Text>
         </TouchableOpacity>
       </View>
-
+ 
       <View style={styles.table}>
-        {Object.entries(displayFields).map(([name, value], i) => (
-          <View style={styles.row} key={i}>
-            <Text style={styles.label}>{name}</Text>
-            <Text style={styles.value}>{value}</Text>
-          </View>
-        ))}
+        <View style={styles.row}>
+          <Text style={styles.label}>Name</Text>
+          <Text style={styles.value}>{user.name|| DEFAULT}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Email</Text>
+          <Text style={styles.value}>{user.email|| DEFAULT}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>DOB</Text>
+          <Text style={styles.value}>{user.dateOfBirth?.split('T')[0]|| DEFAULT}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Contact</Text>
+          <Text style={styles.value}>{user.phone_no|| DEFAULT}</Text>
+        </View> 
+        <View style={styles.row}>
+          <Text style={styles.label}>Gender</Text>
+          <Text style={styles.value}>{user.gender|| DEFAULT}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Blood Group</Text>
+          <Text style={styles.value}>{user.bloodGroup|| DEFAULT}</Text>
+        </View>
       </View>
-
-      <DateTimePickerModal
-        mode="date" 
-        isVisible={isDatePickerVisible} 
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-      />
  
       <Modal
         animationType="slide"
@@ -151,39 +170,80 @@ export default function PersonalDetails({user,edit,token,fetchUser}) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalHeading}>Edit Personal Details</Text>
-            <ScrollView>
-              {Object.entries(editableFields).map(([name, value], i) => (
-                <View key={i} style={styles.modalField}>
-                  <Text style={styles.modalLabel}>{name}</Text> 
-                  <TextInput
-                    style={styles.modalInput}
-                    value={value}
-                    onFocus={() => handleDate(name)}
-                    onChangeText={(text) => handleChange(name, text)}
-                  /> 
+            <ScrollView> 
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>DOB</Text>
+                <TouchableOpacity onPress={showDatePicker} style={styles.modalInput}>
+                  <Text style={{ color: fields.dob === DEFAULT ? '#aaa' : '#333' }}>
+                    {fields.dob === DEFAULT ? 'Select Date' : fields.dob}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Contact</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={fields.contact}
+                  onChangeText={(text) => handleChange('contact', text)}
+                  keyboardType="phone-pad"
+                />
+                <Text style={[styles.error,{display:error?'':'none'}]}>{error}</Text>
+              </View> 
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Gender</Text>
+                <View style={styles.picker}>
+                <Picker
+                  selectedValue={fields.gender}
+                  onValueChange={(value) => handleChange('gender', value)}                  
+                >
+                  <Picker.Item label="Select Gender" />
+                  <Picker.Item label="Male" value="Male" />
+                  <Picker.Item label="Female" value="Female" />
+                  <Picker.Item label="Other" value="Other" />
+                </Picker>
                 </View>
-              ))}
+              </View>
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Blood Group</Text>
+                <View style={styles.picker}>
+                <Picker
+                  selectedValue={fields.bloodGroup}
+                  onValueChange={(value) => handleChange('bloodGroup', value)}
+                  
+                >
+                  <Picker.Item label="Select Blood Group" />
+                  <Picker.Item label="A+" value="A+" />
+                  <Picker.Item label="A-" value="A-" />
+                  <Picker.Item label="B+" value="B+" />
+                  <Picker.Item label="B-" value="B-" />
+                  <Picker.Item label="O+" value="O+" />
+                  <Picker.Item label="O-" value="O-" />
+                  <Picker.Item label="AB+" value="AB+" />
+                  <Picker.Item label="AB-" value="AB-" />
+                </Picker>
+                </View>
+
+              </View>
             </ScrollView>
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
               <Text style={styles.saveButtonText}>Save</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
-              <Text style={styles.closeButtonText}>close</Text>
+              <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-
-      {loading && (
-                <View style={styles.loadingContainer}> 
-                    <ActivityIndicator size="large" color="#0000ff" />
-                    <Text style={styles.loadingText}>Please wait...</Text>
-                </View>
-      )}
+ 
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleDateConfirm}
+        onCancel={hideDatePicker}
+      /> 
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     marginTop: 15,
@@ -198,6 +258,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
+  },
+  error:{
+    color:'red',
   },
   editButton: {
     paddingVertical: 4,
@@ -275,6 +338,13 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 8,
+    fontSize: 14,
+    color: '#333',
+  },
+  picker: {
+    borderWidth: 1,
+    borderColor: 'rgb(217, 217, 217)',
+    borderRadius: 5,
     fontSize: 14,
     color: '#333',
   },

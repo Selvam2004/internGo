@@ -1,84 +1,268 @@
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ScrollView } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal, 
+  ScrollView, 
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Picker } from '@react-native-picker/picker';
 import { useSelector } from 'react-redux';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { axiosInstance } from '../../utils/axiosInstance';
 
-const DEFAULT = 'N/A'
-export default function EmployeeDetails({user}) {
+const DEFAULT = "N/A";
+
+export default function EmployeeDetails({ user, fetchUser , token }) {
   const [isModalVisible, setModalVisible] = useState(false);
-  const role = useSelector(state=>state.auth.data?.data.role);  
-  const [editableFields, setEditableFields] = useState({
-    Designation:user.designation || DEFAULT,
-    Department :user.department || DEFAULT, 
-    "Employee ID":user.employeeId || DEFAULT, 
-    Status:user.status || DEFAULT,
-    'Asset No':'3453' || DEFAULT,
-    'Date of Joining':user.dateOfJoining || DEFAULT,
-    Batch:user.year || DEFAULT,
-    Phase:user.phase || DEFAULT,
-    'Training status':'DSA' || DEFAULT
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false); 
+  const role = useSelector((state) => state.auth.data?.data.role);
 
+  const [fields, setFields] = useState({
+    designation: user.designation || DEFAULT,
+    department: user.department || DEFAULT,
+    status: user.status || DEFAULT,
+    dateOfJoining: user.dateOfJoining?.split('T')[0] || DEFAULT,
+    batch: user.batch || DEFAULT,
+    phase: user.phase || DEFAULT,
   });
+  useEffect(()=>{
+    if(user){
+      setFields({
+        designation: user.designation || DEFAULT,
+        certificates_submission_status: user.certificates_submission_status || DEFAULT,
+        status: user.status || DEFAULT,
+        dateOfJoining: user.dateOfJoining?.split('T')[0] || DEFAULT,
+        batch: user.batch || DEFAULT,
+        phase: user.phase || DEFAULT,
+      });
+    }
+  },[user])
 
   const handleEdit = () => {
     setModalVisible(true);
   };
 
   const handleSave = () => {
-    setModalVisible(false); 
+    let update = {};
+    Object.keys(fields).forEach((key) => {
+      if (fields[key] !== DEFAULT && fields[key] !== user[key]) {
+        update[key] = fields[key];
+      }
+    });
+
+    if (Object.keys(update).length > 0) { 
+      handleSubmit(update);
+    }
   };
 
+  const handleSubmit = async(update)=>{
+    try{  
+      const response = await axiosInstance.patch(`/api/users/update/${user.id}`,{...update},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        }
+      );
+      if(response){
+        fetchUser();
+      }
+    }
+    catch(err){
+      console.log(err);
+    }
+    finally{ 
+      setModalVisible(false); 
+      fetch();
+    }
+  }
+
+
   const handleChange = (field, value) => {
-    setEditableFields({ ...editableFields, [field]: value });
+    setFields((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const showDatePicker = () => {
+    setDatePickerVisible(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisible(false);
+  };
+
+  const handleDateConfirm = (date) => {
+    const formattedDate = date.toISOString().split('T')[0];
+    handleChange('dateOfJoining', formattedDate);
+    hideDatePicker();
+  };
+
+  const handleClose = () => {
+    setModalVisible(false);
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={styles.heading}>Employee Details</Text>
-        <TouchableOpacity style={[styles.editButton, { flexDirection: 'row' ,display:role=='Admins'?'':'none'}]} onPress={handleEdit}>
+        <TouchableOpacity
+          style={[
+            styles.editButton,
+            { flexDirection: 'row', display: role === 'Admins' ? '' : 'none' },
+          ]}
+          onPress={handleEdit}
+        >
           <Icon name="edit" style={styles.editIcon} size={18} color="white" />
           <Text style={styles.editText}>Edit</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.table}>
-        {Object.entries(editableFields).map(([name, value], i) => (
-          <View style={styles.row} key={i}>
-            <Text style={styles.label}>{name}</Text>
-            <Text style={styles.value}>{value}</Text>
-          </View>
-        ))}
-      </View>
- 
-      <Modal
-  animationType="slide"
-  transparent={true}
-  visible={isModalVisible}
-  onRequestClose={() => setModalVisible(false)}
->
-  <View style={styles.modalOverlay}>
-    <View style={styles.modalContent}>
-      <Text style={styles.modalHeading}>Edit Employee Details</Text>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {Object.entries(editableFields).map(([name, value], i) => (
-          <View key={i} style={styles.modalField}>
-            <Text style={styles.modalLabel}>{name}</Text>
-            <TextInput
-              style={styles.modalInput}
-              value={value}
-              onChangeText={(text) => handleChange(name, text)}
-            />
-          </View>
-        ))}
-      </ScrollView>
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveButtonText}>Save</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
+      <View style={styles.table}> 
 
+        <View style={styles.row}>
+          <Text style={styles.label}>Designation</Text>
+          <Text style={styles.value}>{user.designation || DEFAULT}</Text>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>Employee Id</Text>
+          <Text style={styles.value}>{user.id || DEFAULT}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Status</Text>
+          <Text style={styles.value}>{user.status || DEFAULT}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Date of Joining</Text>
+          <Text style={styles.value}>{user.dateOfJoining?.split('T')[0] || DEFAULT}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Batch</Text>
+          <Text style={styles.value}>{user.batch || DEFAULT}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Phase</Text>
+          <Text style={styles.value}>{user.phase || DEFAULT}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Certificate Submission</Text>
+          <Text style={styles.value}>{user.certificates_submission_status || DEFAULT}</Text>
+        </View>
+      </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={handleClose}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalHeading}>Edit Employee Details</Text>
+            <ScrollView>
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Designation</Text>
+                <View style={styles.picker}>
+                <Picker
+                  selectedValue={fields.designation}
+                  onValueChange={(value) => handleChange('designation', value)}
+                >
+                  <Picker.Item label="Select Designation" />
+                  <Picker.Item label="Front-end" value="Front-end" />
+                  <Picker.Item label="Back-end" value="Back-end" />
+                  <Picker.Item label="Testing" value="Testing" />
+                </Picker>
+                </View>
+              </View>
+
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Status</Text>
+                <View style={styles.picker}>
+                <Picker
+                  selectedValue={fields.status}
+                  onValueChange={(value) => handleChange('status', value)}
+                >
+                  <Picker.Item label="Select Status" />
+                  <Picker.Item label="ACTIVE" value="ACTIVE" />
+                  <Picker.Item label="NOT_ACTIVE" value="NOT_ACTIVE" />
+                  <Picker.Item label="EXAMINATION" value="EXAMINATION" />
+                  <Picker.Item label="SHADOWING" value="SHADOWING" />
+                  <Picker.Item label="DEPLOYED" value="DEPLOYED" />
+                </Picker>
+                </View>
+              </View>
+
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Date of Joining</Text>
+                <TouchableOpacity onPress={showDatePicker} style={styles.modalInput}>
+                  <Text style={{ color: fields.dateOfJoining === DEFAULT ? '#aaa' : '#333' }}>
+                    {fields.dateOfJoining === DEFAULT ? 'Select Date' : fields.dateOfJoining}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Batch</Text>
+                <View style={styles.picker}>
+                <Picker
+                  selectedValue={fields.batch}
+                  onValueChange={(value) => handleChange('batch', value)}
+                >
+                  <Picker.Item label="Select Batch" />
+                  <Picker.Item label="Batch 1" value="Batch 1" />
+                  <Picker.Item label="Batch 2" value="Batch 2" />
+                  <Picker.Item label="Batch 3" value="Batch 3" />
+                </Picker>
+                </View>
+              </View>
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Phase</Text>
+                <View style={styles.picker}>
+                <Picker
+                  selectedValue={fields.phase}
+                  onValueChange={(value) => handleChange('phase', value)}
+                >
+                  <Picker.Item label="Select Phase" />
+                  <Picker.Item label="Phase 1" value="Phase 1" />
+                  <Picker.Item label="Phase 2" value="Phase 2" />
+                  <Picker.Item label="Phase 3" value="Phase 3" />
+                </Picker>
+                </View>
+              </View>
+              
+              {/* <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Certificate Submission Status</Text>
+                <View style={styles.picker}>
+                <Picker
+                  selectedValue={fields.department}
+                  onValueChange={(value) => handleChange('certificates_submission_status', value)}
+                >
+                  <Picker.Item label="Select Status" />
+                  <Picker.Item label="Yes" value="true"/>
+                  <Picker.Item label="No" value="False" /> 
+                </Picker>
+                </View>
+              </View> */}
+
+            </ScrollView>
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+              <Text style={styles.saveButtonText}>Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={ handleDateConfirm}
+        onCancel={hideDatePicker}
+      /> 
     </View>
   );
 }
@@ -143,21 +327,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
- modalContent: {
-  backgroundColor: '#fff',
-  width: '90%',
-  maxHeight: '80%', 
-  borderRadius: 8,
-  padding: 20,
-  shadowColor: '#000',
-  shadowOpacity: 0.2,
-  shadowRadius: 5,
-  shadowOffset: { width: 0, height: 2 },
-  elevation: 5,
-},
-scrollContainer: {
-  paddingBottom: 20,  
-},
+  modalContent: {
+    backgroundColor: '#fff',
+    width: '90%',
+    borderRadius: 8,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 5,
+  },
   modalHeading: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -182,6 +362,13 @@ scrollContainer: {
     fontSize: 14,
     color: '#333',
   },
+  picker: {
+    borderWidth: 1,
+    borderColor: 'rgb(217, 217, 217)',
+    borderRadius: 5,
+    fontSize: 14,
+    color: '#333',
+  },
   saveButton: {
     marginTop: 20,
     paddingVertical: 12,
@@ -193,5 +380,34 @@ scrollContainer: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  closeButton: {
+    marginTop: 20,
+    paddingVertical: 12,
+    backgroundColor: '#ff4d4d',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  loadingContainer: {
+    position: 'absolute',
+    flexDirection: 'row',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    zIndex: 1,
+  },
+  loadingText: {
+    padding: 5,
+    fontSize: 16,
+    color: '#000',
   },
 });

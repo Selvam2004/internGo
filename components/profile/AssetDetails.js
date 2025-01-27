@@ -1,65 +1,80 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { axiosInstance } from '../../utils/axiosInstance';
+import { Picker } from '@react-native-picker/picker'; 
 
 const DEFAULT = "N/A";
 
-export default function AssetDetails({ user,asset, fetchUser, token }) {
+export default function AssetDetails({ user, assets , fetchUser, token }) {
   const [isModalVisible, setModalVisible] = useState(false);
-  const [isDatePickerVisible, setDatePickerVisible] = useState(false); 
+  const [isModalAdd, setModalAdd] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+  const [currentAssetIndex, setCurrentAssetIndex] = useState(null); 
+  const [error,setError]= useState(""); 
+  const [currentFieldForDatePicker,setCurrentFieldForDatePicker] = useState("givenOn")
   const role = useSelector((state) => state.auth.data?.data.role);
+  
+  const [fields, setFields] = useState({
+    type: DEFAULT,
+    name: DEFAULT,
+    givenOn: DEFAULT,
+    returnDate: DEFAULT,
+  }); 
 
-  const [fields, setFields] = useState({ 
-    type: asset?.assetType || DEFAULT,
-    name: asset?.assetName || DEFAULT, 
-    givenOn: asset?.givenOn?.split('T')[0] || DEFAULT,
-  });
-
-  const handleEdit = () => {
+  const handleEdit = (index) => {
+    setCurrentAssetIndex(index); 
+    const asset = assets[index];  
+    setFields({
+      name: asset?.assetName || DEFAULT,
+      type: asset?.assetType || DEFAULT,
+      givenOn: asset?.givenOn?.split('T')[0] || DEFAULT,
+      returnDate: asset?.returnDate?.split('T')[0] || DEFAULT,  
+    });
     setModalVisible(true);
   };
 
-  const handleSave = () => { 
-    let update = {}; 
-     
-    if(fields.type !== DEFAULT && fields.type !== asset?.assetType) {
-      update.assetType = fields.type;
-    }
+  const handleSave = () => {
+    if (currentAssetIndex !== null) {
+      let update = {
+        id:assets[currentAssetIndex].id,
+        assetName:fields.name,
+        assetType:fields.type,
+        givenOn:fields.givenOn
+      };      
 
-    if(fields.name !== DEFAULT && fields.name !== asset?.assetName) {
-      update.assetName = fields.name;
-    }
+      if (fields.returnDate !== DEFAULT && fields.returnDate !== assets[currentAssetIndex]?.returnDate) {
+        update.returnDate = fields.returnDate;
+      }
 
-    if(fields.givenOn !== DEFAULT && fields.givenOn !== asset?.givenOn) {
-      update.givenOn = fields.givenOn;
-    }
+      if (Object.keys(update).length > 0) {
 
-    if(update){
-      handleSubmit(update);   
+        handleSubmit(update,currentAssetIndex);
+      }
     }
   };
 
-  const handleSubmit = async(update) => {
+  const handleSubmit = async (update,ind) => {
     try {
-      const response = await axiosInstance.patch(`/api/users/update/assets`, {  
-        userId:user.id,
-        assetType:update.assetType, 
-        }, {
+      console.log(assets[ind].id)
+      console.log({...update})
+      const response = await axiosInstance.patch(`/api/users/update/asset/${assets[ind].id}`, { 
+        ...update,
+      }, {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         }
       });
 
       if (response) {
-        fetchUser();   
+        fetchUser();
       }
     } catch (err) {
-      console.log(err.response.data);  
+      console.log(err.response.data);
     } finally {
-      setModalVisible(false);    
+      setModalVisible(false);
     }
   };
 
@@ -67,7 +82,8 @@ export default function AssetDetails({ user,asset, fetchUser, token }) {
     setFields((prev) => ({ ...prev, [field]: value }));
   };
 
-  const showDatePicker = () => {
+  const showDatePicker = (field) => {
+    setCurrentFieldForDatePicker(field);
     setDatePickerVisible(true);
   };
 
@@ -77,7 +93,7 @@ export default function AssetDetails({ user,asset, fetchUser, token }) {
 
   const handleDateConfirm = (date) => {
     const formattedDate = date.toISOString().split('T')[0];
-    handleChange('givenOn', formattedDate);
+    handleChange(currentFieldForDatePicker, formattedDate);
     hideDatePicker();
   };
 
@@ -85,6 +101,41 @@ export default function AssetDetails({ user,asset, fetchUser, token }) {
     setModalVisible(false);
   };
 
+  const handleAdd = ()=>{
+    setFields({});
+    setError("");
+    setModalAdd(true);
+  }
+  const handleAddSave =async ()=>{
+    
+    if(Object.keys(fields).length<3){
+      setError("Please fill all details");
+    }
+    else{
+      try{ 
+        const response = await axiosInstance.post('/api/users/update/assets',{
+          userId:user.id,
+          assetType:fields.type,
+          assetName:fields.name,
+          givenOn:fields.givenOn
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        })
+        if(response){
+          fetchUser();
+        }
+      }
+      catch(err){
+        console.log(err.response);
+      }
+      finally{
+        setModalAdd(false);
+      }
+    }
+  }
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
@@ -94,28 +145,46 @@ export default function AssetDetails({ user,asset, fetchUser, token }) {
             styles.editButton,
             { flexDirection: 'row', display: role === 'Admins' ?  '' : 'none' },
           ]}
-          onPress={handleEdit}
+          onPress={handleAdd}
         >
           <Icon name="edit" style={styles.editIcon} size={18} color="white" />
-          <Text style={styles.editText}>Edit</Text>
+          <Text style={styles.editText}>Add</Text>
         </TouchableOpacity>
       </View>
- 
-      <View style={styles.table}>
-        <View style={styles.row}>
-          <Text style={styles.label}>Type</Text>
-          <Text style={styles.value}>{asset?.assetType || DEFAULT}</Text>
+        <View style={styles.box}>
+      {assets?assets.map((asset, index) => (
+        <View key={index} style={styles.table}>
+          <View style={styles.row}>
+            <Text style={styles.label}>Name</Text>
+            <Text style={styles.value}>{asset?.assetName || DEFAULT}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Type</Text>
+            <Text style={styles.value}>{asset?.assetType || DEFAULT}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Given On</Text>
+            <Text style={styles.value}>{asset?.givenOn?.split('T')[0] || DEFAULT}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Return Date</Text>
+            <Text style={styles.value}>{asset?.returnDate?.split('T')[0] ||  "Not returned"}</Text>
+          </View>
+          {role === 'Admins' && (
+            <View style={{alignItems:'flex-end' }}>
+            <TouchableOpacity
+              style={[styles.editButton, { flexDirection: 'row' }]}
+              onPress={() => handleEdit(index)}
+            >
+              <Icon name="edit" style={styles.editIcon} size={18} color="white" />
+              <Text style={styles.editText}>Edit</Text>
+            </TouchableOpacity>
+            </View>
+          )}
         </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Name</Text>
-          <Text style={styles.value}>{asset?.assetName|| DEFAULT}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Given On</Text>
-          <Text style={styles.value}>{asset?.givenOn || DEFAULT}</Text>
-        </View>
+      )):<View style={{alignItems:'center'}}><Text>No Assets to display</Text></View>}
       </View>
- 
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -125,15 +194,8 @@ export default function AssetDetails({ user,asset, fetchUser, token }) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalHeading}>Edit Asset Details</Text>
-            <ScrollView>  
-              <View style={styles.modalField}>
-                <Text style={styles.modalLabel}>Type</Text>
-                <TextInput
-                  style={styles.modalInput}
-                  value={fields.type}
-                  onChangeText={(text) => handleChange('type', text)}
-                />
-              </View> 
+            <ScrollView>
+
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Name</Text>
                 <TextInput
@@ -141,12 +203,28 @@ export default function AssetDetails({ user,asset, fetchUser, token }) {
                   value={fields.name}
                   onChangeText={(text) => handleChange('name', text)}
                 />
-              </View> 
+              </View>
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Type</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={fields.type}
+                  onChangeText={(text) => handleChange('type', text)}
+                />
+              </View>
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Given On</Text>
-                <TouchableOpacity onPress={showDatePicker} style={styles.modalInput}>
+                <TouchableOpacity onPress={() => showDatePicker('givenOn')} style={styles.modalInput}>
                   <Text style={{ color: fields.givenOn === DEFAULT ? '#aaa' : '#333' }}>
                     {fields.givenOn === DEFAULT ? 'Select Date' : fields.givenOn}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Return Date</Text>
+                <TouchableOpacity onPress={() => showDatePicker('returnDate')} style={styles.modalInput}>
+                  <Text style={{ color: fields.returnDate === DEFAULT ? '#aaa' : '#333' }}>
+                    {fields.returnDate === DEFAULT ? 'Select Date' : fields.returnDate}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -161,13 +239,59 @@ export default function AssetDetails({ user,asset, fetchUser, token }) {
         </View>
       </Modal>
 
-      {/* Date Time Picker */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalAdd}
+        onRequestClose={() => setModalAdd(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalHeading}>Add Assets</Text>
+            <Text style={{color:"red"}}>{error}</Text>
+            <ScrollView>
+
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Name</Text>
+                <TextInput
+                  style={[styles.modalInput,{paddingVertical:15}]}
+                  value={fields.name}
+                  onChangeText={(text) => handleChange('name', text)}
+                />
+              </View>
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Type</Text>
+                <TextInput
+                  style={[styles.modalInput,{paddingVertical:15}]}
+                  value={fields.type}
+                  onChangeText={(text) => handleChange('type', text)}
+                />
+              </View>
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Given On</Text>
+                <TouchableOpacity onPress={() => showDatePicker('givenOn')} style={styles.modalInput}>
+                  <Text style={{ color: !fields.givenOn  ? '#aaa' : '#333' ,padding:10}}>
+                    {!fields.givenOn  ? 'Select Date' : fields.givenOn}
+                  </Text>
+                </TouchableOpacity>
+              </View> 
+            </ScrollView>
+            <TouchableOpacity style={styles.saveButton} onPress={handleAddSave}>
+              <Text style={styles.saveButtonText}>Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.closeButton} onPress={()=>setModalAdd(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+ 
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
         onConfirm={handleDateConfirm}
         onCancel={hideDatePicker}
-      /> 
+      />
     </View>
   );
 }
@@ -175,6 +299,17 @@ export default function AssetDetails({ user,asset, fetchUser, token }) {
 const styles = StyleSheet.create({
   container: {
     marginTop: 15,
+  },
+  box:{
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 25,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+    marginBottom: 20,
   },
   headerRow: {
     flexDirection: 'row',
@@ -186,9 +321,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
-  },
-  error: {
-    color: 'red',
   },
   editButton: {
     paddingVertical: 4,
@@ -210,14 +342,13 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
+    marginBottom: 20,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
-    borderBottomWidth: 1,
-    borderColor: 'rgb(217, 217, 217)',
+    marginBottom: 12, 
   },
   label: {
     fontSize: 16,
@@ -226,6 +357,13 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: 16,
+    color: '#333',
+  },
+  picker: {
+    borderWidth: 1,
+    borderColor: 'rgb(217, 217, 217)',
+    borderRadius: 5,
+    fontSize: 14,
     color: '#333',
   },
   modalOverlay: {

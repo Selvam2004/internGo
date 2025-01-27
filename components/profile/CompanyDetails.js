@@ -16,7 +16,7 @@ import { TextInput } from 'react-native-gesture-handler';
 
 const DEFAULT = "N/A";
 
-export default function EmployeeDetails({ user, fetchUser , token }) {
+export default function EmployeeDetails({ user,edit, fetchUser , token }) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [isDatePickerVisible, setDatePickerVisible] = useState(false); 
   const role = useSelector((state) => state.auth.data?.data.role); 
@@ -29,6 +29,8 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
     dateOfJoining: user.dateOfJoining?.split('T')[0] || DEFAULT,
     batch: user.batch || DEFAULT,
     phase: user.phase || DEFAULT,
+    year:Number(user.year) || DEFAULT
+
   });
   
   useEffect(()=>{
@@ -41,6 +43,7 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
         dateOfJoining: user.dateOfJoining?.split('T')[0] || DEFAULT,
         batch: user.batch || DEFAULT,
         phase: user.phase || DEFAULT,
+        year:user.year || DEFAULT
       });
     }
   },[user])
@@ -53,7 +56,12 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
     let update = {};
     Object.keys(fields).forEach((key) => {
       if (fields[key] !== DEFAULT && fields[key] !== user[key]) {
-        update[key] = fields[key];
+        if(key=="year"){
+          update[key]=Number(fields[key])
+        }
+        else{
+          update[key] = fields[key];
+        }        
       }
     });
 
@@ -79,8 +87,7 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
       console.log(err);
     }
     finally{ 
-      setModalVisible(false); 
-      fetch();
+      setModalVisible(false);  
     }
   }
 
@@ -142,17 +149,23 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
           <Text style={styles.label}>Date of Joining</Text>
           <Text style={styles.value}>{user.dateOfJoining?.split('T')[0] || DEFAULT}</Text>
         </View>
-        {role!="Admins"&&<View style={styles.row}>
+        {!edit&&<View style={styles.row}>
           <Text style={styles.label}>Batch</Text>
           <Text style={styles.value}>{user.batch || DEFAULT}</Text>
         </View>
         }
-        {role!="Admins"&&<View style={styles.row}>
+
+        {!edit &&<View style={styles.row}>
           <Text style={styles.label}>Phase</Text>
           <Text style={styles.value}>{user.phase || DEFAULT}</Text>
         </View>
         }
-        {role!="Admins"&&<View style={styles.row}>
+        {!edit&&<View style={styles.row}>
+          <Text style={styles.label}>Year</Text>
+          <Text style={styles.value}>{user.year || DEFAULT}</Text>
+        </View>
+        }
+        {!edit&&<View style={styles.row}>
           <Text style={styles.label}>Certificate Submission</Text>
           <Text style={styles.value}>{user.certificates_submission_status?"YES":"NO" || DEFAULT}</Text>
         </View>
@@ -168,7 +181,7 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalHeading}>Edit Employee Details</Text>
-            <ScrollView>
+            <ScrollView >
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Designation</Text>
                 <View style={styles.picker}>
@@ -215,7 +228,7 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
                 </TouchableOpacity>
               </View>
 
-              {role!="Admins"&& <View style={styles.modalField}>
+              {!edit&& <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Batch</Text>
                 <View style={styles.picker}>
                 <Picker
@@ -230,7 +243,7 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
                 </View>
               </View>
                 }
-              {role!="Admins"&&<View style={styles.modalField}>
+              {!edit&&<View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Phase</Text>
                 <View style={styles.picker}>
                 <Picker
@@ -244,8 +257,23 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
                 </Picker>
                 </View>
               </View>
-                }              
-              {role!="Admins"&&<View style={styles.modalField}>
+                }          
+               {!edit&&<View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Year</Text>
+                <View style={styles.picker}>
+                <Picker
+                  selectedValue={fields.year}
+                  onValueChange={(value) => handleChange('year', value)}
+                >
+                  <Picker.Item label="Select Year" />
+                  <Picker.Item label="2023" value="2023" />
+                  <Picker.Item label="2024" value="2024" />
+                  <Picker.Item label="2025" value="2025" />
+                </Picker>
+                </View>
+              </View>
+                }      
+              {!edit&&<View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Certificate Submission Status</Text>
                 <View style={styles.picker}>
                 <Picker
@@ -343,6 +371,7 @@ const styles = StyleSheet.create({
   modalContent: {
     backgroundColor: '#fff',
     width: '90%',
+    height:"80%",
     borderRadius: 8,
     padding: 20,
     shadowColor: '#000',

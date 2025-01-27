@@ -33,8 +33,7 @@ export default function SpecificProfile({route}) {
         }
       ); 
        if(response.data.data){
-        setCurrentUser(response.data.data);
-        console.log(currentUser.email,email);
+        setCurrentUser(response.data.data); 
        }
     }
     catch(error){
@@ -66,8 +65,8 @@ export default function SpecificProfile({route}) {
           <AddressDetails {...props}/>
           <EducationalDetails {...props}/>
           <BankDetails {...props}/>
-          <AssetDetails {...props} asset={currentUser.asset}/>
           <CompanyDetails  {...props} />
+          <AssetDetails {...props} asset={currentUser.asset}/>          
         </View>
       ) : (
         <ErrorPage onRetry={fetchUser} />

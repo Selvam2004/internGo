@@ -57,17 +57,21 @@ export default function Resources() {
   const handleSearchSubmit = async(text)=>{
     try{
       setLoading(true);
-      setModalVisible(false);
-      if(!text){
-        fetchResource();
-      }
-      else{ 
+      setModalVisible(false); 
         const response = await axiosInstance.post(
           '/api/users/search', 
           {   
-              name:text   
+              name:text,
+              year: filter.year.map(value=>Number(value)),
+              batch: filter.batch,
+              designation: filter.designation,
+              status:filter.status    
           },
           { 
+            params: {
+              limit: page.limit,
+              offset: (page.limit*(page.current-1))
+            },
             headers: {
               Authorization: `Bearer ${token}`
             }
@@ -75,11 +79,11 @@ export default function Resources() {
         )
         
         if(response){
-          console.log(response.data.data); 
-          setUser(response.data.data);
+          const dt = response.data.data;
+          setUser(dt.data);
+          setPage({...page,total:Math.ceil(dt.total_pages),current:page.current<=Math.ceil(dt.total_pages)?page.current:1});
         } 
-      }
-
+      
     }
     catch(err){
       console.log(err);
@@ -128,7 +132,7 @@ const handlePrev = () => {
       const response = await axiosInstance.post(
         '/api/users', 
         {   
-            year: filter.year,
+            year: filter.year.map(value=>Number(value)),
             batch: filter.batch,
             designation: filter.designation,
             status:filter.status     
@@ -148,8 +152,7 @@ const handlePrev = () => {
         console.log(response.data.data); 
         const dt = response.data.data;
         setUser(dt.data);
-        setPage({...page,total:dt.total_pages});
-        console.log(page);
+        setPage({...page,total:Math.ceil(dt.total_pages),current:page.current<=Math.ceil(dt.total_pages)?page.current:1}); 
       }
     }
     catch(err){

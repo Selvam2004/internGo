@@ -14,11 +14,11 @@ import AddressDetails from '../../components/profile/AddressDetails'
 
 
 export default function Profile() {
-  const {userId,email,token} = useSelector((state)=> state.auth.data?.data);   
+  const {userId, token} = useSelector((state)=> state.auth.data?.data);   
   const [currentUser,setCurrentUser] = useState(''); 
   const [error,setError] = useState(false); 
   const [loading,setLoading] = useState(false); 
-
+ 
   const fetchUser = async()=>{
     try{
       setLoading(true);
@@ -32,7 +32,8 @@ export default function Profile() {
         }
       ); 
        if(response.data.data){
-        setCurrentUser(response.data.data); 
+        setCurrentUser(response.data.data);  
+        console.log(response.data.data);  
        }
     }
     catch(error){
@@ -67,8 +68,8 @@ export default function Profile() {
           <AddressDetails {...props}/>
           <EducationalDetails {...props}/>
           <BankDetails {...props}/>
-          <AssetDetails {...props} asset={currentUser.asset}/>
           <CompanyDetails  {...props} />
+          <AssetDetails {...props} assets={currentUser.assets}/>
         </View>
       ) : (
         <ErrorPage onRetry={fetchUser} />

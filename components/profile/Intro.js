@@ -110,12 +110,15 @@ export default function Intro({user,edit,token,fetchUser}) {
         </TouchableOpacity>
       </View>
 
-      <View style={{ marginLeft: 15, marginTop: 5, overflow: 'hidden' }}>
-        <Text style={{ fontWeight: 'bold', fontSize: 20 }}>Profile</Text>
+      <View style={{ marginLeft: 15, marginTop: 5,width:"50%" }}>
+        <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
+        <Text style={{ fontWeight: 'bold', fontSize: 20  }}>Profile</Text>
+        <Text style={[styles.badge,{backgroundColor:user.status=="ACTIVE"?"green":"gray"}]}>{user.status||"IDLE"}</Text>
+        </View>
         <Text style={{ fontSize: 15, color: 'green', fontWeight: '600', marginTop: 5 }}>{user.name}</Text>
         <Text style={{ fontSize: 12, marginTop: 5 }}>{user.email}</Text>
-        <Text style={{ fontSize: 12, marginTop: 5 }}>{user.phase}  {user.batch}</Text>
-        <Text style={{ fontSize: 12, marginTop: 5 }}>{user.designation}</Text>
+        <Text style={{ fontSize: 12, marginTop: 5 }}>{user.batch || "Batch N/A"} {user.phase || "Phase N/A"}</Text>
+        <Text style={{ fontSize: 12, marginTop: 5 }}>{user.designation||"Designation N/A"}</Text>
       </View>
 
       <Modal
@@ -176,6 +179,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 3,
     elevation: 5,
+  },
+  badge:{ 
+    fontWeight: 'bold',
+    fontSize: 10, 
+    color:'white',
+    borderRadius:10,
+    padding:5
   },
   modal: {
     flex: 1,

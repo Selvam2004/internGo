@@ -14,22 +14,20 @@ import { axiosInstance } from '../../utils/axiosInstance';
 
 const DEFAULT = "N/A";
 
-export default function EducationalDetails({ user, edit, fetchUser, token }) {
+export default function AddressDetails({ user, edit, fetchUser, token }) {
   const [isModalVisible, setModalVisible] = useState(false); 
   const role = useSelector((state) => state.auth.data?.data.role);
 
   const [fields, setFields] = useState({ 
-    degree: user.education?.degree || DEFAULT,
-    college: user.education?.college || DEFAULT, 
-    batch: user.education?.batch || DEFAULT, 
+    currentAddress: user.currentAddress || DEFAULT,
+    permanentAddress: user.permanentAddress || DEFAULT,  
   });
 
   useEffect(() => {
     if (user) {
       setFields({ 
-        degree: user.education?.degree || DEFAULT,
-        college: user.education?.college || DEFAULT,
-        batch: user.education?.batch || DEFAULT,
+        currentAddress: user.currentAddress || DEFAULT,
+        permanentAddress: user.permanentAddress || DEFAULT,  
       });
     }
   }, [user]);
@@ -39,30 +37,22 @@ export default function EducationalDetails({ user, edit, fetchUser, token }) {
   };
 
   const handleSave = () => { 
-    let update = {}; 
-     
-    if(fields.degree !== DEFAULT && fields.degree !== user.education?.degree) {
-      update.degree =  fields.degree ;
-    }
+    let update = {};
+    Object.keys(fields).forEach((key) => {
+      if (fields[key] !== DEFAULT && fields[key] !== user[key]) {
+        update[key] = fields[key];
+      }
+    });
 
-    if(fields.college !== DEFAULT && fields.college !== user.education?.college) {
-      update.college =  fields.college ;
-    }
-
-    if(fields.batch !== DEFAULT && fields.batch !== user.education?.batch) {
-      update.batch = fields.batch ;
-    }
-
-    if(update){ 
-      handleSubmit(update);  
-    }
-
+    if (Object.keys(update).length > 0) { 
+      handleSubmit(update);
+    }    
   };
 
   const handleSubmit = async(update) => {
     try {
       const response = await axiosInstance.patch(`/api/users/update/${user.id}`, {
-        education:{...update} 
+        ...update
       }, 
       {
         headers: {
@@ -91,7 +81,7 @@ export default function EducationalDetails({ user, edit, fetchUser, token }) {
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.heading}>Education Details</Text>
+        <Text style={styles.heading}>Address Details</Text>
         <TouchableOpacity
           style={[
             styles.editButton,
@@ -105,18 +95,14 @@ export default function EducationalDetails({ user, edit, fetchUser, token }) {
       </View>
  
       <View style={styles.table}>
-        <View style={styles.row}>
-          <Text style={styles.label}>Degree</Text>
-          <Text style={styles.value}>{user.education?.degree || DEFAULT}</Text>
+        <View style={styles.row }>
+          <Text style={[styles.label,{flex:1}]}>Current Address</Text>
+          <Text style={[styles.value,{flex:1}]}>{user.currentAddress || DEFAULT}</Text>
         </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>College</Text>
-          <Text style={styles.value}>{user.education?.college || DEFAULT}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.label}>Batch</Text>
-          <Text style={styles.value}>{user.education?.batch || DEFAULT}</Text>
-        </View>
+        <View style={styles.row }>
+          <Text style={[styles.label,{flex:1}]}>Permanent Address</Text>
+          <Text style={[styles.value,{flex:1}]}>{user.permanentAddress || DEFAULT}</Text>
+        </View> 
       </View>
  
       <Modal
@@ -127,32 +113,24 @@ export default function EducationalDetails({ user, edit, fetchUser, token }) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalHeading}>Edit Education Details</Text>
+            <Text style={styles.modalHeading}>Edit Address Details</Text>
             <ScrollView>  
               <View style={styles.modalField}>
-                <Text style={styles.modalLabel}>Degree</Text>
+                <Text style={styles.modalLabel}>Current Address</Text>
                 <TextInput
                   style={styles.modalInput}
-                  value={fields.degree}
-                  onChangeText={(text) => handleChange('degree', text)}
+                  value={fields.currentAddress}
+                  onChangeText={(text) => handleChange('currentAddress', text)}
                 />
               </View> 
               <View style={styles.modalField}>
-                <Text style={styles.modalLabel}>College</Text>
+                <Text style={styles.modalLabel}>Permanent Address</Text>
                 <TextInput
                   style={styles.modalInput}
-                  value={fields.college}
-                  onChangeText={(text) => handleChange('college', text)}
+                  value={fields.permanentAddress}
+                  onChangeText={(text) => handleChange('permanentAddress', text)}
                 />
-              </View> 
-              <View style={styles.modalField}>
-                <Text style={styles.modalLabel}>Batch</Text>
-                <TextInput
-                  style={styles.modalInput}
-                  value={fields.batch}
-                  onChangeText={(text) => handleChange('batch', text)}
-                />
-              </View>
+              </View>  
             </ScrollView>
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
               <Text style={styles.saveButtonText}>Save</Text>
@@ -222,6 +200,7 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 16,
     color: '#333',
+    textAlign:'right'
   },
   modalOverlay: {
     flex: 1,

@@ -11,7 +11,7 @@ const  ProgressBar = ({ progress }) => {
         <View
           style={[
             styles.progressBar,
-            { width: progressPercentage, backgroundColor:progress>=90?'green': progress >= 70 ? 'blue' : progress>=40?'#FFC107':'red' },
+            { width: progressPercentage, backgroundColor:progress>=90?'green': progress >= 60 ? 'blue' : progress>=40?'#FFC107':'red' },
           ]}
         />
       </View>

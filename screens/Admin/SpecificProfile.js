@@ -5,17 +5,18 @@ import PersonalDetails from '../../components/profile/PersonalDetails'
 import CompanyDetails from '../../components/profile/CompanyDetails'
 import { useSelector } from 'react-redux'
 import { axiosInstance } from '../../utils/axiosInstance'
-import ErrorPage from './Error'
+import ErrorPage from '../User/Error'
 import ProgressBarCard from '../../components/profile/ProgressBar'
-import EducationalDetails from '../../components/profile/EducationalDetails'
-import AssetDetails from '../../components/profile/AssetDetails'
-import BankDetails from '../../components/profile/BankDetails'
 import AddressDetails from '../../components/profile/AddressDetails'
+import EducationalDetails from '../../components/profile/EducationalDetails'
+import BankDetails from '../../components/profile/BankDetails'
+import AssetDetails from '../../components/profile/AssetDetails'
 
 
-export default function Profile() {
-  const {userId,email,token} = useSelector((state)=> state.auth.data?.data);   
-  const [currentUser,setCurrentUser] = useState(''); 
+export default function SpecificProfile({route}) {
+  const {userId} = route.params; 
+  const {userId:id,token} = useSelector((state)=> state.auth.data?.data);   
+  const [currentUser,setCurrentUser] = useState('');
   const [error,setError] = useState(false); 
   const [loading,setLoading] = useState(false); 
 
@@ -32,7 +33,8 @@ export default function Profile() {
         }
       ); 
        if(response.data.data){
-        setCurrentUser(response.data.data); 
+        setCurrentUser(response.data.data);
+        console.log(currentUser.email,email);
        }
     }
     catch(error){
@@ -48,15 +50,12 @@ export default function Profile() {
   useEffect(()=>{
     fetchUser();
   },[])
-  useEffect(()=>{
-    setProps({...props,user:currentUser,edit:userId===currentUser.id});
-  },[currentUser]);
-  const [props,setProps] = useState({
+  const props = {
     user: currentUser ,
     token: token,
     fetchUser: fetchUser , 
-    edit: userId === currentUser.userId,
-  });
+    edit: false,
+  };
   return (
     <ScrollView style={styles.container}>
       {error === false ? (

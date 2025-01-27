@@ -12,27 +12,31 @@ import { Picker } from '@react-native-picker/picker';
 import { useSelector } from 'react-redux';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { axiosInstance } from '../../utils/axiosInstance';
+import { TextInput } from 'react-native-gesture-handler';
 
 const DEFAULT = "N/A";
 
 export default function EmployeeDetails({ user, fetchUser , token }) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [isDatePickerVisible, setDatePickerVisible] = useState(false); 
-  const role = useSelector((state) => state.auth.data?.data.role);
-
+  const role = useSelector((state) => state.auth.data?.data.role); 
+  
   const [fields, setFields] = useState({
     designation: user.designation || DEFAULT,
-    department: user.department || DEFAULT,
     status: user.status || DEFAULT,
+    employeeId: user.employeeId || DEFAULT,
+    certificates_submission_status: user.certificates_submission_status || DEFAULT,
     dateOfJoining: user.dateOfJoining?.split('T')[0] || DEFAULT,
     batch: user.batch || DEFAULT,
     phase: user.phase || DEFAULT,
   });
+  
   useEffect(()=>{
     if(user){
       setFields({
         designation: user.designation || DEFAULT,
         certificates_submission_status: user.certificates_submission_status || DEFAULT,
+        employeeId: user.employeeId || DEFAULT,
         status: user.status || DEFAULT,
         dateOfJoining: user.dateOfJoining?.split('T')[0] || DEFAULT,
         batch: user.batch || DEFAULT,
@@ -128,7 +132,7 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
 
         <View style={styles.row}>
           <Text style={styles.label}>Employee Id</Text>
-          <Text style={styles.value}>{user.id || DEFAULT}</Text>
+          <Text style={styles.value}>{user.employeeId || DEFAULT}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Status</Text>
@@ -138,18 +142,21 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
           <Text style={styles.label}>Date of Joining</Text>
           <Text style={styles.value}>{user.dateOfJoining?.split('T')[0] || DEFAULT}</Text>
         </View>
-        <View style={styles.row}>
+        {role!="Admins"&&<View style={styles.row}>
           <Text style={styles.label}>Batch</Text>
           <Text style={styles.value}>{user.batch || DEFAULT}</Text>
         </View>
-        <View style={styles.row}>
+        }
+        {role!="Admins"&&<View style={styles.row}>
           <Text style={styles.label}>Phase</Text>
           <Text style={styles.value}>{user.phase || DEFAULT}</Text>
         </View>
-        <View style={styles.row}>
+        }
+        {role!="Admins"&&<View style={styles.row}>
           <Text style={styles.label}>Certificate Submission</Text>
-          <Text style={styles.value}>{user.certificates_submission_status || DEFAULT}</Text>
+          <Text style={styles.value}>{user.certificates_submission_status?"YES":"NO" || DEFAULT}</Text>
         </View>
+        }
       </View>
 
       <Modal
@@ -176,7 +183,12 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
                 </Picker>
                 </View>
               </View>
-
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Employee ID</Text>
+                <View style={styles.picker}> 
+                  <TextInput value={fields.employeeId} onChangeText={(text)=>handleChange('employeeId',text)}/>
+                 </View>
+              </View>
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Status</Text>
                 <View style={styles.picker}>
@@ -203,7 +215,7 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
                 </TouchableOpacity>
               </View>
 
-              <View style={styles.modalField}>
+              {role!="Admins"&& <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Batch</Text>
                 <View style={styles.picker}>
                 <Picker
@@ -217,7 +229,8 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
                 </Picker>
                 </View>
               </View>
-              <View style={styles.modalField}>
+                }
+              {role!="Admins"&&<View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Phase</Text>
                 <View style={styles.picker}>
                 <Picker
@@ -231,21 +244,21 @@ export default function EmployeeDetails({ user, fetchUser , token }) {
                 </Picker>
                 </View>
               </View>
-              
-              {/* <View style={styles.modalField}>
+                }              
+              {role!="Admins"&&<View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Certificate Submission Status</Text>
                 <View style={styles.picker}>
                 <Picker
-                  selectedValue={fields.department}
+                  selectedValue={fields.certificates_submission_status}
                   onValueChange={(value) => handleChange('certificates_submission_status', value)}
                 >
                   <Picker.Item label="Select Status" />
-                  <Picker.Item label="Yes" value="true"/>
-                  <Picker.Item label="No" value="False" /> 
+                  <Picker.Item label="Yes" value={true}/>
+                  <Picker.Item label="No" value={false} /> 
                 </Picker>
                 </View>
-              </View> */}
-
+              </View>
+                }
             </ScrollView>
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
               <Text style={styles.saveButtonText}>Save</Text>

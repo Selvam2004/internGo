@@ -29,9 +29,10 @@ import Home from '../User/Home';
 
 export default function DashBoard() {
   const dispatch = useDispatch();
-  const data = useSelector(state=>state.auth.data?.data?.permissions); 
-
-  const permission = data || null;
+  const datas = useSelector(state=>state.auth.data?.data?.permissions); 
+  const id = useSelector(state=>state.auth.data?.data?.userId); 
+  console.log(id);
+  const permission = datas || null;
   const handleLogOut = ()=>{
     dispatch(logout());
   }
@@ -51,7 +52,8 @@ export default function DashBoard() {
       permission: 'profile.update',
       component: Profile,
       icon:EP,
-      label:'user'
+      label:'user',
+      data:id 
     },
     {
       name: 'Daily Update',

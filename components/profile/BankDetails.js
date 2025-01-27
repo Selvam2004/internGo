@@ -14,22 +14,25 @@ import { axiosInstance } from '../../utils/axiosInstance';
 
 const DEFAULT = "N/A";
 
-export default function EducationalDetails({ user, edit, fetchUser, token }) {
+export default function BankDetails({ user, edit, fetchUser, token }) {
   const [isModalVisible, setModalVisible] = useState(false); 
+  const [error,setError] = useState("");
   const role = useSelector((state) => state.auth.data?.data.role);
 
   const [fields, setFields] = useState({ 
-    degree: user.education?.degree || DEFAULT,
-    college: user.education?.college || DEFAULT, 
-    batch: user.education?.batch || DEFAULT, 
+    accountNumber: user.bankDetails?.accountNumber || DEFAULT,
+    branch: user.bankDetails?.branch || DEFAULT, 
+    IFSC: user.bankDetails?.IFSC || DEFAULT, 
+    bankName: user.bankDetails?.bankName || DEFAULT, 
   });
 
   useEffect(() => {
     if (user) {
       setFields({ 
-        degree: user.education?.degree || DEFAULT,
-        college: user.education?.college || DEFAULT,
-        batch: user.education?.batch || DEFAULT,
+        accountNumber: user.bankDetails?.accountNumber || DEFAULT,
+        branch: user.bankDetails?.branch || DEFAULT, 
+        IFSC: user.bankDetails?.IFSC || DEFAULT, 
+        bankName: user.bankDetails?.bankName || DEFAULT, 
       });
     }
   }, [user]);
@@ -39,22 +42,19 @@ export default function EducationalDetails({ user, edit, fetchUser, token }) {
   };
 
   const handleSave = () => { 
-    let update = {}; 
-     
-    if(fields.degree !== DEFAULT && fields.degree !== user.education?.degree) {
-      update.degree =  fields.degree ;
-    }
+    let update = {};
+    setError("");
+    Object.keys(fields).forEach((key) => {
+      if (fields[key] !== DEFAULT ) {
+        update[key] = fields[key];
+      }
+    });
 
-    if(fields.college !== DEFAULT && fields.college !== user.education?.college) {
-      update.college =  fields.college ;
-    }
-
-    if(fields.batch !== DEFAULT && fields.batch !== user.education?.batch) {
-      update.batch = fields.batch ;
-    }
-
-    if(update){ 
-      handleSubmit(update);  
+    if (Object.keys(update).length <4) { 
+      setError("*Please fill all details")
+    } 
+    else{
+        handleSubmit(update);
     }
 
   };
@@ -62,7 +62,7 @@ export default function EducationalDetails({ user, edit, fetchUser, token }) {
   const handleSubmit = async(update) => {
     try {
       const response = await axiosInstance.patch(`/api/users/update/${user.id}`, {
-        education:{...update} 
+        bankDetails:{...update} 
       }, 
       {
         headers: {
@@ -91,7 +91,7 @@ export default function EducationalDetails({ user, edit, fetchUser, token }) {
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.heading}>Education Details</Text>
+        <Text style={styles.heading}>Bank Details</Text>
         <TouchableOpacity
           style={[
             styles.editButton,
@@ -106,16 +106,20 @@ export default function EducationalDetails({ user, edit, fetchUser, token }) {
  
       <View style={styles.table}>
         <View style={styles.row}>
-          <Text style={styles.label}>Degree</Text>
-          <Text style={styles.value}>{user.education?.degree || DEFAULT}</Text>
+          <Text style={styles.label}>Bank name</Text>
+          <Text style={styles.value}>{user.bankDetails?.bankName || DEFAULT}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>College</Text>
-          <Text style={styles.value}>{user.education?.college || DEFAULT}</Text>
+          <Text style={styles.label}>Account Number</Text>
+          <Text style={styles.value}>{user.bankDetails?.accountNumber || DEFAULT}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>Batch</Text>
-          <Text style={styles.value}>{user.education?.batch || DEFAULT}</Text>
+          <Text style={styles.label}>IFSC</Text>
+          <Text style={styles.value}>{user.bankDetails?.IFSC || DEFAULT}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Branch</Text>
+          <Text style={styles.value}>{user.bankDetails?.branch || DEFAULT}</Text>
         </View>
       </View>
  
@@ -127,30 +131,40 @@ export default function EducationalDetails({ user, edit, fetchUser, token }) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalHeading}>Edit Education Details</Text>
+            <Text style={styles.modalHeading}>Edit Bank Details</Text>
+            <Text style={{color:"red"}}>{error}</Text>
             <ScrollView>  
               <View style={styles.modalField}>
-                <Text style={styles.modalLabel}>Degree</Text>
+                <Text style={styles.modalLabel}>Bank Name</Text>
                 <TextInput
                   style={styles.modalInput}
-                  value={fields.degree}
-                  onChangeText={(text) => handleChange('degree', text)}
+                  value={fields.bankName}
+                  onChangeText={(text) => handleChange('bankName', text)}
                 />
               </View> 
               <View style={styles.modalField}>
-                <Text style={styles.modalLabel}>College</Text>
+                <Text style={styles.modalLabel}>Account Number</Text>
                 <TextInput
                   style={styles.modalInput}
-                  value={fields.college}
-                  onChangeText={(text) => handleChange('college', text)}
+                  value={fields.accountNumber}
+                  keyboardType='phone-pad'
+                  onChangeText={(text) => handleChange('accountNumber', text)}
                 />
               </View> 
               <View style={styles.modalField}>
-                <Text style={styles.modalLabel}>Batch</Text>
+                <Text style={styles.modalLabel}>IFSC</Text>
                 <TextInput
                   style={styles.modalInput}
-                  value={fields.batch}
-                  onChangeText={(text) => handleChange('batch', text)}
+                  value={fields.IFSC}
+                  onChangeText={(text) => handleChange('IFSC', text)}
+                />
+              </View>
+              <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Branch</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={fields.branch}
+                  onChangeText={(text) => handleChange('branch', text)}
                 />
               </View>
             </ScrollView>

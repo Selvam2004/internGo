@@ -22,7 +22,8 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
   const [isDatePickerVisible, setDatePickerVisible] = useState(false); 
   const [error,setError] = useState(); 
   const role = useSelector((state) => state.auth.data?.data.role);
-
+  const maxDate = new Date();
+  maxDate.setFullYear(maxDate.getFullYear() - 15);
  
   const [fields, setFields] = useState({ 
     dob: user.dateOfBirth?.split('T')[0] || DEFAULT,
@@ -43,6 +44,8 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
   const handleEdit = () => {
     setModalVisible(true);
   };
+
+  
 
   const handleSave = () => {
     let err = "";
@@ -92,8 +95,7 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
       console.log(err.response.data);
     }
     finally{ 
-      setModalVisible(false); 
-      fetch();
+      setModalVisible(false);  
     }
   }
 
@@ -237,9 +239,10 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
  
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
-        mode="date"
+        mode="date" 
         onConfirm={handleDateConfirm}
         onCancel={hideDatePicker}
+        maximumDate={maxDate}
       /> 
     </View>
   );

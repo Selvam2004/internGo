@@ -1,28 +1,33 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
-import Photo from '../../assets/photo.png';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native'; 
+import { useNavigation } from '@react-navigation/native';
+import FA from 'react-native-vector-icons/EvilIcons';
 
-const ProfileCard = () => { 
-  const profileData = {
-    name: "selvam",
-    email: "selvam@finest.com",
-    designation: "Front-end developer",
-    contact: "9876054321",
-    batch: "Batch 1", 
-    phase:"Phase 1"
-  };
 
+const ProfileCard = ({user}) => {  
+  const navigation = useNavigation();
+  const handleNavigate = ()=>{
+    navigation.navigate('User Profile',{
+      userId:user.id
+    })
+  }
   return (
+    <TouchableOpacity onPress={handleNavigate}>
     <View style={styles.card}>
-      <Image source={Photo} style={styles.profileImage} />
-      <View style={styles.detailsContainer}>
-        <Text style={styles.name}>{profileData.name}</Text>
-        <Text style={styles.detailText}>{profileData.email}</Text>
-        <Text style={styles.detailText}>{profileData.designation}</Text>
-        <Text style={styles.detailText}>{profileData.contact}</Text>
-        <Text style={styles.detailText}>{profileData.batch} {profileData.phase}</Text>
+      {user.profilePhoto?<Image source={{uri:user.profilePhoto}} style={styles.profileImage} />:
+      <FA name='user' size={100} style={styles.profileImage} />}
+      <View style={[styles.detailsContainer,{width:"60%"}]}>
+        <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
+        <Text style={styles.name}>{user.name}</Text>
+        <Text style={[styles.badge,{backgroundColor:user.status=="ACTIVE"?"green":"gray"}]}>{user.status||"IDLE"}</Text>
+        </View>
+        <Text style={styles.detailText}>{user.email}</Text>
+        <Text style={styles.detailText}>{user.designation||"Designation N/A"}</Text>
+        <Text style={styles.detailText}>{user.contact||"Contact N/A"}</Text>
+        <Text style={styles.detailText}>{user.batch || "Batch N/A"} {user.phase || "Phase N/A"}</Text>
       </View>
     </View>
+    </TouchableOpacity>
   );
 };
 
@@ -40,11 +45,22 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     margin: 5,
   },
+  header:{
+    flexDirection:'row',
+    justifyContent:'space-between'
+  },
   profileImage: {
     width: 100,
     height: 100,
     borderRadius: 50,  
     marginRight: 20,
+  },
+  badge:{ 
+    fontWeight: 'bold',
+    fontSize: 10, 
+    color:'white',
+    borderRadius:10,
+    padding:5
   },
   detailsContainer: {
     justifyContent: 'center',

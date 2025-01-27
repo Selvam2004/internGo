@@ -1,46 +1,170 @@
-import { View, Text, TextInput, StyleSheet, Modal, TouchableOpacity, ScrollView } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, Modal, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
 import ProfileCard from '../../components/resources/ProfileCard';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
-
+import ErrorPage from '../User/Error';
+import { axiosInstance } from '../../utils/axiosInstance';
+import { current } from '@reduxjs/toolkit';
+import { useSelector } from 'react-redux'; 
 export default function Resources() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [filters, setFilters] = useState({
-    year: '',
+  const {token} = useSelector((state)=> state.auth.data?.data);   
+  const [error,setError] = useState(false); 
+  const [loading,setLoading] = useState(false); 
+  const [search,setSearch] = useState(""); 
+  const [user,setUser] = useState([]); 
+  const [filter, setfilter] = useState({
+    year: [],
     batch: [],
     designation: [],
+    status:[],
     selectedFilter: 'Year', 
   });
-
+  const [page,setPage] = useState({
+    total:0,
+    current:1,
+    limit:5, 
+  })
   const years = ['2023', '2024', '2025'];
   const batches = ['Batch 1', 'Batch 2', 'Batch 3'];
   const designations = ['Front-end', 'Back-end', 'Testing'];
+  const status = ["ACTIVE","NOT_ACTIVE","EXAMINATION","SHADOWING","DEPLOYED"];
 
-  const itemsPerPage = 5;  
-  const [currentPage, setCurrentPage] = useState(1);
-  const profileData=[1,2,3,3,4,4,5,5,3,4,3]
-  const totalPages = Math.ceil(profileData.length / itemsPerPage);
+  useEffect(()=>{
+    fetchResource();
+  },[page.current])
   
-  const currentItems = profileData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const handleSearch = (text)=>{
+    setSearch(text);
+    handleDebounce(text)
+  }
+  const debounce = (func, delay)=>{
+    let timeoutId;
+    return function (...args) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  }
+  const handleDebounce = useCallback(
+    debounce((text) => {
+      handleSearchSubmit(text); 
+    }, 1500), 
+    []  
+  );
 
+  const handleSearchSubmit = async(text)=>{
+    try{
+      setLoading(true);
+      setModalVisible(false);
+      if(!text){
+        fetchResource();
+      }
+      else{ 
+        const response = await axiosInstance.post(
+          '/api/users/search', 
+          {   
+              name:text   
+          },
+          { 
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
+        
+        if(response){
+          console.log(response.data.data); 
+          setUser(response.data.data);
+        } 
+      }
+
+    }
+    catch(err){
+      console.log(err);
+      setError(err);
+    }
+    finally{
+      setLoading(false);      
+    }
+  }
+  const handleNext = ()=>{
+    if (page.current <page.total) {
+    setPage({...page,current:page.current+1});
+    }
+ 
+  }
+const handlePrev = () => {
+  if (page.current > 1) {
+    setPage({ ...page, current: page.current - 1 });
+  }
+};
+
+ 
   const toggleSelection = (item) => {
-    const { selectedFilter } = filters;
+    const { selectedFilter } = filter;
     let selectedArray;
 
     if (selectedFilter === 'Year') {
-       setFilters({ ...filters, year: item });
+      selectedArray = filter.year.includes(item) ? filter.year.filter(i => i !== item) : [...filter.year, item];
+       setfilter({ ...filter, year: selectedArray });
     } else if (selectedFilter === 'Batch') {
-      selectedArray = filters.batch.includes(item) ? filters.batch.filter(i => i !== item) : [...filters.batch, item];
-      setFilters({ ...filters, batch: selectedArray });
+      selectedArray = filter.batch.includes(item) ? filter.batch.filter(i => i !== item) : [...filter.batch, item];
+      setfilter({ ...filter, batch: selectedArray });
     } else if (selectedFilter === 'Designation') {
-      selectedArray = filters.designation.includes(item) ? filters.designation.filter(i => i !== item) : [...filters.designation, item];
-      setFilters({ ...filters, designation: selectedArray });
+      selectedArray = filter.designation.includes(item) ? filter.designation.filter(i => i !== item) : [...filter.designation, item];
+      setfilter({ ...filter, designation: selectedArray });
+    }
+    else if (selectedFilter === 'Status') {
+      selectedArray = filter.status.includes(item) ? filter.status.filter(i => i !== item) : [...filter.status, item];
+      setfilter({ ...filter, status: selectedArray });
     }
   };
-
+  const fetchResource = async()=>{
+    try{
+      setLoading(true);
+      setModalVisible(false);
+      const response = await axiosInstance.post(
+        '/api/users', 
+        {   
+            year: filter.year,
+            batch: filter.batch,
+            designation: filter.designation,
+            status:filter.status     
+        },
+        {
+          params: {
+            limit: page.limit,
+            offset: (page.limit*(page.current-1))
+          },
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+      
+      if(response){
+        console.log(response.data.data); 
+        const dt = response.data.data;
+        setUser(dt.data);
+        setPage({...page,total:dt.total_pages});
+        console.log(page);
+      }
+    }
+    catch(err){
+      console.log(err);
+      setError(err);
+    }
+    finally{
+      setLoading(false);      
+    }
+  }
   return (
     <ScrollView>
-      <View><Text style={styles.header}>Resources</Text></View>
+
+      {error?<ErrorPage onRetry={fetchResource}/>:
+      <View><Text style={styles.header}>Resources</Text>
       <View style={styles.container}> 
         <View style={styles.searchContainer}>
           <Icon name="search" size={24} color="#888" style={styles.searchIcon} />
@@ -48,39 +172,41 @@ export default function Resources() {
             style={styles.searchInput}
             placeholder="Search..."
             placeholderTextColor="#888"
+            onChangeText={handleSearch} 
           />
         </View>
  
         <TouchableOpacity style={styles.filterBadge} onPress={() => setModalVisible(true)}>
-          <Text style={styles.filterBadgeText}>Filters</Text>
+          <Text style={styles.filterBadgeText}>filter</Text>
         </TouchableOpacity>
 
         <View style={styles.profileCardContainer}>
-        {currentItems.map((item,id) => (
-            <ProfileCard key={id} />
-          ))}
+        {user?user.map((profile,id) => (
+            <ProfileCard user={profile} key={id} />
+          )):<View><Text style={{textAlign:'center'}}>No records to display</Text></View>}
         </View>
 
-        {totalPages>0&&<View style={styles.paginationContainer}>
+        {page.total>0&&<View style={styles.paginationContainer}>
           <TouchableOpacity 
             style={styles.paginationButton} 
-            onPress={() => setCurrentPage(prev =>(prev-1))}
-            disabled={currentPage === 1}
+            onPress={handlePrev}
+            disabled={page.current === 1}
           >
             <Text style={styles.paginationText}>Previous</Text>
           </TouchableOpacity>
-          <Text style={{color:'black'}}>{currentPage} / {totalPages}</Text>
+          <Text style={{color:'black'}}>{page.current} / {page.total}</Text>
           <TouchableOpacity 
             style={styles.paginationButton} 
-            onPress={() => setCurrentPage(prev => (prev+1))}
-            disabled={currentPage === totalPages}
+            onPress={handleNext}
+            disabled={page.current === page.total}
           >
             <Text style={styles.paginationText}>Next</Text>
           </TouchableOpacity>
         </View>}
 
       </View>
- 
+      </View>}
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -92,28 +218,32 @@ export default function Resources() {
           <View style={styles.modalContent}>
           
             <View style={styles.sidebar}>
-              <View><Text style={styles.filterHeader}>Filters</Text></View>
-              <TouchableOpacity onPress={() => setFilters({ ...filters, selectedFilter: 'Year' })} style={styles.tab}>
-                <Text style={filters.selectedFilter === 'Year' ? styles.activeTabText : styles.tabText}>Year</Text>
+              <View><Text style={styles.filterHeader}>filter</Text></View>
+              <TouchableOpacity onPress={() => setfilter({ ...filter, selectedFilter: 'Year' })} style={styles.tab}>
+                <Text style={filter.selectedFilter === 'Year' ? styles.activeTabText : styles.tabText}>Year</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setFilters({ ...filters, selectedFilter: 'Batch' })} style={styles.tab}>
-                <Text style={filters.selectedFilter === 'Batch' ? styles.activeTabText : styles.tabText}>Batch</Text>
+              <TouchableOpacity onPress={() => setfilter({ ...filter, selectedFilter: 'Batch' })} style={styles.tab}>
+                <Text style={filter.selectedFilter === 'Batch' ? styles.activeTabText : styles.tabText}>Batch</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setFilters({ ...filters, selectedFilter: 'Designation' })} style={styles.tab}>
-                <Text style={filters.selectedFilter === 'Designation' ? styles.activeTabText : styles.tabText}>Designation</Text>
+              <TouchableOpacity onPress={() => setfilter({ ...filter, selectedFilter: 'Designation' })} style={styles.tab}>
+                <Text style={filter.selectedFilter === 'Designation' ? styles.activeTabText : styles.tabText}>Designation</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setfilter({ ...filter, selectedFilter: 'Status' })} style={styles.tab}>
+                <Text style={filter.selectedFilter === 'Status' ? styles.activeTabText : styles.tabText}>Status</Text>
               </TouchableOpacity>
             </View>
  
             <View style={styles.content}>
-              <Text style={styles.modalHeader}>Select {filters.selectedFilter}</Text>
-              <ScrollView  showsHorizontalScrollIndicator={false} style={styles.badgeContainer} contentContainerStyle={{alignItems:'flex-start'}}>
-                {(filters.selectedFilter === 'Year' ? years : filters.selectedFilter === 'Batch' ? batches : designations).map(item => (
+              <Text style={styles.modalHeader}>Select {filter.selectedFilter}</Text>
+              <ScrollView  style={styles.badgeContainer} contentContainerStyle={{alignItems:'flex-start'}}>
+                {(filter.selectedFilter === 'Year' ? years : filter.selectedFilter === 'Batch' ? batches : filter.selectedFilter === 'Status' ? status :designations).map(item => (
                   <TouchableOpacity
                     key={item}
                     style={[styles.badge, 
-                      (filters.selectedFilter === 'Year' && filters.year===item) || 
-                      (filters.selectedFilter === 'Batch' && filters.batch.includes(item)) || 
-                      (filters.selectedFilter === 'Designation' && filters.designation.includes(item)) 
+                      (filter.selectedFilter === 'Year' && filter.year.includes(item)) || 
+                      (filter.selectedFilter === 'Batch' && filter.batch.includes(item)) || 
+                      (filter.selectedFilter === 'Designation' && filter.designation.includes(item)) ||
+                      (filter.selectedFilter === 'Status' && filter.status.includes(item)) 
                       ? styles.selectedBadge : null]}
                     onPress={() => toggleSelection(item)}
                   >
@@ -122,9 +252,7 @@ export default function Resources() {
                 ))}
               </ScrollView>
 
-              <TouchableOpacity style={styles.applyButton} onPress={() => { 
-                setModalVisible(false);
-              }}>
+              <TouchableOpacity style={styles.applyButton} onPress={ fetchResource }>
                 <Text style={styles.applyButtonText}>Apply</Text>
               </TouchableOpacity>
 
@@ -135,6 +263,12 @@ export default function Resources() {
           </View>
         </View>
       </Modal>
+      {loading && (
+                <View style={styles.loadingContainer}> 
+                    <ActivityIndicator size="large" color="#0000ff" />
+                    <Text style={styles.loadingText}>loading...</Text>
+                </View>
+      )}
     </ScrollView>
   );
 }
@@ -291,4 +425,21 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  loadingContainer: {
+    position: 'absolute',
+    flexDirection:'row',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+    zIndex: 1,  
+},
+loadingText: { 
+    padding:5,
+    fontSize: 16,
+    color: '#000',  
+}
 });

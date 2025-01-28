@@ -64,8 +64,8 @@ export default function SpecificProfile({route}) {
           <PersonalDetails  {...props}/>
           <AddressDetails {...props}/>
           <EducationalDetails {...props}/>
-          <BankDetails {...props}/>
           <CompanyDetails  {...props} />
+          <BankDetails {...props}/>
           <AssetDetails {...props} asset={currentUser.asset}/>          
         </View>
       ) : (

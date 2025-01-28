@@ -81,7 +81,7 @@ export default function AddressDetails({ user, edit, fetchUser, token }) {
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={styles.heading}>Address Details</Text>
+        <Text style={styles.heading}>Address</Text>
         <TouchableOpacity
           style={[
             styles.editButton,

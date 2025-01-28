@@ -1,6 +1,5 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, Modal, TouchableWithoutFeedback, Alert } from 'react-native';
-import React, { use, useEffect, useState } from 'react';
-import Photo from '../../assets/photo.png';
+import React, { use, useEffect, useState } from 'react'; 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import FileIcon from 'react-native-vector-icons/AntDesign';  
 import CameraIcon from 'react-native-vector-icons/FontAwesome';   
@@ -115,8 +114,8 @@ export default function Intro({user,edit,token,fetchUser}) {
         <Text style={{ fontWeight: 'bold', fontSize: 20  }}>Profile</Text>
         <Text style={[styles.badge,{backgroundColor:user.status=="ACTIVE"?"green":"gray"}]}>{user.status||"IDLE"}</Text>
         </View>
-        <Text style={{ fontSize: 15, color: 'green', fontWeight: '600', marginTop: 5 }}>{user.name}</Text>
-        <Text style={{ fontSize: 12, marginTop: 5 }}>{user.email}</Text>
+        <Text style={{ fontSize: 15, color: 'green', fontWeight: '600', marginTop: 5 }}>{user.name||"Name"}</Text>
+        <Text style={{ fontSize: 12, marginTop: 5 }}>{user.email||"example@gmail.com"}</Text>
         <Text style={{ fontSize: 12, marginTop: 5 }}>{user.batch || "Batch N/A"} {user.phase || "Phase N/A"}</Text>
         <Text style={{ fontSize: 12, marginTop: 5 }}>{user.designation||"Designation N/A"}</Text>
       </View>

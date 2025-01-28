@@ -11,6 +11,7 @@ import EducationalDetails from '../../components/profile/EducationalDetails'
 import AssetDetails from '../../components/profile/AssetDetails'
 import BankDetails from '../../components/profile/BankDetails'
 import AddressDetails from '../../components/profile/AddressDetails'
+import Skillsets from '../../components/profile/Skillsets'
 
 
 export default function Profile() {
@@ -31,6 +32,7 @@ export default function Profile() {
           },
         }
       ); 
+      console.log(response.data);
        if(response.data.data){
         setCurrentUser(response.data.data);  
         console.log(response.data.data);  
@@ -60,26 +62,27 @@ export default function Profile() {
   });
   return (
     <ScrollView style={styles.container}>
-      {error === false ? (
-        <View>
-          <Intro  {...props}/>
-          <ProgressBarCard progress={currentUser.profilePercentage}/>
-          <PersonalDetails  {...props}/>
-          <AddressDetails {...props}/>
-          <EducationalDetails {...props}/>
-          <BankDetails {...props}/>
-          <CompanyDetails  {...props} />
-          <AssetDetails {...props} assets={currentUser.assets}/>
-        </View>
-      ) : (
-        <ErrorPage onRetry={fetchUser} />
-      )}
-            {loading && (
+      {error === false ?
+       loading ?(
                 <View style={styles.loadingContainer}> 
                     <ActivityIndicator size="large" color="#0000ff" />
                     <Text style={styles.loadingText}>loading...</Text>
                 </View>
-      )}
+             ):
+      ( <View>
+          <Intro  {...props}/>
+          <ProgressBarCard progress={currentUser.profilePercentage}/>
+          <Skillsets {...props}/>
+          <PersonalDetails  {...props}/>
+          <AddressDetails {...props}/>
+          <EducationalDetails {...props}/>
+          <CompanyDetails  {...props} />
+          <BankDetails {...props}/>
+          <AssetDetails {...props} assets={currentUser.assets}/>
+        </View>
+      ) : (
+        <ErrorPage onRetry={fetchUser} />
+      )} 
     </ScrollView>
   )
 }
@@ -92,13 +95,10 @@ const styles = StyleSheet.create({
   loadingContainer: {
     position: 'absolute',
     flexDirection:'row',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    top: 300,
+    left:120,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+    alignItems: 'center', 
     zIndex: 1,  
 },
 loadingText: { 

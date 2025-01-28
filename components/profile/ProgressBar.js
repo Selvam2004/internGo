@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 const  ProgressBar = ({ progress }) => {
-  const progressPercentage = `${progress}%`;
+  const progressPercentage = `${progress??0}%`;
 
   return (
     <View style={styles.container}>

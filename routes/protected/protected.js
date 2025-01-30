@@ -8,12 +8,14 @@ import { useSelector } from 'react-redux';
 import NoPermission from '../../screens/User/NoPermission';
 import Profile from '../../screens/User/Profile';
 import SpecificProfile from '../../screens/Admin/SpecificProfile';
+import PlanDetails from '../../screens/Admin/PlanDetails';
 
 const tabs = [
     {name : 'Batches',permission:'profile.update',component:Batches},
     {name : 'Users',permission:'profile.update',component:UserTable},
     {name : 'User',permission:'profile.update',component:Profile},
     {name : 'User Profile',permission:'profile.update',component:SpecificProfile},
+    {name : 'Plan Details',permission:'plans.create',component:PlanDetails},
 ]
 
 const Stack = createStackNavigator();

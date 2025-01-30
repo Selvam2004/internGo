@@ -102,7 +102,7 @@ export default function Intro({user,edit,token,fetchUser}) {
   return (
     <View style={styles.profileCnt}>
       <View style={styles.imageContainer}>
-      {imageUrl ? <Image source={{ uri: imageUrl }} style={styles.profile} />:
+      {imageUrl ? <Image source={{ uri: imageUrl }} onError={()=>setImageUrl("")} style={styles.profile} />:
         <EP name='user' size={100} style={styles.profile} />}
         <TouchableOpacity onPress={() => setIsVisible(true)}>
           <Icon name="edit" style={[styles.editIcon,{display:role=='Admins'?edit?'':'none':''}]} size={24} color="white" />

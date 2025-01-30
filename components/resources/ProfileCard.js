@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native'; 
+import { View, Text, Image, StyleSheet, TouchableOpacity, TouchableHighlight } from 'react-native'; 
 import { useNavigation } from '@react-navigation/native';
 import FA from 'react-native-vector-icons/EvilIcons';
 
@@ -12,7 +12,7 @@ const ProfileCard = ({user}) => {
     })
   }
   return (
-    <TouchableOpacity onPress={handleNavigate}>
+    <TouchableHighlight underlayColor={"lightgray"} onPress={handleNavigate}>
     <View style={styles.card}>
       {user.profilePhoto?<Image source={{uri:user.profilePhoto}} style={styles.profileImage} />:
       <FA name='user' size={100} style={styles.profileImage} />}
@@ -23,11 +23,11 @@ const ProfileCard = ({user}) => {
         </View>
         <Text style={styles.detailText}>{user.email}</Text>
         <Text style={styles.detailText}>{user.designation||"Designation N/A"}</Text>
-        <Text style={styles.detailText}>{user.contact||"Contact N/A"}</Text>
         <Text style={styles.detailText}>{user.batch || "Batch N/A"} {user.phase || "Phase N/A"}</Text>
+        <Text style={[styles.detailText,{fontWeight:'bold'}]}>Employee ID: {user.employeeId||" N/A"}</Text>
       </View>
     </View>
-    </TouchableOpacity>
+    </TouchableHighlight>
   );
 };
 

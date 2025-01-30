@@ -3,8 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import ProfileCard from '../../components/resources/ProfileCard';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
 import ErrorPage from '../User/Error';
-import { axiosInstance } from '../../utils/axiosInstance';
-import { current } from '@reduxjs/toolkit';
+import { axiosInstance } from '../../utils/axiosInstance'; 
 import { useSelector } from 'react-redux'; 
 export default function Resources() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -125,6 +124,7 @@ const handlePrev = () => {
       setfilter({ ...filter, status: selectedArray });
     }
   };
+  
   const fetchResource = async()=>{
     try{
       setLoading(true);
@@ -164,6 +164,7 @@ const handlePrev = () => {
     }
   }
   return (
+    
     <ScrollView>
 
       {error?<ErrorPage onRetry={fetchResource}/>:

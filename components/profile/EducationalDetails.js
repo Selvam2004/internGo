@@ -16,6 +16,7 @@ const DEFAULT = "N/A";
 
 export default function EducationalDetails({ user, edit, fetchUser, token }) {
   const [isModalVisible, setModalVisible] = useState(false); 
+  const [error, setError] = useState(""); 
   const role = useSelector((state) => state.auth.data?.data.role);
 
   const [fields, setFields] = useState({ 
@@ -27,36 +28,39 @@ export default function EducationalDetails({ user, edit, fetchUser, token }) {
   useEffect(() => {
     if (user) {
       setFields({ 
-        degree: user.education?.degree || DEFAULT,
-        college: user.education?.college || DEFAULT,
-        batch: user.education?.batch || DEFAULT,
+        degree: user.education?.degree || "",
+        college: user.education?.college || "",
+        batch: user.education?.batch ||  "",
       });
     }
   }, [user]);
 
   const handleEdit = () => {
     setModalVisible(true);
+    setError("");
   };
 
   const handleSave = () => { 
     let update = {}; 
      
-    if(fields.degree !== DEFAULT && fields.degree !== user.education?.degree) {
+    if(fields.degree.trim()!="") {
       update.degree =  fields.degree ;
     }
 
-    if(fields.college !== DEFAULT && fields.college !== user.education?.college) {
+    if( fields.college.trim()!="") {
       update.college =  fields.college ;
     }
 
-    if(fields.batch !== DEFAULT && fields.batch !== user.education?.batch) {
+    if(fields.batch.trim()!="") {
       update.batch = fields.batch ;
     }
 
-    if(update){ 
+    if(Object.keys(update).length<3){ 
+      setError("*Please fill all details")
+    }
+    else{
       handleSubmit(update);  
     }
-
   };
 
   const handleSubmit = async(update) => {
@@ -128,28 +132,35 @@ export default function EducationalDetails({ user, edit, fetchUser, token }) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalHeading}>Edit Education Details</Text>
+            {error&& <Text style={{color:'red'}}>{error}</Text>}
             <ScrollView>  
+            <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>College</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={fields.college}
+                  placeholder='Enter College'
+                  onChangeText={(text) => handleChange('college', text)}
+                />
+              </View> 
+              
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Degree</Text>
                 <TextInput
                   style={styles.modalInput}
                   value={fields.degree}
+                  placeholder='Enter degree'
                   onChangeText={(text) => handleChange('degree', text)}
                 />
               </View> 
-              <View style={styles.modalField}>
-                <Text style={styles.modalLabel}>College</Text>
-                <TextInput
-                  style={styles.modalInput}
-                  value={fields.college}
-                  onChangeText={(text) => handleChange('college', text)}
-                />
-              </View> 
+
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Batch</Text>
                 <TextInput
                   style={styles.modalInput}
                   value={fields.batch}
+                  placeholder='Enter batch'
+                  keyboardType='number-pad'
                   onChangeText={(text) => handleChange('batch', text)}
                 />
               </View>
@@ -207,8 +218,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: 'row', 
     alignItems: 'center',
     marginBottom: 20,
     borderBottomWidth: 1,
@@ -218,10 +228,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#555',
+    flex:1
   },
   value: {
     fontSize: 16,
-    color: '#333',
+    color: '#333', 
+    flex:2, 
+    textAlign:'right'
   },
   modalOverlay: {
     flex: 1,

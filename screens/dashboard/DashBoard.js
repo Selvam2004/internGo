@@ -77,6 +77,13 @@ export default function DashBoard() {
       label:'contact-support'
     },
     {
+      name: 'Create Plan',
+      permission: 'plans.create',
+      component: CreatePlan,
+      icon:FA,
+      label:'sitemap'
+    },
+    {
       name: 'Create RoadMap',
       permission: 'roadmaps.view',
       component: CreateRoadmap,
@@ -96,13 +103,6 @@ export default function DashBoard() {
       component: Interactions,
       icon:AD,
       label:'calendar' 
-    },
-    {
-      name: 'Create Plan',
-      permission: 'plans.create',
-      component: CreatePlan,
-      icon:FA,
-      label:'sitemap'
     },
     {
       name: 'Interaction Schedule',

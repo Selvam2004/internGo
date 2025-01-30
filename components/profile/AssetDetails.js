@@ -16,7 +16,7 @@ export default function AssetDetails({ user, assets , fetchUser, token }) {
   const [error,setError]= useState(""); 
   const [currentFieldForDatePicker,setCurrentFieldForDatePicker] = useState("givenOn")
   const role = useSelector((state) => state.auth.data?.data.role);
-  
+
   const [fields, setFields] = useState({
     type: DEFAULT,
     name: DEFAULT,
@@ -113,7 +113,7 @@ export default function AssetDetails({ user, assets , fetchUser, token }) {
     }
     else{
       try{ 
-        const response = await axiosInstance.post('/api/users/update/assets',{
+        const response = await axiosInstance.post('/api/users/create/assets',{
           userId:user.id,
           assetType:fields.type,
           assetName:fields.name,

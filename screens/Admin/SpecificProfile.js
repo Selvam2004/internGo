@@ -66,7 +66,7 @@ export default function SpecificProfile({route}) {
           <EducationalDetails {...props}/>
           <CompanyDetails  {...props} />
           <BankDetails {...props}/>
-          <AssetDetails {...props} asset={currentUser.asset}/>          
+          <AssetDetails {...props} assets={currentUser.assets}/>          
         </View>
       ) : (
         <ErrorPage onRetry={fetchUser} />

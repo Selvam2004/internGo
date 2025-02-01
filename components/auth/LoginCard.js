@@ -60,8 +60,9 @@ const LoginCard = ({navigation}) => {
             } 
         }
         catch(err){
-            setError(err.response.data.message); 
-            console.log(err.response.data.message)
+            console.log(err)
+            setError(err?.response?.data?.message||"Something went wrong while Signin"); 
+            
         }
         finally {
             setLoading(false);  

@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
         alignItems:'center'
     },
     createText:{
-      color:'white',
+      color:'black',
       fontSize:24,
     },
     modalOverlay:{

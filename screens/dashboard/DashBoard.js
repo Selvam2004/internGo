@@ -25,19 +25,40 @@ import EP from 'react-native-vector-icons/Entypo';
 import MI from 'react-native-vector-icons/MaterialIcons';
 import AD from 'react-native-vector-icons/AntDesign';
 import Home from '../User/Home'; 
+import { axiosInstance } from '../../utils/axiosInstance';
  
 
 export default function DashBoard() {
   const dispatch = useDispatch();
   const datas = useSelector(state=>state.auth.data?.data?.permissions); 
   const id = useSelector(state=>state.auth.data?.data?.userId); 
-  console.log(id);
+  const token = useSelector((state)=>state.auth.data?.data?.token);
   const permission = datas || null;
   const handleLogOut = ()=>{
     dispatch(logout());
   }
   const Drawer = createDrawerNavigator()
   const [badgeCount, setBadgeCount] = useState(10); 
+  const verify =async()=>{
+    try{ 
+      const response = await axiosInstance.post('/api/auth/verify',{token});
+      if(response){
+        console.log(response);
+        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      } 
+      else{
+        handleLogOut();
+      }
+    }
+    catch(err){
+      console.log(err);
+      handleLogOut()
+    }
+  }
+  useEffect(()=>{
+    verify();
+  },[])
   
   const tabs = [
     {

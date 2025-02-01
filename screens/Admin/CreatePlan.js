@@ -12,16 +12,13 @@ export default function CreatePlan() {
   const [loading,setLoading] = useState(false);
   const [error,setError] = useState("");
   const [plans,setPlans] = useState([]);
+
   const fetchPlans  = async()=>{
     try{
       setLoading(true);
       setError(""); 
       console.log(`Bearer ${token}`);
-      const response = await axiosInstance.get('/api/plans',{
-        headers:{
-          Authorization : `Bearer ${token}`
-        }
-      })
+      const response = await axiosInstance.get('/api/plans')
       if(response){
         console.log(response.data.data);
         setPlans(response.data.data);
@@ -35,12 +32,12 @@ export default function CreatePlan() {
       setLoading(false);
     }
   }
+  
   useEffect(()=>{
-
     fetchPlans();
   },[])
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {loading?(
                 <View style={styles.loadingContainer}> 
                     <ActivityIndicator size="large" color="#0000ff" />
@@ -51,15 +48,15 @@ export default function CreatePlan() {
       <View>
       <Text style={styles.heading}>Create</Text>
       <CreateCard token={token} fetchPlans={fetchPlans}/>
-      <Plans plan={plans}/>
+      <Plans token={token} plan={plans}/>
       </View>}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex:1, 
+  container: { 
+    flex:1,
     padding:20
   },
   heading: {

@@ -60,7 +60,7 @@ const LoginCard = ({navigation}) => {
             } 
         }
         catch(err){
-            console.log(err)
+            console.log(err.response)
             setError(err?.response?.data?.message||"Something went wrong while Signin"); 
             
         }
@@ -79,7 +79,7 @@ const LoginCard = ({navigation}) => {
         </View>
         <View style={Styles.userName}>
             <Text style={{fontSize:16 }}>Email:</Text>
-            <TextInput style={Styles.loginInp} placeholder='Enter your Email' value={user.email} onChangeText={(text)=>handleChange('email',text)}/>
+            <TextInput style={Styles.loginInp} placeholder='Enter your Email' value={user.email} onChangeText={(text)=>handleChange('email',text)} />
         </View>
         <View style={Styles.password}>
             <Text style={{fontSize:16}}>Password:</Text>

@@ -10,6 +10,7 @@ import EP from 'react-native-vector-icons/Entypo';
 import * as ImageManipulator from 'expo-image-manipulator';
 export default function Intro({user,edit,token,fetchUser}) {
   const [isVisible, setIsVisible] = useState(false);
+  const [isImgVisible, setImgVisible] = useState(false);
   const [imageUrl, setImageUrl] = useState(user.profilePhoto);  
   const role = useSelector(state=>state.auth.data?.data.role);   
   useEffect(() => {
@@ -99,30 +100,77 @@ export default function Intro({user,edit,token,fetchUser}) {
     } 
 
 
+
+
   return (
     <View style={styles.profileCnt}>
       <View style={styles.imageContainer}>
-      {imageUrl ? <Image source={{ uri: imageUrl }} onError={()=>setImageUrl("")} style={styles.profile} />:
-        <EP name='user' size={100} style={styles.profile} />}
+        <TouchableOpacity onPress={() => setImgVisible(true)}>
+          {imageUrl ? (
+            <Image
+              source={{ uri: imageUrl }}
+              onError={() => setImageUrl("")}
+              style={styles.profile}
+            />
+          ) : (
+            <EP name="user" size={100} style={styles.profile} />
+          )}
+        </TouchableOpacity>
         <TouchableOpacity onPress={() => setIsVisible(true)}>
-          <Icon name="edit" style={[styles.editIcon,{display:role=='Admins'?edit?'':'none':''}]} size={24} color="white" />
+          <Icon
+            name="edit"
+            style={[
+              styles.editIcon,
+              { display: role == "Admins" ? (edit ? "" : "none") : "" },
+            ]}
+            size={24}
+            color="white"
+          />
         </TouchableOpacity>
       </View>
 
-      <View style={{ marginLeft: 15, marginTop: 5,width:"50%" }}>
-        <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-        <Text style={{ fontWeight: 'bold', fontSize: 20  }}>Profile</Text>
-        <Text style={[styles.badge,{backgroundColor:user.status=="ACTIVE"?"green":"gray"}]}>{user.status||"IDLE"}</Text>
+      <View style={{ marginLeft: 15, marginTop: 5, width: "50%" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ fontWeight: "bold", fontSize: 20 }}>Profile</Text>
+          <Text
+            style={[
+              styles.badge,
+              { backgroundColor: user.status == "ACTIVE" ? "green" : "gray" },
+            ]}
+          >
+            {user.status || "IDLE"}
+          </Text>
         </View>
-        <Text style={{ fontSize: 15, color: 'green', fontWeight: '600', marginTop: 5 }}>{user.name||"Name"}</Text>
-        <Text style={{ fontSize: 12, marginTop: 5 }}>{user.email||"example@gmail.com"}</Text>
-        <Text style={{ fontSize: 12, marginTop: 5 }}>{user.batch || "Batch N/A"} {user.phase || "Phase N/A"}</Text>
-        <Text style={{ fontSize: 12, marginTop: 5 }}>{user.designation||"Designation N/A"}</Text>
+        <Text
+          style={{
+            fontSize: 15,
+            color: "green",
+            fontWeight: "600",
+            marginTop: 5,
+          }}
+        >
+          {user.name || "Name"}
+        </Text>
+        <Text style={{ fontSize: 12, marginTop: 5 }}>
+          {user.email || "example@gmail.com"}
+        </Text>
+        <Text style={{ fontSize: 12, marginTop: 5 }}>
+          {user.batch || "Batch N/A"} {user.phase || "Phase N/A"}
+        </Text>
+        <Text style={{ fontSize: 12, marginTop: 5 }}>
+          {user.designation || "Designation N/A"}
+        </Text>
       </View>
 
       <Modal
         transparent={true}
-        animationType='slide'
+        animationType="slide"
         visible={isVisible}
         onRequestClose={() => setIsVisible(false)}
       >
@@ -130,13 +178,23 @@ export default function Intro({user,edit,token,fetchUser}) {
           <View style={styles.modal}>
             <TouchableWithoutFeedback>
               <View style={styles.modalcnt}>
-                <Text style={{ margin: 'auto', textAlign: 'center', fontSize: 18 }}>Choose an option</Text>
+                <Text
+                  style={{ margin: "auto", textAlign: "center", fontSize: 18 }}
+                >
+                  Choose an option
+                </Text>
                 <View style={styles.iconContainer}>
-                  <TouchableOpacity style={styles.iconButton} onPress={takePhoto}>
+                  <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={takePhoto}
+                  >
                     <CameraIcon name="camera" size={40} color="black" />
                     <Text style={styles.iconText}>Camera</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.iconButton} onPress={selectImage}>
+                  <TouchableOpacity
+                    style={styles.iconButton}
+                    onPress={selectImage}
+                  >
                     <FileIcon name="folderopen" size={40} color="black" />
                     <Text style={styles.iconText}>File</Text>
                   </TouchableOpacity>
@@ -146,7 +204,27 @@ export default function Intro({user,edit,token,fetchUser}) {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-      
+
+      <Modal
+        transparent={true}
+        animationType="fade"
+        visible={isImgVisible}
+        onRequestClose={() => setImgVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setImgVisible(false)}>
+          <View style={styles.modalimg}>
+            {imageUrl ? (
+              <Image
+                source={{ uri: imageUrl }}
+                onError={() => setImageUrl("")}
+                style={[styles.profilehover]}
+              />
+            ) : (
+              <EP name="user" size={200} style={styles.profilehover} />
+            )}
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 }
@@ -156,6 +234,14 @@ const styles = StyleSheet.create({
     width: 130,
     height: 130,
     borderRadius: 75,
+    borderWidth: 2,
+    borderColor: '#ccc',
+    textAlign:'center'
+  },
+  profilehover: {
+    width: 250,
+    height: 250,
+    borderRadius: 150,
     borderWidth: 2,
     borderColor: '#ccc',
     textAlign:'center'
@@ -200,6 +286,12 @@ const styles = StyleSheet.create({
     paddingBottom:50,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+  },
+  modalimg: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   iconContainer: {
     flexDirection: 'row',

@@ -21,7 +21,7 @@ export default function EditPlan({ id }) {
         setFields(response.data?.data); 
       }
     } catch (err) {
-      console.log(err);
+      console.log(err.response);
       setError("something went wrong");
     }
   };
@@ -43,8 +43,7 @@ export default function EditPlan({ id }) {
   
     Object.keys(fields).forEach((key) => {
         if(key!='count'){
-      if (!fields[key] || (typeof fields[key] === "string" && fields[key].trim() === "")) {
-        console.log(fields[key],key);
+      if (!fields[key] || (typeof fields[key] === "string" && fields[key].trim() === "")) { 
         isValid = false;
       }
     }
@@ -88,15 +87,15 @@ export default function EditPlan({ id }) {
         
       <View style={[styles.planDetailItem,{alignItems:'flex-end',marginBottom:7}]}>
 
-        <View style={{flexDirection:'row'}}>
+        <View style={{flexDirection:'row',flex:6}}>
         <Text style={styles.planDetailLabel}>Plan Name:</Text>
-        <Text  >{planDetails.name||"Not specified"}</Text>
+        <Text  style={{flex:4}}>{planDetails.name||"Not Available"}</Text>
         </View>
 
         <TouchableOpacity
           style={[
             styles.editButton,
-            { flexDirection: 'row' },
+            { flexDirection: 'row',flex:1 },
           ]}
           onPress={handleEdit}
         >
@@ -116,7 +115,7 @@ export default function EditPlan({ id }) {
       </View>
       <View style={styles.planDetailItem}>
         <Text style={styles.planDetailLabel}>Description:</Text>
-        <Text style={styles.planDetailValue}>{planDetails.description||"Not specified"}</Text>
+        <Text style={styles.planDetailValue}>{planDetails.description||"Not Available"}</Text>
       </View>
     </View>
     }

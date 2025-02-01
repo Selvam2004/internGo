@@ -11,15 +11,17 @@ import { axiosInstance } from '../../utils/axiosInstance';
         milestoneDays:0
       });
 
+      const openMilestoneCard = () => {
+        setNewMilestone({ name: "", milestoneDays: "", mentorName: "" });
+        setValid("");
+        setShowAddMilestoneCard(true);
+      };
+
       useImperativeHandle(ref, () => ({
         openCard: () => openMilestoneCard(),
       }));
 
-    const openMilestoneCard = () => {
-        setNewMilestone({ name: "", days: "", mentor: "" });
-        setValid("");
-        setShowAddMilestoneCard(true);
-      };
+
 
     const handleAddMilestone = () => {
         setValid("");
@@ -35,18 +37,19 @@ import { axiosInstance } from '../../utils/axiosInstance';
         
       };
     const handleSubmit=async()=>{
-        try{
+        try{ 
             const response = await axiosInstance.post(`api/plans/${props.id}/create/milestone`,{
                 name:newMilestone.name,
                 mentorName:newMilestone.mentorName,
                 milestoneDays:Number(newMilestone.milestoneDays)
             })
-            if(response){ 
+            if(response){    
                 setShowAddMilestoneCard(false);
+                props.fetchMilestone();
             }
         }
         catch(err){
-            console.log(err);
+            console.log(err.response?.data?.message);
             setValid("Milestone not added.Please try later")
         } 
     }

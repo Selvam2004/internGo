@@ -12,7 +12,7 @@ import { SwipeListView } from "react-native-swipe-list-view";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { axiosInstance } from "../../utils/axiosInstance";
 
-export default function Plans({ token,plan }) {
+export default function Plans({ plan }) {
   const [plans, setPlans] = useState(plan || []);
   const [message, setMessage] = useState({});
   const navigation = useNavigation();
@@ -42,11 +42,7 @@ export default function Plans({ token,plan }) {
 
   const submitDelete = async(id)=>{
     try{
-      const response = await axiosInstance.delete(`/api/plans/delete/${id}`,{
-        headers:{
-          Authorization : `Bearer ${token}`
-        }
-      })
+      const response = await axiosInstance.delete(`/api/plans/delete/${id}`)
       console.log(response);
       if(response){
         const newList = plans.filter(itm=>itm.id!=id);

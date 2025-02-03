@@ -22,7 +22,7 @@ export default function Profile() {
  
   const fetchUser = async()=>{
     try{
-      setLoading(true);
+      
       setError(false);
       console.log(token);
       const response = await axiosInstance.get(`/api/users/${userId}`,
@@ -49,6 +49,7 @@ export default function Profile() {
   }
  
   useEffect(()=>{
+    
     fetchUser();
   },[])
   useEffect(()=>{

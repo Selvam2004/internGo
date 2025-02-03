@@ -148,24 +148,24 @@ export default function EmployeeDetails({ user,edit, fetchUser , token }) {
         <View style={styles.row}>
           <Text style={styles.label}>Date of Joining</Text>
           <Text style={styles.value}>{user.dateOfJoining?.split('T')[0] || DEFAULT}</Text>
-        </View>
-        {!edit&&<View style={styles.row}>
+        </View> 
+        {(!edit||role=='Interns')&&<View style={styles.row}>
           <Text style={styles.label}>Batch</Text>
           <Text style={styles.value}>{user.batch || DEFAULT}</Text>
         </View>
         }
 
-        {!edit &&<View style={styles.row}>
+        {(!edit||role=='Interns') &&<View style={styles.row}>
           <Text style={styles.label}>Phase</Text>
           <Text style={styles.value}>{user.phase || DEFAULT}</Text>
         </View>
         }
-        {!edit&&<View style={styles.row}>
+        {(!edit||role=='Interns')&&<View style={styles.row}>
           <Text style={styles.label}>Year</Text>
           <Text style={styles.value}>{user.year || DEFAULT}</Text>
         </View>
         }
-        {!edit&&<View style={styles.row}>
+        {(!edit||role=='Interns')&&<View style={styles.row}>
           <Text style={styles.label}>Certificate Submission</Text>
           <Text style={styles.value}>{user.certificates_submission_status?"YES":"NO" || DEFAULT}</Text>
         </View>
@@ -190,9 +190,9 @@ export default function EmployeeDetails({ user,edit, fetchUser , token }) {
                   onValueChange={(value) => handleChange('designation', value)}
                 >
                   <Picker.Item label="Select Designation" />
-                  <Picker.Item label="Front-end" value="Front-end" />
-                  <Picker.Item label="Back-end" value="Back-end" />
-                  <Picker.Item label="Testing" value="Testing" />
+                  <Picker.Item label="frontend" value="Front-end" />
+                  <Picker.Item label="backend" value="Back-end" />
+                  <Picker.Item label="testing" value="Testing" />
                 </Picker>
                 </View>
               </View>
@@ -228,7 +228,7 @@ export default function EmployeeDetails({ user,edit, fetchUser , token }) {
                 </TouchableOpacity>
               </View>
 
-              {!edit&& <View style={styles.modalField}>
+              {!edit&&role=='Admins'&& <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Batch</Text>
                 <View style={styles.picker}>
                 <Picker
@@ -243,7 +243,7 @@ export default function EmployeeDetails({ user,edit, fetchUser , token }) {
                 </View>
               </View>
                 }
-              {!edit&&<View style={styles.modalField}>
+              {!edit&&role=='Admins'&&<View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Phase</Text>
                 <View style={styles.picker}>
                 <Picker
@@ -258,7 +258,7 @@ export default function EmployeeDetails({ user,edit, fetchUser , token }) {
                 </View>
               </View>
                 }          
-               {!edit&&<View style={styles.modalField}>
+               {!edit&&role=='Admins'&&<View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Year</Text>
                 <View style={styles.picker}>
                 <Picker
@@ -273,7 +273,7 @@ export default function EmployeeDetails({ user,edit, fetchUser , token }) {
                 </View>
               </View>
                 }      
-              {!edit&&<View style={styles.modalField}>
+              {!edit&&role=='Admins'&&<View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Certificate Submission Status</Text>
                 <View style={styles.picker}>
                 <Picker

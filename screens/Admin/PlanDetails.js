@@ -22,11 +22,12 @@ export default function PlanDetails({ route }) {
 
   const fetchMilestone = async()=>{
     try{
-      
+      setError(false)
       const response = await axiosInstance.get(`/api/plans/${id}`);
-      const res = response.data.data.milestones;
-      console.log(res);
-      setMilestones(res);
+      if(response){
+        const res = response.data.data.milestones; 
+        setMilestones(res);
+      }
     }
     catch(err){
       console.log(err);
@@ -37,8 +38,8 @@ export default function PlanDetails({ route }) {
     }
   }
   useEffect(()=>{
-   // setLoading(true);
-   // fetchMilestone();
+   setLoading(true);
+   fetchMilestone();
   },[])
 
 
@@ -64,7 +65,7 @@ export default function PlanDetails({ route }) {
 
       
 
-        <Milestones milestones={milestones}/>
+        <Milestones id={id} milestones={milestones}/>
          
       }
       </ScrollView>

@@ -12,157 +12,24 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import { axiosInstance } from "../../utils/axiosInstance";
 import { Picker } from "@react-native-picker/picker";
 
-const mile = [
-  {
-    id: 1,
-    name: "Project Kickoff",
-    mentorName: "John Doe",
-    milestoneDays: 5,
-    objectives: [
-      {
-        id: 101,
-        name: "Define project scope",
-        milestoneId: 1,
-        description:
-          "Identify the overall objectives and deliverables of the project.",
-        objectiveDays: 2,
-        noOfInteractions: 1,
-        roadmapType: "Planning",
-      },
-      {
-        id: 102,
-        name: "Identify stakeholders",
-        milestoneId: 1,
-        description: "List all key stakeholders involved in the project.",
-        objectiveDays: 3,
-        noOfInteractions: 2,
-        roadmapType: "Planning",
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "Design Phase",
-    mentorName: "Jane Smith",
-    milestoneDays: 10,
-    objectives: [
-      {
-        id: 201,
-        name: "Develop wireframes",
-        milestoneId: 2,
-        description: "Create visual wireframes for the UI/UX design.",
-        objectiveDays: 5,
-        noOfInteractions: 3,
-        roadmapType: "Design",
-      },
-      {
-        id: 202,
-        name: "Get client approval",
-        milestoneId: 2,
-        description: "Present designs to the client for feedback and approval.",
-        objectiveDays: 5,
-        noOfInteractions: 2,
-        roadmapType: "Design",
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: "Development Phase",
-    mentorName: "Alex Johnson",
-    milestoneDays: 20,
-    objectives: [
-      {
-        id: 301,
-        name: "Setup project structure",
-        milestoneId: 3,
-        description: "Initialize the project repository and folder structure.",
-        objectiveDays: 4,
-        noOfInteractions: 2,
-        roadmapType: "Development",
-      },
-      {
-        id: 302,
-        name: "Develop core features",
-        milestoneId: 3,
-        description: "Implement the main functionalities of the application.",
-        objectiveDays: 16,
-        noOfInteractions: 6,
-        roadmapType: "Development",
-      },
-    ],
-  },
-  {
-    id: 4,
-    name: "Testing & QA",
-    mentorName: "Emily Davis",
-    milestoneDays: 7,
-    objectives: [
-      {
-        id: 401,
-        name: "Write test cases",
-        milestoneId: 4,
-        description: "Create unit tests and integration test scenarios.",
-        objectiveDays: 3,
-        noOfInteractions: 2,
-        roadmapType: "Testing",
-      },
-      {
-        id: 402,
-        name: "Conduct performance testing",
-        milestoneId: 4,
-        description: "Run load tests and optimize system performance.",
-        objectiveDays: 4,
-        noOfInteractions: 2,
-        roadmapType: "Testing",
-      },
-    ],
-  },
-  {
-    id: 5,
-    name: "Deployment & Maintenance",
-    mentorName: "Michael Brown",
-    milestoneDays: 5,
-    objectives: [
-      {
-        id: 501,
-        name: "Deploy on production",
-        milestoneId: 5,
-        description: "Deploy the application to the live environment.",
-        objectiveDays: 3,
-        noOfInteractions: 1,
-        roadmapType: "Deployment",
-      },
-      {
-        id: 502,
-        name: "Monitor performance",
-        milestoneId: 5,
-        description:
-          "Track application performance and fix post-launch issues.",
-        objectiveDays: 2,
-        noOfInteractions: 1,
-        roadmapType: "Deployment",
-      },
-    ],
-  },
-];
 
-export default function Milestones() {
-  const [milestones, setMilestones] = useState(mile || []);
+export default function Milestones(props) { 
+  const [milestones, setMilestones] = useState([]);
   const [editable, setEditable] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  //   useEffect(() => {
-  //     if (props.milestones) {
-  //     setMilestones(handleFill(props.milestones));
-  //     }
-  //   }, [props.milestones]);
+    useEffect(() => {
+      if (props.milestones) {
+      setMilestones(handleFill(props.milestones));
+      }
+    }, [props.milestones]);
 
   const heading = [
-    "name",
-    "description",
-    "days",
-    "interactions",
-    "roadmapType",
+    "Name",
+    "Description",
+    "Days",
+    "Interactions",
+    "RoadmapType",
   ];
 
   const handleFill = (milestone) => {
@@ -172,12 +39,12 @@ export default function Milestones() {
           ...m,
           objectives: [
             {
-              id: Date.now(),
+              id: new Date().toISOString(),
               name: "",
               description: "",
               objectiveDays: "",
               noOfInteractions: "",
-              roadmapType: "",
+              roadmapType: "DEFAULT",
             },
           ],
         };
@@ -223,12 +90,12 @@ export default function Milestones() {
               objectives: [
                 ...m.objectives,
                 {
-                  id: Date.now(),
+                  id: new Date().toISOString(),
                   name: "",
                   description: "",
                   objectiveDays: "",
                   noOfInteractions: "",
-                  roadmapType: "",
+                  roadmapType: "DEFAULT",
                 },
               ],
             }
@@ -237,7 +104,7 @@ export default function Milestones() {
     );
   };
 
-  const handleDeleteRow = (milestoneId, rowId) => {
+  const handleDeleteRow = (milestoneId, rowId) => { 
     setMilestones(
       milestones.map((m) =>
         m.id === milestoneId
@@ -245,7 +112,23 @@ export default function Milestones() {
           : m
       )
     );
+    if(Number(rowId)){
+       submitDeleteObjective(rowId);
+    }
+
   };
+
+  const submitDeleteObjective =  async(rowId)=>{
+    try{
+        const response = await axiosInstance.delete(`/api/plans/delete/objective/${rowId}`)
+        if(response){
+          console.log(rowId ,"deleted");
+        }        
+    }
+    catch(err){
+      console.log(err.respone)
+    }
+  }
 
   const handleRowChange = (milestoneId, rowId, field, value) => {
     setMilestones(
@@ -270,8 +153,57 @@ export default function Milestones() {
     setError("");
     let create = [];
     let update = [];
-    let original = milestones.filter((m) => m.id == id)[0];
+    let original = props.milestones.filter((m) => m.id == id)[0];
     let updated = milestones.filter((m) => m.id == id)[0]; 
+    if(validation(id)){ 
+      setLoading(true);
+      const updatems = updateMilestone(id,original,updated);
+      createObjective(id,updated,create);
+      updateObjective(original,updated,update) 
+      let apiCalls =[];
+      if(updatems){  
+        apiCalls.push(axiosInstance.patch(`/api/plans/${props.id}/update/milestone`,{...updatems}))        
+      }
+      if(create.length>0){
+        apiCalls.push(axiosInstance.post(`/api/plans/${props.id}/create/objectives`,{objectiveDatas:create}))
+      }
+      if(update.length>0){
+        apiCalls.push(axiosInstance.patch(`/api/plans/${props.id}/update/objectives`,{objectiveDatas:update}))
+      }
+      console.log(apiCalls.length);
+      if(apiCalls.length>0){
+        handleSubmitUpdate(apiCalls);
+      }
+      else{
+        setLoading(false);
+        setEditable(null);
+      }
+    } 
+
+  };
+
+  const handleSubmitUpdate = async(apiCalls)=>{
+    try{ 
+      const response =await Promise.allSettled(apiCalls);
+      response.forEach((result, index) => {
+        if (result.status === "fulfilled") {
+          setEditable(null);
+          console.log(`Request ${index + 1} succeeded:`, result.value.data);
+        } else {
+          console.log(`Request ${index + 1} failed:`, result.reason);
+        }
+      });       
+    }
+    catch(err){
+      console.log(err); 
+    } 
+    finally{
+      setLoading(false);
+    }
+  }
+
+  const validation = (id)=>{  
+    let updated = milestones.filter((m) => m.id == id)[0];
     if (
       updated.name?.trim() == "" ||
       updated.mentorName?.trim() == "" ||
@@ -279,78 +211,91 @@ export default function Milestones() {
       updated.milestoneDays == "0"
     ) {
       setError("*Please fill mentor details");
-      return;
+      return false;
     }
     updated.objectives?.forEach((field) => {
       if (
         field.name?.trim() == "" ||
         field.description?.trim() == "" ||
+        field.noOfInteractions == ""||
+        field.objectiveDays == ""||
         field.noOfInteractions == "0"||
         field.objectiveDays == "0"
       ) {
         
-        setError("*Please fill all details");
-        return;
+        setError("*Please fill all fields with valid data");
+        return false;
       }
     });
+    const total = updated.objectives?.reduce((acc,curr)=>acc+Number(curr.objectiveDays),0);
+    if(total>updated.milestoneDays){ 
+      setError("*No of days should not exceed total milestone Days");
+      return false;
+    } 
+    return true;
+  }
 
+  const updateMilestone = (id,original,updated)=>{   
     if(
-        updated.name?.trim() !=original.name||
-        updated.mentorName?.trim() !=original.name ||
-        updated.milestoneDays!=original.name ||
-        updated.milestoneDays !=original.name
-    ){
-        updateMilestone(id);
-    }
+      updated.name?.trim() !=original.name||
+      updated.mentorName?.trim() !=original.mentorName||
+      updated.milestoneDays!=original.milestoneDays 
+  ){ 
+      return {
+        milestoneId:id,
+        objectiveData:{
+          name:updated.name,
+          mentorName:updated.mentorName,
+          milestoneDays:Number(updated.milestoneDays)
+        }
+      }
+      
+  }
+  else {
+    return null
+  }
+  }
+
+  const createObjective = (id,updated,create)=>{ 
     updated.objectives?.forEach((field) => {
-        if (!Number(field.id)) {
-           create.push(field);
-        } 
-      });
-      if(create.length>0){
-        createObjective(id,create)
-      }
-      updated.objectives?.forEach((field) => {
-        if (Number(field.id)) {
-            const comp = original.objectives.filter((i)=>i.id==field.id)[0];
-            if(field.name.trim()!=comp.name||field.description.trim()!=comp.description||
-               field.noOfInteractions!=comp.noOfInteractions?.toString()||
-            field.objectiveDays!=comp.objectiveDays?.toString()||
-            field.roadmapType!=comp.roadmapType){
-                update.push(field);
-            }
-        } 
-      });
-      if(update.length>0){
-        updateObjective(id,update)
-      }
-  };
-
-  const updateMilestone = (id)=>{
-    try{
-
-    }
-    catch(err){
-        console.log(err.message);
-    }
+      if (!Number(field.id)) {
+         create.push(
+          {
+            name:  field.name,
+            milestoneId: id,
+            description:  field.description,
+            objectiveDays:  Number(field.objectiveDays),
+            noOfInteractions:  Number(field.noOfInteractions),
+            roadmapType: field.roadmapType
+          }
+         );
+      } 
+    });  
+    console.log(create);
   }
 
-  const createObjective = (id,create)=>{
-    try{
-
-    }
-    catch(err){
-        console.log(err.message);
-    }
-  }
-
-  const updateObjective = (id,update)=>{
-    try{
-
-    }
-    catch(err){
-        console.log(err.message);
-    }
+  const updateObjective = (original,updated,update)=>{
+    
+    updated.objectives?.forEach((field) => { 
+      if (!!Number(field.id)) { 
+          const comp = original.objectives.filter((i)=>i.id==field.id)[0];
+          if(field.name.trim()!=comp.name||field.description.trim()!=comp.description||
+             field.noOfInteractions!=comp.noOfInteractions?.toString()||
+          field.objectiveDays!=comp.objectiveDays?.toString()||
+          field.roadmapType!=comp.roadmapType){
+              update.push({
+                objectiveId:field.id,
+                objectiveData:{
+                  name:  field.name, 
+                  description:  field.description,
+                  objectiveDays:  Number(field.objectiveDays),
+                  noOfInteractions:  Number(field.noOfInteractions),
+                  roadmapType: field.roadmapType
+                }
+              });
+          }
+      } 
+    });
   }
 
   return (
@@ -358,9 +303,11 @@ export default function Milestones() {
       {milestones &&
         milestones.map((milestone) => (
           <View key={milestone.id} style={styles.milestone}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.milestoneHeader}>
+            <View>
+              <View style={[styles.milestoneHeader, ]}>
+                <View style={{flex:8}}>
                 <View style={{ flexDirection: "row" }}>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <TextInput
                     style={styles.milestoneName}
                     placeholder="Milestone Name"
@@ -408,16 +355,18 @@ export default function Milestones() {
                   <Text style={styles.milestoneName}>
                     {milestone.milestoneDays > 1 ? ")Days" : ")Day"}
                   </Text>
+                  </ScrollView>
                 </View>
+                </View>
+                <View style={{flex:1}}> 
                 <TouchableOpacity
                   onPress={() => handleDeleteMilestone(milestone.id)}
-                >
-                  <View>
-                    <Icon name="delete" size={24} color="red" />
-                  </View>
+                >                  
+                    <Icon name="delete" size={24} color="red" />                 
                 </TouchableOpacity>
+                </View>
               </View>
-            </ScrollView>
+            </View>
             {editable == milestone.id && error && (
               <Text style={{ color: "red" }}>{error}</Text>
             )}
@@ -465,7 +414,7 @@ export default function Milestones() {
                       />
                       <TextInput
                         style={styles.input}
-                        value={row.objectiveDays?.toString() || "0"}
+                        value={row.objectiveDays?.toString() }
                         onChangeText={(text) =>
                           handleRowChange(
                             milestone.id,
@@ -474,12 +423,14 @@ export default function Milestones() {
                             text
                           )
                         }
+                        placeholder="0"
                         editable={editable == milestone.id}
                         keyboardType="number-pad"
                       />
                       <TextInput
                         style={styles.input}
-                        value={row.noOfInteractions?.toString() || "0"}
+                        value={row.noOfInteractions?.toString()}
+                        placeholder="0"
                         onChangeText={(text) =>
                           handleRowChange(
                             milestone.id,
@@ -503,6 +454,7 @@ export default function Milestones() {
                               text
                             )
                           }
+                           style={{ flex: 1, height: "100%" }}
                         >
                           <Picker.Item label="DEFAULT" value="DEFAULT" />
                           <Picker.Item label="CUSTOM" value="CUSTOM" />
@@ -534,9 +486,9 @@ export default function Milestones() {
                       <Text style={styles.addButtonText}> Add Row </Text>
                     </View>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleSave(milestone.id)}>
+                  <TouchableOpacity disabled={loading} onPress={() => handleSave(milestone.id)}>
                     <View
-                      style={[styles.addButton, { backgroundColor: "green" }]}
+                      style={[styles.addButton, { backgroundColor: loading?'lightgreen':"green" }]}
                     >
                       <Text style={styles.addButtonText}> Save Changes </Text>
                     </View>
@@ -616,7 +568,7 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     padding: 8,
     borderRadius: 5,
-    textAlign: "center",
+    textAlign: "center", 
     backgroundColor: "#fff",
   },
   addButton: {

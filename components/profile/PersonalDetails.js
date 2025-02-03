@@ -27,6 +27,7 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
  
   const [fields, setFields] = useState({ 
     dob: user.dateOfBirth?.split('T')[0] || DEFAULT,
+    personalEmail:user.personalEmail||DEFAULT,
     contact: user.phone_no || DEFAULT, 
     gender: user.gender || "Select Gender",
     bloodGroup: user.bloodGroup || "Select Blood Group",
@@ -35,6 +36,7 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
     if(user){
       setFields({ 
         dob: user.dateOfBirth?.split('T')[0] || DEFAULT,
+        personalEmail:user.personalEmail||DEFAULT,
         contact: user.phone_no || DEFAULT, 
         gender: user.gender || "Select Gender",
         bloodGroup: user.bloodGroup || "Select Blood Group",
@@ -51,6 +53,13 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
     let err = "";
     let update ={}
     setError('');
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.personalEmail)){
+      setError("*Please enter valid email");
+      return
+    }
+    if(fields.dob!=DEFAULT&&fields.dob!=user.dateOfBirth){
+      update.personalEmail=fields.personalEmail;
+    }
     if(fields.dob!=DEFAULT&&fields.dob!=user.dateOfBirth){
       update.dateOfBirth=fields.dob;
     }
@@ -71,10 +80,9 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
     if(err){
       setError(err);
     }
-    else{
+    else{ 
       handleSubmit(update);
-    }
-    console.log(update);
+    } 
     
   };
 
@@ -142,8 +150,8 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
           <Text style={styles.value}>{user.name|| DEFAULT}</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>Email</Text>
-          <Text style={styles.value}>{user.email|| DEFAULT}</Text>
+          <Text style={styles.label}>Personal Email</Text>
+          <Text style={styles.value}>{user.personalEmail|| DEFAULT}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>DOB</Text>
@@ -172,6 +180,7 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalHeading}>Edit Personal Details</Text>
+            <Text style={[styles.error,{display:error?'':'none'}]}>{error}</Text>
             <ScrollView> 
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>DOB</Text>
@@ -182,14 +191,22 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
                 </TouchableOpacity>
               </View>
               <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Personal Email</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={fields.personalEmail}
+                  placeholder='Enter personal mail'
+                  onChangeText={(text) => handleChange('personalEmail', text)} 
+                /> 
+              </View>
+              <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Contact</Text>
                 <TextInput
                   style={styles.modalInput}
                   value={fields.contact}
                   onChangeText={(text) => handleChange('contact', text)}
                   keyboardType="phone-pad"
-                />
-                <Text style={[styles.error,{display:error?'':'none'}]}>{error}</Text>
+                />                
               </View> 
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Gender</Text>

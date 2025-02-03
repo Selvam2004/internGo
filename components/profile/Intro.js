@@ -137,7 +137,7 @@ export default function Intro({user,edit,token,fetchUser}) {
             alignItems: "center",
           }}
         >
-          <Text style={{ fontWeight: "bold", fontSize: 20 }}>Profile</Text>
+          <Text style={{ fontWeight: "bold", fontSize: 20 ,flex:3,}}>Profile</Text>
           <Text
             style={[
               styles.badge,
@@ -270,7 +270,9 @@ const styles = StyleSheet.create({
     fontSize: 10, 
     color:'white',
     borderRadius:10,
-    padding:5
+    padding:5,
+    flex:2,
+    textAlign:'center'
   },
   modal: {
     flex: 1,

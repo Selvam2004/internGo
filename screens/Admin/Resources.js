@@ -26,7 +26,7 @@ export default function Resources() {
   })
   const years = ['2023', '2024', '2025'];
   const batches = ['Batch 1', 'Batch 2', 'Batch 3'];
-  const designations = ['Front-end', 'Back-end', 'Testing'];
+  const designations = ['frontend', 'backend', 'testing'];
   const status = ["ACTIVE","NOT_ACTIVE","EXAMINATION","SHADOWING","DEPLOYED"];
 
   useEffect(()=>{
@@ -58,7 +58,7 @@ export default function Resources() {
       setLoading(true);
       setModalVisible(false); 
         const response = await axiosInstance.post(
-          '/api/users/search', 
+          '/api/users/', 
           {   
               name:text,
               year: filter.year.map(value=>Number(value)),
@@ -127,11 +127,13 @@ const handlePrev = () => {
   
   const fetchResource = async()=>{
     try{
+      setError("");
       setLoading(true);
       setModalVisible(false);
       const response = await axiosInstance.post(
         '/api/users', 
         {   
+            name:search,
             year: filter.year.map(value=>Number(value)),
             batch: filter.batch,
             designation: filter.designation,
@@ -168,7 +170,8 @@ const handlePrev = () => {
     <ScrollView>
 
       {error?<ErrorPage onRetry={fetchResource}/>:
-      <View><Text style={styles.header}>Resources</Text>
+      <View>
+      <Text style={styles.header}>Resources</Text>
       <View style={styles.container}> 
         <View style={styles.searchContainer}>
           <Icon name="search" size={24} color="#888" style={styles.searchIcon} />
@@ -181,11 +184,11 @@ const handlePrev = () => {
         </View>
  
         <TouchableOpacity style={styles.filterBadge} onPress={() => setModalVisible(true)}>
-          <Text style={styles.filterBadgeText}>filter</Text>
+          <Text style={styles.filterBadgeText}>Filters</Text>
         </TouchableOpacity>
 
         <View style={styles.profileCardContainer}>
-        {user?user.map((profile,id) => (
+        {user&&user.length>0?user.map((profile,id) => (
             <ProfileCard user={profile} key={id} />
           )):<View><Text style={{textAlign:'center'}}>No records to display</Text></View>}
         </View>

@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import CreateCard from "../../components/plans/CreateCard";
 import Plans from "../../components/plans/Plans";
 import { useSelector } from "react-redux";
 import { axiosInstance } from "../../utils/axiosInstance";
 import ErrorPage from "../User/Error";
+import { useFocusEffect } from "@react-navigation/native";
 
 
 export default function CreatePlan() {
@@ -32,10 +33,11 @@ export default function CreatePlan() {
       setLoading(false);
     }
   }
-  
-  useEffect(()=>{
-    fetchPlans();
-  },[])
+  useFocusEffect(
+    useCallback(() => { 
+      fetchPlans();
+    }, [])
+  ); 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {loading?(

@@ -129,7 +129,7 @@ export default function Intro({user,edit,token,fetchUser}) {
         </TouchableOpacity>
       </View>
 
-      <View style={{ marginLeft: 15, marginTop: 5, width: "50%" }}>
+      <View style={{ marginLeft: 15, marginTop: 5, width: "55%" }}>
         <View
           style={{
             flexDirection: "row",

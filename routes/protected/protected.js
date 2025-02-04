@@ -12,12 +12,16 @@ import PlanDetails from '../../screens/Admin/PlanDetails';
 import Icon from 'react-native-vector-icons/AntDesign'
 import AddUsersPlan from '../../screens/Admin/AddUsersPlan';
 import { useNavigation } from '@react-navigation/native';
+import TaskTable from '../../screens/User/TaskTable';
+import ViewUpdatesTable from '../../screens/Admin/ViewUpdatesTable';
 const tabs = [
     {name : 'Batches',permission:'profile.update',component:Batches},
     {name : 'Users',permission:'profile.update',component:UserTable},
     {name : 'User',permission:'profile.update',component:Profile},
     {name : 'User Profile',permission:'profile.update',component:SpecificProfile}, 
     {name : 'Add Users',permission:'plans.create',component:AddUsersPlan}, 
+    {name: 'Task Update' ,permission:'tasks.update',component:TaskTable},
+    {name: 'Daily Updates' ,permission:'users.manage',component:ViewUpdatesTable}
 ]
 
 const Stack = createStackNavigator();

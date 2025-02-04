@@ -24,7 +24,7 @@ export default function AddUsersPlan({ route }) {
     designation: [],
     status: [],
     planStatus:'Not Present',
-    selectedFilter: "Year",
+    selectedFilter: "planStatus",
   });
   const [page, setPage] = useState({
     total: 0,
@@ -81,7 +81,7 @@ export default function AddUsersPlan({ route }) {
   const fetchPlanUsers = async () => {
     try {       
       setError(false);
-      setLoading(true);
+      setLoading(true); 
       const response = await axiosInstance.post(
         `/api/plans/${id}/users`,
         {
@@ -460,7 +460,7 @@ const handleUserSubmit = async()=>{
                   ? batches
                   : filter.selectedFilter === "Status"
                   ? status
-                  : filter.selectedFilter === "designations"
+                  : filter.selectedFilter === "Designation"
                   ? designations
                   : planStatus
                 ).map((item) => (

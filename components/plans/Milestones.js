@@ -303,6 +303,7 @@ export default function Milestones(props) {
       {milestones &&
         milestones.map((milestone) => (
           <View key={milestone.id} style={styles.milestone}>
+
             <View>
               <View style={[styles.milestoneHeader, ]}>
                 <View style={{flex:8}}>
@@ -384,6 +385,7 @@ export default function Milestones(props) {
                     </Text>
                   )}
                 </View>
+                
                 {milestone.objectives &&
                   milestone.objectives.map((row) => (
                     <View key={row.id} style={styles.row}>
@@ -503,6 +505,7 @@ export default function Milestones(props) {
                 </TouchableOpacity>
               )}
             </View>
+
           </View>
         ))}
     </View>

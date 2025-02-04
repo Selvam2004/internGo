@@ -26,6 +26,7 @@ import MI from 'react-native-vector-icons/MaterialIcons';
 import AD from 'react-native-vector-icons/AntDesign';
 import Home from '../User/Home'; 
 import { axiosInstance } from '../../utils/axiosInstance';
+import ViewDailyUpdates from '../Admin/ViewDailyUpdates';
  
 
 export default function DashBoard() {
@@ -105,6 +106,13 @@ export default function DashBoard() {
       label:'sitemap'
     },
     {
+      name: 'View Daily Update',
+      permission: 'users.manage',
+      component: ViewDailyUpdates,
+      icon:FA,
+      label:'list-ul'
+    },
+    {
       name: 'Create RoadMap',
       permission: 'roadmaps.view',
       component: CreateRoadmap,
@@ -132,20 +140,21 @@ export default function DashBoard() {
       icon:AD,
       label:'calendar'
     },
+    // {
+    //   name: 'Records',
+    //   permission: 'users.view',
+    //   component: Records,
+    //   icon:AD,
+    //   label:'folderopen'
+    // },
+    // {
+    //   name: 'Pending Tickets',
+    //   permission: 'plans.create',
+    //   component: PendingTickets,
+    //   icon:MI,
+    //   label:'pending-actions'
+    // },    
     {
-      name: 'Records',
-      permission: 'users.view',
-      component: Records,
-      icon:AD,
-      label:'folderopen'
-    },
-    {
-      name: 'Pending Tickets',
-      permission: 'plans.create',
-      component: PendingTickets,
-      icon:MI,
-      label:'pending-actions'
-    },    {
       name: 'Create Announcement',
       permission: 'plans.create',
       component: CreateAnnouncement,

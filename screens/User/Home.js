@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 export default function Home() {
   const [taskStatuses, setTaskStatuses] = useState(['Pending', 'Pending']);  
-
+  const {name,role} = useSelector((state) => state.auth.data?.data); 
   const toggleStatus = (index) => {
     const newStatuses = [...taskStatuses];
     if (newStatuses[index] === 'Pending') {
@@ -19,7 +20,7 @@ export default function Home() {
   return (
     <ScrollView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}> 
-        <View><Text style={{fontWeight:'bold',fontSize:24,paddingVertical:10}}>Welcome Selvam S</Text></View>
+        <View><Text style={{fontWeight:'bold',fontSize:24,paddingVertical:10}}>Welcome {name}</Text></View>
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Get Started!</Text>
           <Text style={styles.cardDescription}>
@@ -34,6 +35,12 @@ export default function Home() {
           </View>
         </View>
  
+        {role=='Admins'?<View style={styles.card}>
+          <Text style={styles.announcementTitle}>Analytics</Text>
+          <View style={[styles.announcementPlaceholder,{backgroundColor:'white'}]}>
+            <Text style={styles.placeholderText}>No data available</Text>
+          </View>
+        </View>:
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Today's Tasks</Text>
           {taskStatuses.map((status, index) => (
@@ -51,7 +58,7 @@ export default function Home() {
               </View>
             </View>
           ))}
-        </View>
+        </View>}
         
       </ScrollView>
 

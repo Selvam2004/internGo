@@ -11,6 +11,7 @@ import AddressDetails from '../../components/profile/AddressDetails'
 import EducationalDetails from '../../components/profile/EducationalDetails'
 import BankDetails from '../../components/profile/BankDetails'
 import AssetDetails from '../../components/profile/AssetDetails'
+import Skillsets from '../../components/profile/Skillsets'
 
 
 export default function SpecificProfile({route}) {
@@ -22,7 +23,7 @@ export default function SpecificProfile({route}) {
 
   const fetchUser = async()=>{
     try{
-      setLoading(true);
+      
       setError(false);
       console.log(token);
       const response = await axiosInstance.get(`/api/users/${userId}`,
@@ -47,6 +48,7 @@ export default function SpecificProfile({route}) {
   }
  
   useEffect(()=>{
+    setLoading(true);
     fetchUser();
   },[])
   const props = {
@@ -57,26 +59,27 @@ export default function SpecificProfile({route}) {
   };
   return (
     <ScrollView style={styles.container}>
-      {error === false ? (
-        <View>
+      {error === false ?
+       loading ?(
+                <View style={styles.loadingContainer}> 
+                    <ActivityIndicator size="large" color="#0000ff" />
+                    <Text style={styles.loadingText}>loading...</Text>
+                </View>
+             ):
+      ( <View>
           <Intro  {...props}/>
           <ProgressBarCard progress={currentUser.profilePercentage}/>
+          <Skillsets {...props}/>
           <PersonalDetails  {...props}/>
           <AddressDetails {...props}/>
           <EducationalDetails {...props}/>
           <CompanyDetails  {...props} />
           <BankDetails {...props}/>
-          <AssetDetails {...props} assets={currentUser.assets}/>          
+          <AssetDetails {...props} assets={currentUser.assets}/>
         </View>
       ) : (
         <ErrorPage onRetry={fetchUser} />
-      )}
-            {loading && (
-                <View style={styles.loadingContainer}> 
-                    <ActivityIndicator size="large" color="#0000ff" />
-                    <Text style={styles.loadingText}>loading...</Text>
-                </View>
-      )}
+      )} 
     </ScrollView>
   )
 }
@@ -89,13 +92,10 @@ const styles = StyleSheet.create({
   loadingContainer: {
     position: 'absolute',
     flexDirection:'row',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    top: 300,
+    left:120,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
+    alignItems: 'center', 
     zIndex: 1,  
 },
 loadingText: { 

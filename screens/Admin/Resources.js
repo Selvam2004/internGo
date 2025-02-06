@@ -34,64 +34,17 @@ export default function Resources() {
   },[page.current])
   
   const handleSearch = (text)=>{
-    setSearch(text);
-    handleDebounce(text)
+    setSearch(text); 
   }
-  const debounce = (func, delay)=>{
-    let timeoutId;
-    return function (...args) {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        func(...args);
-      }, delay);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      fetchResource()
+    }, 1000);
+    return () => {
+      clearTimeout(handler);
     };
-  }
-  const handleDebounce = useCallback(
-    debounce((text) => {
-      handleSearchSubmit(text); 
-    }, 1500), 
-    []  
-  );
+  }, [search]);
 
-  const handleSearchSubmit = async(text)=>{
-    try{
-      setLoading(true);
-      setModalVisible(false); 
-        const response = await axiosInstance.post(
-          '/api/users/', 
-          {   
-              name:text,
-              year: filter.year.map(value=>Number(value)),
-              batch: filter.batch,
-              designation: filter.designation,
-              status:filter.status    
-          },
-          { 
-            params: {
-              limit: page.limit,
-              offset: (page.limit*(page.current-1))
-            },
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        )
-        
-        if(response){
-          const dt = response.data.data;
-          setUser(dt.data);
-          setPage({...page,total:Math.ceil(dt.total_pages),current:page.current<=Math.ceil(dt.total_pages)?page.current:1});
-        } 
-      
-    }
-    catch(err){
-      console.log(err);
-      setError(err);
-    }
-    finally{
-      setLoading(false);      
-    }
-  }
   const handleNext = ()=>{
     if (page.current <page.total) {
     setPage({...page,current:page.current+1});

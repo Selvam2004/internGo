@@ -11,9 +11,11 @@ import Roadmap from '../User/Roadmap';
 import Help from '../User/Help';
 import CreateRoadmap from '../Mentor/CreateRoadmap';
 import Feedback from '../Mentor/Feedback';
-import Interactions from '../Mentor/Interactions';
+import Interactions from '../User/Interactions';
 import CreatePlan from '../Admin/CreatePlan';
 import InteractionSchedule from '../Admin/InteractionSchedule'
+import EditInteractions from '../Admin/EditInteraction'
+import InteractionsToTake from '../Mentor/InteractionToTake'
 import Records from '../Admin/Records'
 import CreateAnnouncement from '../Admin/CreateAnnouncement';
 import PendingTickets from '../Admin/PendingTickets';
@@ -63,83 +65,112 @@ export default function DashBoard() {
   
   const tabs = [
     {
+      label: 'Home',
       name: 'Home',
-      permission: 'home',
+      permission: 'profile.update',
       component: Home,
       icon:EP,
-      label:'home'
+      iconlabel:'home'
     },
     {
+      label: 'Profile',
       name: 'Profile',
       permission: 'profile.update',
       component: Profile,
       icon:EP,
-      label:'user',
+      iconlabel:'user',
       data:id 
     },
     {
+      label: 'Daily Update',
       name: 'Daily Update',
       permission: 'tasks.update',
       component: DailyUpdate,
       icon:FA,
-      label:'list-ul'
+      iconlabel:'list-ul'
     },
+    // {
+    //   label: 'RoadMap',
+    //   name: 'RoadMap',
+    //   permission: 'RoadMap',
+    //   component: Roadmap,
+    //   icon:FA,
+    //   label:'map-marked-alt'
+    // },
+    // {
+    //   label: 'Help',
+    //   name: 'Help',
+    //   permission: 'Help',
+    //   component: Help,
+    //   icon:MI,
+    //   label:'contact-support'
+    // },
     {
-      name: 'RoadMap',
-      permission: 'RoadMap',
-      component: Roadmap,
-      icon:FA,
-      label:'map-marked-alt'
-    },
-    {
-      name: 'Help',
-      permission: 'Help',
-      component: Help,
-      icon:MI,
-      label:'contact-support'
-    },
-    {
+      label: 'Create Plan',
       name: 'Create Plan',
       permission: 'plans.create',
       component: CreatePlan,
       icon:FA,
-      label:'sitemap'
+      iconlabel:'sitemap'
     },
     {
+      label: 'Daily Updates',
       name: 'View Daily Update',
       permission: 'users.manage',
       component: ViewDailyUpdates,
       icon:FA,
-      label:'list-ul'
+      iconlabel:'list-ul'
     },
     {
-      name: 'Create RoadMap',
-      permission: 'roadmaps.view',
-      component: CreateRoadmap,
-      icon:FA,
-      label:'map-marked-alt'
+      label:'Schedule',
+      name: 'Schedule',
+      permission: 'interactions.schedule',
+      component: InteractionSchedule,
+      icon:AD,
+      iconlabel:'calendar'
+    },
+
+    // {
+    //   label: 'Create RoadMap',
+    //   name: 'Create RoadMap',
+    //   permission: 'roadmaps.view',
+    //   component: CreateRoadmap,
+    //   icon:FA,
+    //   label:'map-marked-alt'
+    // },
+    {
+      label: 'Interactions',
+      name: 'Interactions',
+      permission: 'tasks.update',
+      component: Interactions,
+      icon:AD,
+      iconlabel:'calendar' 
     },
     {
+      label: 'Interactions',
+      name: 'InteractionsToTake',
+      permission: 'feedback.create',
+      component: InteractionsToTake,
+      icon:AD,
+      iconlabel:'calendar' 
+    },
+    {
+      label: 'Interactions',
+      name: 'EditInteractions',
+      permission: 'interactions.schedule',
+      component: EditInteractions,
+      icon:AD,
+      iconlabel:'calendar' 
+    },
+    {
+      label: 'FeedBack',
       name: 'FeedBack',
       permission: 'feedback.view',
       component: Feedback,
       icon:EP,
-      label:'chat'
+      iconlabel:'chat'
     },
-    {
-      name: 'Interactions',
-      permission: 'interactions.view',
-      component: Interactions,
-      icon:AD,
-      label:'calendar' 
-    },
-    {
-      name: 'Interaction Schedule',
-      permission: 'interactions.schedule',
-      component: InteractionSchedule,
-      icon:AD,
-      label:'calendar'
-    },
+
     // {
     //   name: 'Records',
     //   permission: 'users.view',
@@ -155,18 +186,20 @@ export default function DashBoard() {
     //   label:'pending-actions'
     // },    
     {
+      label: 'Create Announcement',
       name: 'Create Announcement',
       permission: 'plans.create',
       component: CreateAnnouncement,
       icon:AD,
-      label:'notification'
+      iconlabel:'notification'
     },
     {
+      label: 'Resources',
       name: 'Resources',
       permission: 'users.manage',
       component: Resources,
       icon:FA,
-      label:'users'
+      iconlabel:'users'
     },
   ]
 
@@ -178,7 +211,7 @@ export default function DashBoard() {
         source={Logo}
         style={{ width: 120, height: 120 }} 
       />
-    ) ,
+    ) , 
     headerRight:()=>(
       <View style={{marginRight:20}}>
       <TouchableOpacity onPress={()=>setBadgeCount(badgeCount-1)} style={styles.iconContainer}>
@@ -210,7 +243,7 @@ export default function DashBoard() {
           permission.includes(tab.permission) && (
             <Drawer.Screen name={tab.name} component={tab.component} key={id} options={{
               drawerLabel: () => (
-                <DrawerItem label={tab.label} icon={tab.icon} name={tab.name} />
+                <DrawerItem label={tab.label} iconlabel={tab.iconlabel} icon={tab.icon} name={tab.name} />
               ),
             }} />
           )
@@ -224,11 +257,11 @@ export default function DashBoard() {
   )
 }
 
-const DrawerItem = ({ icon: IconComponent, name,label }) => {
+const DrawerItem = ({ icon: IconComponent, name,iconlabel,label }) => {
   return (
     <View style={{flexDirection:'row'}}>
-      {IconComponent&&<IconComponent  name={label} size={20} style={{marginLeft:10}}/>}
-      <Text style={{marginLeft:20}}>{name}</Text>
+      {IconComponent&&<IconComponent  name={iconlabel} size={20} style={{marginLeft:10}}/>}
+      <Text style={{marginLeft:20}}>{label}</Text>
     </View>
   );
 };

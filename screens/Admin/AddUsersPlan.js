@@ -57,26 +57,17 @@ export default function AddUsersPlan({ route }) {
   }, [page.current]);
 
   const handleSearch = (text) => {
-    setSearch(text);
-    handleDebounce(text);
-  };
+    setSearch(text); 
+  };   
 
-  const debounce = (func, delay) => {
-    let timeoutId;
-    return function (...args) {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        func(...args);
-      }, delay);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      fetchPlanUsers()
+    }, 1000);
+    return () => {
+      clearTimeout(handler);
     };
-  };
-
-  const handleDebounce = useCallback(
-    debounce((text) => {
-      handleSearchSubmit(text);
-    }, 1500),
-    []
-  );
+  }, [search]);
 
   const fetchPlanUsers = async () => {
     try {       
@@ -120,47 +111,7 @@ export default function AddUsersPlan({ route }) {
       setLoading(false);
       setModalVisible(false);
     }
-  };
-
-  const handleSearchSubmit = async (text) => {
-    try { 
-      setError(false);
-      setModalVisible(false);
-      const response = await axiosInstance.post(
-        `/api/plans/${id}/users`,
-        {
-          name: text,
-          year: filter.year.map((value) => Number(value)),
-          batch: filter.batch,
-          designation: filter.designation,
-          status: filter.status,
-          planStatus:[filter.planStatus]
-        },
-        {
-          params: {
-            limit: page.limit,
-            offset: page.limit * (page.current - 1),
-          },
-        }
-      );
-
-      if (response) {
-        const dt = response.data.data;
-        setUser(dt.data);
-        setPage({
-          ...page,
-          total: Math.ceil(dt.total_pages),
-          current: page.current <= Math.ceil(dt.total_pages) ? page.current : 1,
-        });
-      }
-    } catch (err) {
-      console.log(err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  }; 
   const handleNext = () => {
     if (page.current < page.total) {
       setPage({ ...page, current: page.current + 1 });

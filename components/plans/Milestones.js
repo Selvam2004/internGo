@@ -210,7 +210,7 @@ export default function Milestones(props) {
       updated.milestoneDays == "" ||
       updated.milestoneDays == "0"
     ) {
-      setError("*Please fill mentor details");
+      setError("*Please fill milestone details");
       return false;
     }
     updated.objectives?.forEach((field) => {
@@ -385,7 +385,7 @@ export default function Milestones(props) {
                     </Text>
                   )}
                 </View>
-                
+
                 {milestone.objectives &&
                   milestone.objectives.map((row) => (
                     <View key={row.id} style={styles.row}>
@@ -550,14 +550,14 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
+    alignItems: "center", 
   },
   headerRow: {
     flexDirection: "row",
     backgroundColor: "#ddd",
-    paddingVertical: 8,
-    borderRadius: 5,
+    paddingVertical: 12,
+    borderTopLeftRadius:5,
+    borderTopRightRadius:5
   },
   headerText: {
     width: 140,
@@ -568,9 +568,7 @@ const styles = StyleSheet.create({
     width: 140,
     height: "100%",
     borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 8,
-    borderRadius: 5,
+    borderColor: "#ccc", 
     textAlign: "center", 
     backgroundColor: "#fff",
   },

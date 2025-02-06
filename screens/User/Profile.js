@@ -49,7 +49,7 @@ export default function Profile() {
   }
  
   useEffect(()=>{
-    
+    setLoading(true);
     fetchUser();
   },[])
   useEffect(()=>{

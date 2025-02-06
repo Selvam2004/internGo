@@ -21,10 +21,10 @@ const ProfileCard = ({user}) => {
         <Text style={styles.name}>{user.name}</Text>
         <Text style={[styles.badge,{backgroundColor:user.status=="ACTIVE"?"green":"gray"}]}>{user.status||"IDLE"}</Text>
         </View>
+        <Text style={[styles.detailText,{fontWeight:'bold'}]}>Employee ID: {user.employeeId||" N/A"}</Text>
         <Text style={styles.detailText}>{user.email}</Text>
         <Text style={styles.detailText}>{user.designation||"Designation N/A"}</Text>
         <Text style={styles.detailText}>{user.batch || "Batch N/A"} {user.phase || "Phase N/A"}</Text>
-        <Text style={[styles.detailText,{fontWeight:'bold'}]}>Employee ID: {user.employeeId||" N/A"}</Text>
       </View>
     </View>
     </TouchableHighlight>

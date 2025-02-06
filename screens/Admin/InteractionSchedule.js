@@ -3,8 +3,7 @@ import React, { useRef, useState } from 'react'
 import { Picker } from '@react-native-picker/picker'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import { axiosInstance } from '../../utils/axiosInstance';
-import Toast from "react-native-toast-message";
-import { useNavigation } from '@react-navigation/native';
+import Toast from "react-native-toast-message"; 
 
 
 export default function InteractionSchedule() {
@@ -171,7 +170,7 @@ export default function InteractionSchedule() {
 
             <TouchableOpacity onPress={()=>setIsVisible({...isVisible,date:true})}>
             <View style={{ height:55}}>
-            <Text style={[styles.input,{flex:1, padding:15,textAlignVertical:'center'}]}>{fields.date}</Text>
+            <Text style={[styles.input,{flex:1, padding:15,textAlignVertical:'center'}]}>{fields.date||'Choose date'}</Text>
             </View>
             </TouchableOpacity>
 
@@ -184,7 +183,7 @@ export default function InteractionSchedule() {
 
        <TouchableOpacity onPress={()=>setIsVisible({...isVisible,time:true})}>
         <View style={{ height:55}}>
-          <Text style={[styles.input,{flex:1, padding:15,textAlignVertical:'center'}]}>{fields.time}</Text>
+          <Text style={[styles.input,{flex:1, padding:15,textAlignVertical:'center'}]}>{fields.time||'Choose time'}</Text>
         </View>
         </TouchableOpacity>
 

@@ -8,7 +8,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import EP from "react-native-vector-icons/Entypo";
 import { axiosInstance } from "../../utils/axiosInstance";
@@ -32,7 +32,7 @@ export default function AddUsersPlan({ route }) {
     limit: 10,
   });
   const [modalVisible, setModalVisible] = useState(false);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(""); 
   const [user, setUser] = useState([]);
   const [selected,setSelected] = useState([]);
 
@@ -50,11 +50,12 @@ export default function AddUsersPlan({ route }) {
   const planStatus = ['Present','Not Present']
   const [selectAll,SetSelectAll] = useState(false);
   const [prev,SetPrev] = useState('Not Present');
+  const isFirstLoad = useRef(true);
 
   useEffect(() => {
     setLoading(true);
     fetchPlanUsers();
-  }, [page.current]);
+  }, [page.current]); 
 
   const handleSearch = (text) => {
     setSearch(text); 
@@ -62,6 +63,10 @@ export default function AddUsersPlan({ route }) {
 
   useEffect(() => {
     const handler = setTimeout(() => {
+      if(isFirstLoad.current){
+        isFirstLoad.current=false
+        return
+      }
       fetchPlanUsers()
     }, 1000);
     return () => {

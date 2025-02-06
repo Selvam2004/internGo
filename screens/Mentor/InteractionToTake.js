@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput } from 'react-native'
+import { View, Text, StyleSheet, TextInput, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react' 
 import ErrorPage from './../../components/error/Error'; 
 import { axiosInstance } from '../../utils/axiosInstance';
@@ -11,6 +11,7 @@ export default function Interactions() {
   const [loading, setLoading] = useState(false); 
   const [interactions, setInteractions] = useState([]); 
   const {userId} = useSelector(state=>state.auth.data?.data); 
+
   const fetchInteractions = async()=>{
     try{
       setError(false);
@@ -32,8 +33,9 @@ export default function Interactions() {
   useEffect(()=>{
     fetchInteractions();
   },[])
+
   return (
-    <View style={styles.container}>
+    <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
       {error?<ErrorPage onRetry={fetchInteractions}/>:
       <>
       <Text style={styles.header}>Interactions</Text>
@@ -42,22 +44,22 @@ export default function Interactions() {
       loading?<View style={{justifyContent:'center',height:500}}><Text style={{textAlign:'center'}}>Loading...</Text></View>:
         <>
         {interactions&&interactions.length>0?
-        <>{interactions.map(intr=>(
+        <View style={{paddingBottom:30}}>{interactions.map(intr=>(
              <MentorInteractionCard key={intr.id}  interaction={intr}/>
-        ))}</>
+        ))}</View>
         :
         <View style={{height:500,justifyContent:'center'}}><Text style={{fontSize:15,fontWeight:'400',textAlign:'center'}}>No Interactions Available</Text></View>}
         </>
       }
       </>
       }
-    </View>
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
   container:{
-    padding:20
+    padding:20, 
   },
   header:{
     fontSize:20,

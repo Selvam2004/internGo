@@ -1,5 +1,5 @@
 import { View, Text, TextInput, StyleSheet, Modal, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ProfileCard from '../../components/resources/ProfileCard';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
 import ErrorPage from '../User/Error';
@@ -28,6 +28,7 @@ export default function Resources() {
   const batches = ['Batch 1', 'Batch 2', 'Batch 3'];
   const designations = ['frontend', 'backend', 'testing'];
   const status = ["ACTIVE","NOT_ACTIVE","EXAMINATION","SHADOWING","DEPLOYED"];
+  const isFirstLoad = useRef(true);
 
   useEffect(()=>{
     fetchResource();
@@ -38,6 +39,10 @@ export default function Resources() {
   }
   useEffect(() => {
     const handler = setTimeout(() => {
+      if(isFirstLoad.current){
+        isFirstLoad.current=false
+        return
+      }
       fetchResource()
     }, 1000);
     return () => {

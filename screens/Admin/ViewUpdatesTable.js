@@ -1,5 +1,5 @@
 import { Text, StyleSheet,  ScrollView, View, TextInput, TouchableOpacity, Modal  } from 'react-native'
-import React, { useCallback, useEffect, useState } from 'react' 
+import React, { useCallback, useEffect, useRef, useState } from 'react' 
 import { axiosInstance } from '../../utils/axiosInstance' 
 import DailyUpdatesViewTable from '../../components/dailyupdates/DailyUpdatesViewTable';
 import ErrorPage from '../../components/error/Error';
@@ -25,7 +25,7 @@ export default function TaskTable({route}) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");  
 
-
+    const isFirstLoad = useRef(true);
     const years = ["2023", "2024", "2025"];
     const batches = ["Batch 1", "Batch 2", "Batch 3"];
     const designations = ["frontend", "backend", "testing"];
@@ -75,6 +75,10 @@ export default function TaskTable({route}) {
 
     useEffect(() => {
       const handler = setTimeout(() => {
+        if(isFirstLoad.current){
+          isFirstLoad.current=false
+          return
+        }
         fetchDailyTask()
       }, 1000);
       return () => {

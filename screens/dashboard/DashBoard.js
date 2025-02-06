@@ -29,14 +29,16 @@ import AD from 'react-native-vector-icons/AntDesign';
 import Home from '../User/Home'; 
 import { axiosInstance } from '../../utils/axiosInstance';
 import ViewDailyUpdates from '../Admin/ViewDailyUpdates';
+import { useNavigation } from '@react-navigation/native';
  
 
-export default function DashBoard() {
+export default function DashBoard( ) {
   const dispatch = useDispatch();
   const datas = useSelector(state=>state.auth.data?.data?.permissions); 
   const id = useSelector(state=>state.auth.data?.data?.userId); 
   const token = useSelector((state)=>state.auth.data?.data?.token);
   const permission = datas || null;
+  const navigation = useNavigation();
   const handleLogOut = ()=>{
     dispatch(logout());
   }
@@ -63,6 +65,10 @@ export default function DashBoard() {
     verify();
   },[])
   
+  const handleNotification = ()=>{
+    navigation.navigate('Notifications')
+  }
+
   const tabs = [
     {
       label: 'Home',
@@ -164,7 +170,7 @@ export default function DashBoard() {
     },
     {
       label: 'FeedBack',
-      name: 'FeedBack',
+      name: 'View FeedBack',
       permission: 'feedback.view',
       component: Feedback,
       icon:EP,
@@ -214,13 +220,13 @@ export default function DashBoard() {
     ) , 
     headerRight:()=>(
       <View style={{marginRight:20}}>
-      <TouchableOpacity onPress={()=>setBadgeCount(badgeCount-1)} style={styles.iconContainer}>
+      <TouchableOpacity onPress={handleNotification} style={styles.iconContainer}>
         <Icon name="notifications" size={30} color="#000" />
-        {badgeCount > 0 && (
+        {/* {badgeCount > 0 && (
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{badgeCount}</Text>
           </View>
-        )}
+        )} */}
       </TouchableOpacity>
     </View>
     )

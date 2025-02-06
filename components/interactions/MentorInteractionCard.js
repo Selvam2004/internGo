@@ -2,11 +2,13 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { useNavigation } from '@react-navigation/native';
 
 const MentorInteractionCard = ({ interaction}) => {
     const [details,setDetails] = useState(interaction);
+    const navigation = useNavigation();
     const handleFeedback = () => {
-        console.log("Navigate to feedback screen or open a modal");
+        navigation.navigate('Feedback');
     };
     useEffect(()=>{
         setDetails(interaction)

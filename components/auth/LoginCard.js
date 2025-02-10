@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView , ActivityIndicator} from 'react-native' 
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux';
-import { login as loginAction } from '../../redux/AuthSlice';
+import { login as loginAction } from '../../redux/reducers/AuthSlice';
 import { axiosInstance } from '../../utils/axiosInstance';
 
 const LoginCard = ({navigation}) => {
@@ -23,7 +23,7 @@ const LoginCard = ({navigation}) => {
         if(!user.email){
             setError("*Please enter your email");
         }
-        else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)){
+        else if(!/^[a-zA-Z0-9._%+-]+@(?:finestcoder\.com|codingmart\.com)$/.test(user.email)){
             setError("*Please enter valid email");
         }
         else if(!user.password){

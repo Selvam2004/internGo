@@ -4,17 +4,12 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 
-const MentorInteractionCard = ({ interaction}) => {
+const FeedBackCard = ({ interaction}) => {
     const [details,setDetails] = useState(interaction);
     const navigation = useNavigation();
     const handleFeedback = () => {
-        navigation.navigate('Feedback',{ 
-            interaction:interaction
-        });
-    };
-    const handleEditFeedback = () => {
-        navigation.navigate('Edit Feedback',{ 
-            interaction:interaction
+        navigation.navigate('Edit Feedback',{
+            id:interaction.id
         });
     };
     useEffect(()=>{
@@ -22,10 +17,11 @@ const MentorInteractionCard = ({ interaction}) => {
     },[interaction])
     return (
         <View style={styles.card}> 
+        <TouchableOpacity onPress={handleFeedback}> 
 
             <View style={styles.header}>
                 <Text style={styles.title}>{details.name}</Text>
-                <View style={[styles.statusDot, details.interactionStatus === 'COMPLETED' ? styles.greenDot : styles.redDot]} ></View>
+                <View style={[styles.statusDot,   styles.greenDot ]} ></View>
             </View>
  
             <View style={styles.namesContainer}>
@@ -61,18 +57,13 @@ const MentorInteractionCard = ({ interaction}) => {
                     <Text style={styles.detailText}>{details.duration}</Text>
                 </View>
             </View>
-            {details.interactionStatus==='COMPLETED'?
-            <TouchableOpacity style={styles.feedbackButton} onPress={handleEditFeedback}>
-            <Text style={styles.feedbackText}>Edit Feedback</Text>
-        </TouchableOpacity>:
-                <TouchableOpacity style={styles.feedbackButton} onPress={handleFeedback}>
-                <Text style={styles.feedbackText}>Give Feedback</Text>
-            </TouchableOpacity>}
+            
+            </TouchableOpacity>
         </View>
     );
 };
 
-export default  MentorInteractionCard
+export default FeedBackCard
 
 const styles = StyleSheet.create({
     card: {

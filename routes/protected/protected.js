@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import DashBoard from '../../screens/dashboard/DashBoard';
 import Batches from '../../components/records/Batches'
 import UserTable from '../../components/records/UserTable'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import NoPermission from '../../screens/User/NoPermission';
 import Profile from '../../screens/User/Profile';
 import SpecificProfile from '../../screens/Admin/SpecificProfile';
@@ -16,9 +16,12 @@ import TaskTable from '../../screens/User/TaskTable';
 import ViewUpdatesTable from '../../screens/Admin/ViewUpdatesTable';
 import Notification from '../../screens/dashboard/Notification';
 import GiveFeedback from '../../screens/Mentor/GiveFeedback';
+import { axiosInstance } from '../../utils/axiosInstance';
+import { clearAllNotifications } from '../../redux/reducers/NotificationSlice'; 
+import EditSingleFeedback from '../../screens/Mentor/EditSingleFeedbackCard';
+import ViewSingleFeedback from '../../screens/Admin/ViewSingleFeedback';
 const tabs = [
-    {name : 'Batches',permission:'profile.update',component:Batches},
-    {name : 'Notifications',permission:'profile.update',component:Notification},
+    {name : 'Batches',permission:'profile.update',component:Batches}, 
     {name : 'Users',permission:'profile.update',component:UserTable},
     {name : 'User',permission:'profile.update',component:Profile},
     {name : 'User Profile',permission:'profile.update',component:SpecificProfile}, 
@@ -26,6 +29,8 @@ const tabs = [
     {name : 'Task Update' ,permission:'tasks.update',component:TaskTable},
     {name : 'Daily Updates' ,permission:'users.manage',component:ViewUpdatesTable},
     {name : 'Feedback' ,permission:'feedback.create',component:GiveFeedback},
+    {name : 'Edit Feedback' ,permission:'feedback.create',component:EditSingleFeedback},
+    {name : 'View Feedback' ,permission:'feedback.view',component:ViewSingleFeedback},
 ]
 
 const Stack = createStackNavigator();
@@ -44,7 +49,35 @@ export default function Protected() {
          })}
           {permission.includes("plans.create")&& <Stack.Screen name="Plan Details" options={({route})=>({headerRight:()=><AddUser id={route.params.id}/>})} component={PlanDetails} />}
          </>:<Stack.Screen name='Blank' component={NoPermission}/>} 
+         <Stack.Screen options={{
+          headerRight:()=>{
+            return <ClearAll/>
+          }
+         }} name='Notifications' component={Notification}/>
     </Stack.Navigator>
+  )
+}
+
+const ClearAll = ()=>{ 
+  const userId = useSelector(state=>state.auth.data?.data?.userId); 
+  const dispatch = useDispatch();
+  const handleClear = async()=>{     
+    try{
+      dispatch(clearAllNotifications());
+      await axiosInstance.delete(`api/notifications/${userId}/delete`);
+    }
+    catch(err){
+      console.log(err?.response?.data?.message);      
+    }
+  }
+  return (
+    <>
+    <TouchableHighlight underlayColor={"skyblue"}  style={styles.clear} onPress={handleClear}>
+    <View style={{flexDirection:'row',alignItems:'center'}}>      
+      <Text style={styles.clearText}>Clear All</Text> 
+    </View>
+    </TouchableHighlight>
+    </>
   )
 }
 
@@ -71,8 +104,19 @@ const styles = StyleSheet.create({
   container:{ 
     marginRight:20,
     borderRadius:10,
-    backgroundColor: "#007bff",
+    backgroundColor: "#007BFF",
     padding:5,
+  },
+  clear:{
+    marginRight:20,
+    borderRadius:10,
+    backgroundColor: "#007BFF",
+    padding:5,
+  },
+  clearText:{
+    padding:2,
+    fontSize:15,
+    color:'white'
   },
   text:{ 
     padding:2,

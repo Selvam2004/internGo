@@ -39,7 +39,7 @@ export default function SpecificProfile({route}) {
     }
     catch(error){
       console.log(error);
-      setError(error.response.data.message)
+      setError(true)
     }
     finally{
       setLoading(false);

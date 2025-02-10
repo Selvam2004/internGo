@@ -13,13 +13,12 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import { Picker } from "@react-native-picker/picker";
 import Toast from "react-native-toast-message";
-import { axiosInstance } from "../../utils/axiosInstance";
-import { useSelector } from "react-redux";
+import { axiosInstance } from "../../utils/axiosInstance"; 
+import { useNavigation } from "@react-navigation/native";
 
 const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [isScheduled, setIsScheduled] = useState(false);
-  const {userId} = useSelector(state=>state.auth.data?.data);
+  const [isScheduled, setIsScheduled] = useState(false); 
   const [loading, setLoading] = useState(false); 
   const [isVisible, setIsVisible] = useState({
     date: false,
@@ -44,7 +43,8 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
     });
   };
 
-  useEffect(() => {
+  useEffect(() => { 
+    
     setDetails({
       name: interaction.name,
       assignedIntern: interaction.assignedIntern,
@@ -61,9 +61,10 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
       time: interaction.time,
       duration: interaction.duration,
     });
+    setIsScheduled(interaction.isScheduled);
   }, [interaction]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if(editedDetails.duration?.trim()==''){
         console.log('empty');
         
@@ -73,23 +74,25 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
     try{
 
         setLoading(true);
-        const response = axiosInstance.patch(`/api/interactions/${interaction.id}/update`,{
+        const response =await axiosInstance.patch(`/api/interactions/${interaction.id}/update`,{
+          id:interaction.id,
             ...editedDetails
         })
-        if(response){             
+        if(response){   
+                      
             showToast('success','Updated successfully!!')
             handleSubmitChange(interaction.id,editedDetails);
+            setTimeout(()=>{ 
+              setModalVisible(false);
+            },1000)
         }
     }
     catch(err){
         console.log(err.response.data||'something went wrong');
-        showToast(err.response.data?.message||'Details not updated.Please try later')
+        showToast('error',err.response.data?.message||'Details not updated.Please try later')
     }
-    finally{
-        setTimeout(()=>{
-            setLoading(false);
-            setModalVisible(false);
-        },1000)
+    finally{ 
+        setLoading(false);  
     }
   };
 
@@ -103,14 +106,32 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
     setIsVisible({ ...isVisible, date: false });
   };
 
-  const handleTimeConfirm = (time) => {
-    const formattedTime = time.toLocaleTimeString("en-IN", {
+  const handleTimeConfirm = (time) => { 
+    const formattedTime = time.toLocaleTimeString("en-GB", {
       hour: "2-digit",
       minute: "2-digit",
-    });
-    setEditedDetails({ ...editedDetails, time: formattedTime });
+    }); 
+    
+    setEditedDetails({ ...editedDetails, time: formattedTime.toString() });
     setIsVisible({ ...isVisible, time: false });
   };
+ 
+  const handleSchedule = async()=>{
+    try{
+      const sch=isScheduled;
+      setIsScheduled(!isScheduled);              
+      const response = await axiosInstance.get(`/api/interactions/${interaction.id}/toggleSchedule?isScheduled=${!sch}`); 
+    }
+    catch(err){ 
+      console.log(err?.response?.data?.message||'scheduling failed');      
+    }
+  }
+ const navigation = useNavigation();
+  const handleViewFeedback = ()=>{
+    navigation.navigate('View Feedback',{
+      id:interaction.id
+    })
+  }
 
   return (
     <View style={styles.card}>
@@ -127,12 +148,12 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
           ></View>
           <Text style={styles.title}>{details.name}</Text>
         </View>
-        <Switch
+        {details.interactionStatus === "PENDING"&&<Switch
           value={isScheduled}
-          onValueChange={setIsScheduled}
+          onValueChange={handleSchedule}
           trackColor={{ false: "#ccc", true: "#28a745" }}
           thumbColor={"white"}
-        />
+        />}
       </View>
 
       <View style={styles.namesContainer}>
@@ -164,13 +185,19 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
           <Text style={styles.detailText}>{details.duration}</Text>
         </View>
       </View>
-
+        {details.interactionStatus === "PENDING"? 
       <TouchableOpacity
         style={styles.editButton}
         onPress={() => setModalVisible(true)}
       >
         <Text style={styles.editText}>Edit Interaction</Text>
-      </TouchableOpacity>
+      </TouchableOpacity>:
+            <TouchableOpacity
+            style={styles.editButton}
+            onPress={handleViewFeedback}
+          >
+            <Text style={styles.editText}>View Feedback</Text>
+          </TouchableOpacity>}
 
       <Modal
         visible={modalVisible}
@@ -254,12 +281,14 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
       <DateTimePicker
         isVisible={isVisible.date}
         mode="date"
+        minimumDate={new Date()}
         onConfirm={handleDateConfirm}
         onCancel={() => setIsVisible({ ...isVisible, date: false })}
       />
       <DateTimePicker
         isVisible={isVisible.time}
         mode="time"
+        is24Hour={true}
         onConfirm={handleTimeConfirm}
         onCancel={() => setIsVisible({ ...isVisible, time: false })}
       />

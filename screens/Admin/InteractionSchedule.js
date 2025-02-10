@@ -21,7 +21,7 @@ export default function InteractionSchedule() {
     internName:'',
     internEmail:'',
     mentorName:'Arshad',
-    interviewer:'Gokul',
+    interviewer:'Arshad',
     date:'',
     time:'', 
     duration:''
@@ -36,7 +36,7 @@ export default function InteractionSchedule() {
       swipeable:true,
       visibilityTime:1500, 
     });
-  };
+  }; 
 
   const handleDateConfirm = (date) => {
     const formattedDate = date.toISOString().split('T')[0];
@@ -44,7 +44,7 @@ export default function InteractionSchedule() {
     setIsVisible({...isVisible,date:false});
   };
   const handleTimeConfirm = (time) => {
-    const formattedTime = time.toLocaleTimeString("en-IN",{ hour: "2-digit", minute: "2-digit" }); 
+    const formattedTime = time.toLocaleTimeString("en-GB",{ hour: "2-digit", minute: "2-digit" }); 
     setFields({...fields,time:formattedTime});
     setIsVisible({...isVisible,time:false});
   };
@@ -57,8 +57,8 @@ export default function InteractionSchedule() {
     setError("");  
     if(validate()){
        setLoading(true);
-       try{ 
-         
+       try{   
+          
           const response = await axiosInstance.post(`/api/interactions/schedule`,{
             name:fields.interactionName,
             assignedIntern:fields.internName,
@@ -69,22 +69,23 @@ export default function InteractionSchedule() {
             time:fields.time,
             duration:fields.duration
           })
-          if(response){ 
+          
+          if(response){  
             showToast('success','Interaction scheduled successfully ✅')
             setFields({
               interactionName:'',
               internName:'',
               internEmail:'',
               mentorName:'Arshad',
-              interviewer:'Gokul',
+              interviewer:'Arshad',
               date:'',
               time:'', 
               duration:''
             })
           }
        }
-       catch(err){ 
-        const message = err.response.data?.message||"Interaction not scheduled ❌";
+       catch(err){   
+        const message = err?.response?.data?.message||"Interaction not scheduled ❌";         
         showToast('error',message)
        }
        finally{
@@ -196,15 +197,15 @@ export default function InteractionSchedule() {
 
             <View style={styles.buttonContainer}>
               <TouchableOpacity disabled={loading} onPress={handleSave}>
-            <View style={styles.button}>
+            <View style={[styles.button,loading&&{backgroundColor:'skyblue'}]}>
               <Text style={styles.buttonText}>Schedule Interaction</Text>
             </View>
             </TouchableOpacity>
            </View> 
            <Toast/>
       </View>
-      <DateTimePicker isVisible={isVisible.date} mode='date' onConfirm={handleDateConfirm} onCancel={()=>setIsVisible({...isVisible,date:false})}/>
-      <DateTimePicker isVisible={isVisible.time} mode='time' onConfirm={handleTimeConfirm} onCancel={()=>setIsVisible({...isVisible,time:false})}/>
+      <DateTimePicker isVisible={isVisible.date} minimumDate={new Date()} mode='date' onConfirm={handleDateConfirm} onCancel={()=>setIsVisible({...isVisible,date:false})}/>
+      <DateTimePicker isVisible={isVisible.time} is24Hour={true} mode='time' onConfirm={handleTimeConfirm} onCancel={()=>setIsVisible({...isVisible,time:false})}/>
     </ScrollView> 
   )
 }

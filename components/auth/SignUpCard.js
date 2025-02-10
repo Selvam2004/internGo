@@ -29,7 +29,7 @@ const SignUpCard = ({navigation}) => {
         else if(!user.email){
             setError("*Please enter your email");
         }
-        else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email)){
+        else if(!/^[a-zA-Z0-9._%+-]+@(?:finestcoder\.com|codingmart\.com)$/.test(user.email)){
             setError("*Please enter valid email");
         }
         else if(!user.password){

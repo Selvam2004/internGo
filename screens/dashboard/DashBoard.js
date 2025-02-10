@@ -2,7 +2,7 @@ import { Image ,View,Text, StyleSheet, TouchableOpacity} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import 'react-native-gesture-handler'
 import { useDispatch ,useSelector} from 'react-redux'
-import { logout } from '../../redux/AuthSlice';
+import { logout } from '../../redux/reducers/AuthSlice';
 import Logo from '../../assets/internGo.png';
 import {createDrawerNavigator, DrawerContentScrollView, DrawerItemList} from '@react-navigation/drawer'
 import Profile from '../User/Profile';
@@ -10,7 +10,7 @@ import DailyUpdate from '../User/DailyUpdate';
 import Roadmap from '../User/Roadmap';
 import Help from '../User/Help';
 import CreateRoadmap from '../Mentor/CreateRoadmap';
-import Feedback from '../Mentor/Feedback';
+import EditFeedback from '../Mentor/EditFeedback';
 import Interactions from '../User/Interactions';
 import CreatePlan from '../Admin/CreatePlan';
 import InteractionSchedule from '../Admin/InteractionSchedule'
@@ -30,42 +30,103 @@ import Home from '../User/Home';
 import { axiosInstance } from '../../utils/axiosInstance';
 import ViewDailyUpdates from '../Admin/ViewDailyUpdates';
 import { useNavigation } from '@react-navigation/native';
+import socket from '../../utils/socket';
+import { addNotification, setNotifications,markAsRead } from '../../redux/reducers/NotificationSlice';
+import AddUsers from '../Admin/AddUsers';
+import ViewFeedback from '../Admin/ViewFeedback';
+import Toast from 'react-native-toast-message';
  
 
 export default function DashBoard( ) {
-  const dispatch = useDispatch();
-  const datas = useSelector(state=>state.auth.data?.data?.permissions); 
-  const id = useSelector(state=>state.auth.data?.data?.userId); 
-  const token = useSelector((state)=>state.auth.data?.data?.token);
+  const dispatch = useDispatch();   
+  const datas= useSelector(state=>state.auth.data?.data?.permissions);  
+  const id= useSelector(state=>state.auth.data?.data?.userId);  
+  const token= useSelector(state=>state.auth.data?.data?.token);  
   const permission = datas || null;
-  const navigation = useNavigation();
+  const navigation = useNavigation(); 
   const handleLogOut = ()=>{
     dispatch(logout());
   }
   const Drawer = createDrawerNavigator()
-  const [badgeCount, setBadgeCount] = useState(10); 
-  const verify =async()=>{
-    try{ 
-      const response = await axiosInstance.post('/api/auth/verify',{token});
-      if(response){
-        console.log(response);
-        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  const [badgeCount, setBadgeCount] = useState(0);  
 
-      } 
-      else{
-        handleLogOut();
+
+  useEffect(()=>{
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+},[])
+
+  useEffect(() => {   
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id); 
+      socket.emit("join", {userId:id});
+    });
+
+    socket.on("notification", (data) => { 
+      const dt = data.createdNotification;
+      const newNotification = {id:dt.id,message:dt.message,type:dt.type,timestamp:new Date(dt.createdAt).toLocaleString("en-US", { 
+        year: "numeric", month: "long", day: "numeric", 
+        hour: "2-digit", minute: "2-digit"
+    }),isRead:dt.isRead}
+      showToast(newNotification.type,newNotification.message)
+      setBadgeCount(prev=>prev+1);
+      dispatch(addNotification(newNotification))
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected. Attempting to reconnect...");
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("notification");
+      socket.off("disconnect");   
+    };
+  }, [id]); 
+ 
+  const showToast = (type,message) => {     
+    Toast.show({
+      type: 'info',  
+      text1: type,
+      text2: message,
+      position: "top",  
+      swipeable:true,
+      visibilityTime:1500, 
+    });
+  }; 
+
+
+  useEffect(()=>{ 
+    fetchNotification(); 
+  },[])
+ 
+  const fetchNotification = async()=>{  
+    try{
+      const response = await axiosInstance.get(`/api/notifications/${id}`);
+      if(response){ 
+        
+        let notification = response.data.data||[];
+        if(notification.length>0){
+          notification=notification.map((dt)=>({
+            id:dt.id,message:dt.message,type:dt.type,timestamp:new Date(dt.createdAt).toLocaleString("en-US", { 
+              year: "numeric", month: "long", day: "numeric", 
+              hour: "2-digit", minute: "2-digit"
+          }),isRead:dt.isRead})
+          )
+        }          
+        const count =notification.filter(n=>!n.isRead);
+        setBadgeCount(count.length);
+        dispatch(setNotifications(notification));
       }
     }
     catch(err){
-      console.log(err);
-      handleLogOut()
+      dispatch(setNotifications([]));
+      console.log(err.response.data?.message);      
     }
   }
-  useEffect(()=>{
-    verify();
-  },[])
+
   
-  const handleNotification = ()=>{
+  const handleNotification = ()=>{ 
+    setBadgeCount(0);
     navigation.navigate('Notifications')
   }
 
@@ -84,8 +145,7 @@ export default function DashBoard( ) {
       permission: 'profile.update',
       component: Profile,
       icon:EP,
-      iconlabel:'user',
-      data:id 
+      iconlabel:'user', 
     },
     {
       label: 'Daily Update',
@@ -103,14 +163,14 @@ export default function DashBoard( ) {
     //   icon:FA,
     //   label:'map-marked-alt'
     // },
-    // {
-    //   label: 'Help',
-    //   name: 'Help',
-    //   permission: 'Help',
-    //   component: Help,
-    //   icon:MI,
-    //   label:'contact-support'
-    // },
+    {
+      label: 'Help',
+      name: 'Help',
+      permission: 'profile.update',
+      component: Help,
+      icon:MI,
+      label:'contact-support'
+    },
     {
       label: 'Create Plan',
       name: 'Create Plan',
@@ -128,12 +188,28 @@ export default function DashBoard( ) {
       iconlabel:'list-ul'
     },
     {
+      label: 'Resources',
+      name: 'Resources',
+      permission: 'users.manage',
+      component: Resources,
+      icon:FA,
+      iconlabel:'users'
+    },
+    {
+      label: 'Add Users',
+      name: 'AddUsers',
+      permission: 'users.manage',
+      component: AddUsers,
+      icon:EP,
+      iconlabel:'add-user', 
+    },
+    {
       label:'Schedule',
       name: 'Schedule',
       permission: 'interactions.schedule',
       component: InteractionSchedule,
-      icon:AD,
-      iconlabel:'calendar'
+      icon:MI,
+      iconlabel:'pending-actions'
     },
 
     // {
@@ -172,7 +248,15 @@ export default function DashBoard( ) {
       label: 'FeedBack',
       name: 'View FeedBack',
       permission: 'feedback.view',
-      component: Feedback,
+      component: ViewFeedback,
+      icon:EP,
+      iconlabel:'chat'
+    },
+    {
+      label: 'FeedBack',
+      name: 'edit FeedBack',
+      permission: 'feedback.create',
+      component: EditFeedback,
       icon:EP,
       iconlabel:'chat'
     },
@@ -199,41 +283,40 @@ export default function DashBoard( ) {
       icon:AD,
       iconlabel:'notification'
     },
-    {
-      label: 'Resources',
-      name: 'Resources',
-      permission: 'users.manage',
-      component: Resources,
-      icon:FA,
-      iconlabel:'users'
-    },
-  ]
+
+  ] 
+
 
   return (
     <>
+    
      <Drawer.Navigator screenOptions={{
       headerTitle: () => (
       <Image
         source={Logo}
         style={{ width: 120, height: 120 }} 
       />
+       
     ) , 
     headerRight:()=>(
       <View style={{marginRight:20}}>
       <TouchableOpacity onPress={handleNotification} style={styles.iconContainer}>
         <Icon name="notifications" size={30} color="#000" />
-        {/* {badgeCount > 0 && (
+        {badgeCount > 0 && (
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{badgeCount}</Text>
           </View>
-        )} */}
-      </TouchableOpacity>
+          
+        )}
+      </TouchableOpacity> 
+      
     </View>
     )
   }}  
   
   drawerContent={ (props) => (
       <DrawerContentScrollView {...props}>
+        
       <View style={styles.drawerHeader}> 
         <Text style={styles.menuTitle}>DashBoard</Text>
       </View>
@@ -257,13 +340,13 @@ export default function DashBoard( ) {
       }):<Drawer.Screen name='Blank' component={NoPermission}/>} 
       
      </Drawer.Navigator> 
-      
+     <Toast/>
    
      </>
   )
 }
 
-const DrawerItem = ({ icon: IconComponent, name,iconlabel,label }) => {
+const DrawerItem = ({ icon: IconComponent, iconlabel,label }) => {
   return (
     <View style={{flexDirection:'row'}}>
       {IconComponent&&<IconComponent  name={iconlabel} size={20} style={{marginLeft:10}}/>}

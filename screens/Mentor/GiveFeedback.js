@@ -7,100 +7,157 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import { AirbnbRating } from 'react-native-ratings';
+import { Rating } from 'react-native-ratings';
 import { Checkbox } from 'react-native-paper';
+import Toast from 'react-native-toast-message';
+import { axiosInstance } from '../../utils/axiosInstance';
+import { useNavigation } from '@react-navigation/native';
 
-export default function GiveFeedback() {
-  const [feedback, setFeedback] = useState([]);
+export default function GiveFeedback({route}) {
+  const interaction = route.params.interaction;   
+  const [feedback, setFeedback] = useState({});
   const [description, setDescription] = useState('');
-  const [showParameters, setShowParameters] = useState(true); // State to track visibility of parameters
- 
+  const [showParameters, setShowParameters] = useState(true); 
+  const showToast = (state,message) => {     
+    Toast.show({
+      type: state,  
+      text1: "Interaction Schedule",
+      text2: message,
+      position: "bottom",  
+      swipeable:true,
+      visibilityTime:1000, 
+    });
+  }; 
   const parameters = [
-    'Communication',
-    'Problem Solving',
-    'Real-time Scenario',
-    'Leadership',
-    'Teamwork',
-    'Adaptability',
-    'Creativity',
-    'Technical Knowledge',
-    'Decision Making',
-    'Time Management',
+    "Communication",
+    "Learning Curve",
+    "Understanding",
+    "Capability",
+    "Task Completion",
+    "Requirement Gathering",
+    "Coding Skill",
+    "In-depth Knowledge",
+    "Experience",
+    "Problem Solving",
+    "Presentation",
+    "Code Quality",
+    "Concepts",
+    "Contribution",
+    "Logical Thinking",
+    "Technical Proficiency",
+    "Project Presentation",
+    "Scenario-Based Questions",
+    "Documentation",
+    "QA Evaluation",
+    "Code Complexity"
   ];
  
 
   const toggleSelection = (param) => {
     setFeedback((prevFeedback) => {
-      if (prevFeedback.some((item) => item.param === param)) {
-        return prevFeedback.filter((item) => item.param !== param);
-      } else {
-        return [...prevFeedback, { param, rating: 0 }];
-      }
+      const updatedFeedback = { ...prevFeedback }; 
+    if (updatedFeedback.hasOwnProperty(param)) {
+      delete updatedFeedback[param]; 
+    } else {
+      updatedFeedback[param] = 0;
+    }
+    return updatedFeedback;
     });
   };
 
   const handleSubmitCheckboxes = () => { 
+    if(Object.keys(feedback).length<7){
+      showToast('error','You have to select atleast 7 parameters')
+      return false;
+    }
     setShowParameters(false);  
   };
 
   const updateRating = (param, rating) => {
     setFeedback((prevFeedback) =>
-      prevFeedback.map((item) =>
-        item.param === param ? { ...item, rating } : item
-      )
+     ({
+      ...prevFeedback,[param]:rating
+     })
     );
   };
 
-  const handleSubmitFeedback = () => {
-    // Handle the overall feedback submission logic here
-    console.log('Overall Feedback:', description);
-    console.log('Ratings:', feedback);
-    // Reset the form if needed
-    setFeedback([]);
-    setDescription('');
-    setShowParameters(true); // Show parameters again for new feedback
+  const handleSubmitFeedback = () => {  
+    console.log(feedback); 
+    
+    if(!description.trim()){
+      showToast('error',"*Please give the overall feedback");
+      return
+    }
+    else{
+      handleSubmit();
+     }
+
   };
+  const navigation = useNavigation();
+  const handleSubmit =async ()=>{
+    try{
+      const response = await axiosInstance.post(`/api/feedbacks/create`,{
+        interactionId: interaction?.id,
+        internId: interaction?.internId,
+        interviewerId: interaction?.interviewerId,
+        ratings:feedback,
+        descriptive_feedback: description,
+      })
+      if(response){
+        showToast('success','Feedback submitted successfully');
+ 
+        setTimeout(()=>{
+          navigation.navigate('Interactions')
+        },1000);
+      }
+    }
+    catch(err){
+      const message = err?.response?.data?.message||'Feedback not submitted';
+      console.log(message);
+      showToast('error',message);         
+    }
+  }
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Give Feedback</Text>
-
-      {/* Parameter Selection */}
+      <View style={{marginBottom:15}}>
+      {showParameters?<Text style={styles.label}>Select Parameters</Text>:<Text style={styles.title}>Give Feedback</Text>}
+      
       {showParameters && (
         <View style={styles.card}>
-          <Text style={styles.label}>Select Parameters</Text>
+          
           {parameters.map((param, index) => (
             <View key={index} style={styles.checkboxContainer}>
     <Checkbox
-      status={feedback.some((item) => item.param === param) ? 'checked' : 'unchecked'}
+      status={feedback.hasOwnProperty(param) ? 'checked' : 'unchecked'}
+      color='blue'
       onPress={() => toggleSelection(param)}
     />
     <Text>{param}</Text>
             </View>
           ))}
-
-          {/* Submit Button for Checkbox Selection */}
+ 
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmitCheckboxes}>
             <Text style={styles.submitButtonText}>Next</Text>
           </TouchableOpacity>
         </View>
       )}
-
-      {/* Feedback List (only if all required checkboxes are selected) */}
-      {!showParameters  && feedback.map((item, index) => (
-        <View key={index} style={styles.card}>
-          <Text style={styles.label}>{item.param}</Text>
-          <AirbnbRating
-            count={5}
-            defaultRating={item.rating}
-            size={20}
-            showRating={false}
-            onFinishRating={(rating) => updateRating(item.param, rating)}
+ 
+      {!showParameters  && Object.keys(feedback).map((item, index) => (
+        <View key={index} style={[styles.card,{flexDirection:'row',justifyContent:'space-between'}]}>
+          <Text style={styles.label}>{item}</Text>
+          <Rating
+            type='star'
+            ratingCount={5}
+            imageSize={20}
+            startingValue={feedback[item] ?? 0}
+            jumpValue={0.5}
+            fractions={1} 
+            onFinishRating={(rating) => updateRating(item, rating)} 
           />
         </View>
       ))}
-
-      {/* Overall Description and Submit Button */}
+ 
       {!showParameters   && (
         <View style={styles.card}>
           <Text style={styles.label}>Overall Description</Text>
@@ -116,6 +173,8 @@ export default function GiveFeedback() {
           </TouchableOpacity>
         </View>
       )}
+      <Toast/>
+      </View>
     </ScrollView>
   );
 }
@@ -124,7 +183,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#f8f8f8', 
   },
   title: {
     fontSize: 22,

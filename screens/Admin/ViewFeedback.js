@@ -1,13 +1,13 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, ScrollView, FlatList, ActivityIndicator } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react' 
 import ErrorPage from '../../components/error/Error'; 
-import Icon from "react-native-vector-icons/MaterialIcons";
-import InteractionEditCard from '../../components/interactions/InteractionEditCard';
+import Icon from "react-native-vector-icons/MaterialIcons"; 
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import { axiosInstance } from '../../utils/axiosInstance';
+import ViewFeedbackCard from '../../components/feedback/ViewFeedbackCard';
 
 
-export default function Interactions() { 
+export default function ViewFeedback() { 
 
   const [search, setSearch] = useState("");  
   const [modalVisible, setModalVisible] = useState(false);
@@ -54,7 +54,6 @@ export default function Interactions() {
   }, [search]);
 
   useEffect(() => { 
-
       fetchInteractions(true) 
   }, []);
    
@@ -140,24 +139,8 @@ export default function Interactions() {
 
   const handleRemoveDate = ()=>{
     setfilter({...filter,date:''})
-  }
-
-  const handleSubmitChange =(id,edit)=>{
-    setInteractions((prev) =>
-      prev.map((interaction) =>
-        interaction.id !== id
-          ? interaction
-          : {
-              ...interaction,
-              assignedInterviewer: edit.assignedInterviewer,
-              date: edit.date,
-              time: edit.time,
-              duration: edit.duration,
-            }
-      )
-    );
-  }
-
+  } 
+  
   return (
     <View style={styles.container}>
       {error?<ErrorPage onRetry={fetchInteractions}/>:
@@ -170,14 +153,14 @@ export default function Interactions() {
         keyExtractor={(item,index)=>String(item.id)}
         renderItem={({item})=>(
           <>   
-                 <InteractionEditCard handleSubmitChange={handleSubmitChange} interaction={item}/>
+                 <ViewFeedbackCard interaction={item}/>
            </>
         )} 
         onEndReachedThreshold={0.5} 
         onEndReached={fetchMore}
         ListHeaderComponent={
           <>
-          <Text style={styles.header}>Interactions</Text>
+          <Text style={styles.header}>Feedbacks</Text>
           <View style={styles.searchContainer}>
               <Icon
                 name="search"

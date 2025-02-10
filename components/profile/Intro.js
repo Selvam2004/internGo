@@ -35,9 +35,9 @@ export default function Intro({user,edit,token,fetchUser}) {
   const convert = async(image)=>{
     const manipResult = await ImageManipulator.manipulateAsync(
       image,  
-      [{ resize: { width: 200, height: 200 } }], 
+      [{ resize: { width: 800, height: 1000 } }], 
       {
-        compress: 1,  
+        compress: 0.5,  
         format: ImageManipulator.SaveFormat.JPEG,  
         base64: true,  
       }
@@ -77,8 +77,7 @@ export default function Intro({user,edit,token,fetchUser}) {
   };
   
     const handleImageChange = async (image)=>{
-      try{
-        console.log('started'); 
+      try{ 
         const response = await axiosInstance.patch(`/api/users/update/${user.id}`,{
           profilePhoto:image
         },
@@ -86,8 +85,7 @@ export default function Intro({user,edit,token,fetchUser}) {
           headers: {
             Authorization: `Bearer ${token}`, 
           },
-        })
-        console.log('finished');
+        }) 
         if(response){
           console.log(response.data.data);
           fetchUser();
@@ -95,7 +93,7 @@ export default function Intro({user,edit,token,fetchUser}) {
       }
       catch(error){
         console.log(error);
-        console.log(error.response.data.message) 
+        console.log(error.response.status) 
       }
     } 
 

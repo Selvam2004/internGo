@@ -21,7 +21,7 @@ export default function GiveFeedback({route}) {
   const showToast = (state,message) => {     
     Toast.show({
       type: state,  
-      text1: "Interaction Schedule",
+      text1: "FeedBack",
       text2: message,
       position: "bottom",  
       swipeable:true,

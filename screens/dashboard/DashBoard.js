@@ -26,6 +26,7 @@ import FA from 'react-native-vector-icons/FontAwesome5';
 import EP from 'react-native-vector-icons/Entypo';
 import MI from 'react-native-vector-icons/MaterialIcons';
 import AD from 'react-native-vector-icons/AntDesign';
+import OI from 'react-native-vector-icons/Octicons';
 import Home from '../User/Home'; 
 import { axiosInstance } from '../../utils/axiosInstance';
 import ViewDailyUpdates from '../Admin/ViewDailyUpdates';
@@ -35,6 +36,7 @@ import { addNotification, setNotifications,markAsRead } from '../../redux/reduce
 import AddUsers from '../Admin/AddUsers';
 import ViewFeedback from '../Admin/ViewFeedback';
 import Toast from 'react-native-toast-message';
+import Analytics from '../Admin/Analytics';
  
 
 export default function DashBoard( ) {
@@ -163,14 +165,14 @@ export default function DashBoard( ) {
     //   icon:FA,
     //   label:'map-marked-alt'
     // },
-    {
-      label: 'Help',
-      name: 'Help',
-      permission: 'profile.update',
-      component: Help,
-      icon:MI,
-      label:'contact-support'
-    },
+    // {
+    //   label: 'Help',
+    //   name: 'Help',
+    //   permission: 'profile.update',
+    //   component: Help,
+    //   icon:MI,
+    //   label:'contact-support'
+    // },
     {
       label: 'Create Plan',
       name: 'Create Plan',
@@ -243,6 +245,14 @@ export default function DashBoard( ) {
       component: EditInteractions,
       icon:AD,
       iconlabel:'calendar' 
+    },
+    {
+      label: 'Analytics',
+      name: 'PerformanceAnalytics',
+      permission: 'feedback.view',
+      component: Analytics,
+      icon:EP,
+      iconlabel:'bar-graph'
     },
     {
       label: 'FeedBack',

@@ -4,20 +4,23 @@ import {
   Text, 
   ScrollView, 
   StyleSheet,
+  TouchableOpacity,
 } from 'react-native';
 import { Rating } from 'react-native-ratings';  
 import ErrorPage from '../../components/error/Error';
 import { axiosInstance } from '../../utils/axiosInstance';
 import SpiderChart from '../../components/feedback/spiderGraph';
+import PerformanceChart from '../../components/Analytics/LineChart'; 
+import InteractionAttendedCard from '../../components/Analytics/InteractionAttended';
+import  Icon  from 'react-native-vector-icons/Entypo';
 
-
-export default function ViewSingleFeedback({route}) {
-  const id = route.params.id;    
+export default function SpecificAnalytics({route}) {
+  const id = route.params.userId;   
   const [feedback, setFeedback] = useState({});
+  const [interaction, setInteraction] = useState([]);
   const [description, setDescription] = useState('');   
   const [loading,setLoading] = useState(false);
-  const [error,setError] = useState(false);
-  const [avg,setAvg] = useState(0);
+  const [error,setError] = useState(false); 
   useEffect(()=>{
     fetchInteraction();
   },[])
@@ -25,17 +28,19 @@ export default function ViewSingleFeedback({route}) {
     try{
       setError(false);
       setLoading(true);
-      const response = await axiosInstance.get(`api/feedbacks/interaction/${id}`);
+      const response = await axiosInstance.get(`api/feedbacks/intern/${id}`);
       if(response){
-        const data = response?.data?.data[0];
-        setDescription(data.descriptive_feedback)
-        setFeedback(data.ratings)
-        setAvg(data.avg_rating) 
+        const data = response?.data?.data; 
+        const dt ={};
+        data.forEach(fb => {
+            dt[fb.interaction.name]=fb.avg_rating
+        });          
+        setInteraction(data)
+         setFeedback(dt)
       }
     }
     catch(err){
-      setError(true); 
-      
+      setError(true);        
       console.log(err?.response?.data?.message);      
     }
     finally{
@@ -47,24 +52,38 @@ export default function ViewSingleFeedback({route}) {
     <ScrollView style={styles.container}>
             {error?<ErrorPage onRetry={fetchInteraction}/>:
       loading?<View style={{height:500,justifyContent:'center'}}><Text style={{fontWeight:'600',textAlign:'center'}}>Loading...</Text></View>:
-      <View> 
-       <SpiderChart data={feedback}/>
+      <View style={{marginBottom:20}}> 
+      <Text
+          style={{
+            textAlign: "center",
+            fontSize: 20,
+            fontWeight: "bold",
+            color: "#000000",
+            marginBottom: 10,
+          }}
+        >
+          Performance Analysis
+        </Text>
+       {Object.keys(feedback).length>0&&<PerformanceChart data={feedback}/>}
 
-        <View style={styles.card}>
-          <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-          <Text style={styles.label}>Average Rating:</Text>
-          <Rating
-          type='star'
-          ratingCount={5}
-          imageSize={20}
-          startingValue={ avg?? 0}
-          />
-          </View> 
+        <View style={{flexDirection:'row',justifyContent:'flex-end'}}>
+            <TouchableOpacity>
+       <View style={styles.downloadButton}>
+        <Text style={{color:'white',fontWeight:'600',fontSize:16,paddingRight:5}}>Download</Text>
+        <Icon name='download' color={'white'} size={18}/>
         </View>
-        <View style={styles.card}> 
-          <Text style={styles.label}>Description:</Text>
-          <Text style={{padding:5}}>{description}</Text> 
-        </View>  
+        </TouchableOpacity>
+        </View>
+
+
+       <View style={{marginTop:10}}> 
+          <Text style={styles.label}>Interactions Attended:</Text> 
+          {interaction.length>0&&interaction.map((intr,index)=>(<InteractionAttendedCard key={index} interaction={intr.interaction}/>))}
+        </View>
+
+ 
+
+
         </View>
       }
     </ScrollView>
@@ -95,7 +114,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   label: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     marginBottom: 8,
   },
@@ -125,4 +144,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  downloadButton:{
+    flexDirection:'row',
+    backgroundColor:'#007BFF',   
+    marginTop:15,
+    padding:5,
+    borderRadius:5,
+}
 });

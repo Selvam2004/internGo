@@ -20,6 +20,7 @@ import { axiosInstance } from '../../utils/axiosInstance';
 import { clearAllNotifications } from '../../redux/reducers/NotificationSlice'; 
 import EditSingleFeedback from '../../screens/Mentor/EditSingleFeedbackCard';
 import ViewSingleFeedback from '../../screens/Admin/ViewSingleFeedback';
+import SpecificAnalytics from '../../screens/Admin/SpecificAnalytics';
 const tabs = [
     {name : 'Batches',permission:'profile.update',component:Batches}, 
     {name : 'Users',permission:'profile.update',component:UserTable},
@@ -31,6 +32,7 @@ const tabs = [
     {name : 'Feedback' ,permission:'feedback.create',component:GiveFeedback},
     {name : 'Edit Feedback' ,permission:'feedback.create',component:EditSingleFeedback},
     {name : 'View Feedback' ,permission:'feedback.view',component:ViewSingleFeedback},
+    {name : 'Analytics' ,permission:'feedback.view',component:SpecificAnalytics},
 ]
 
 const Stack = createStackNavigator();

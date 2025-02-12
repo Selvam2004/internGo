@@ -136,6 +136,14 @@ export default function Intro({user,edit,token,fetchUser}) {
           }}
         >
           <Text style={{ fontWeight: "bold", fontSize: 20 ,flex:3,}}>Profile</Text>
+          {role=='Mentors'?          <Text
+            style={[
+              styles.badge,
+              { backgroundColor:  "green"   },
+            ]}
+          >
+            ACTIVE
+          </Text>:
           <Text
             style={[
               styles.badge,
@@ -143,7 +151,7 @@ export default function Intro({user,edit,token,fetchUser}) {
             ]}
           >
             {user.status || "IDLE"}
-          </Text>
+          </Text>}
         </View>
         <Text
           style={{
@@ -158,11 +166,11 @@ export default function Intro({user,edit,token,fetchUser}) {
         <Text style={{ fontSize: 12, marginTop: 5 }}>
           {user.email || "example@gmail.com"}
         </Text>
-        <Text style={{ fontSize: 12, marginTop: 5 }}>
+        {role=='Interns'&&<Text style={{ fontSize: 12, marginTop: 5 }}>
           {user.batch || "Batch N/A"} {user.phase || "Phase N/A"}
-        </Text>
+        </Text>}
         <Text style={{ fontSize: 12, marginTop: 5 }}>
-          {user.designation || "Designation N/A"}
+          {role=='Mentors'?'Mentor':(role=='Admins'&edit)?'Admin': user.designation || "Designation N/A"}
         </Text>
       </View>
 

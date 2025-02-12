@@ -33,8 +33,8 @@ export default function InternHome() {
   }; 
 
   return (
-    <ScrollView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}> 
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.content}> 
         <View>
           <Text style={styles.welcomeText}>Welcome {name}</Text>
         </View>
@@ -51,13 +51,16 @@ export default function InternHome() {
           📢 Announcements
           </Text>
           {announcement.length>0?
-          <ScrollView  nestedScrollEnabled={true} style={{maxHeight:300}}>{announcement.map((data,i)=>(
-          <View key={i} style={styles.announcementItem}>
-            <Text style={styles.announcementText}> 
-               {data}
-            </Text>
-          </View>
-            ))}</ScrollView>:<View style={{height:80,justifyContent:'center'}}><Text style={{textAlign:'center'}}>No Announcement Currently</Text></View>}
+          <View style={{ maxHeight: 300 }}>
+          <ScrollView nestedScrollEnabled={true}>
+            {announcement.map((data, i) => (
+              <View key={i} style={styles.announcementItem}>
+                <Text style={styles.announcementText}>{data}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+        :<View style={{height:80,justifyContent:'center'}}><Text style={{textAlign:'center'}}>No Announcement Currently</Text></View>}
         </View>
  
         <View style={styles.card}>
@@ -80,7 +83,7 @@ export default function InternHome() {
           </Text>
         </View>
 
-      </ScrollView>
+      </View>
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>© 2025 InternGo. All rights reserved.</Text> 

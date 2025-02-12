@@ -15,7 +15,7 @@ import Skillsets from '../../components/profile/Skillsets'
 
 
 export default function Profile() {
-  const {userId, token} = useSelector((state)=> state.auth.data?.data);   
+  const {userId, role,token} = useSelector((state)=> state.auth.data?.data);   
   const [currentUser,setCurrentUser] = useState(''); 
   const [error,setError] = useState(false); 
   const [loading,setLoading] = useState(false); 
@@ -25,13 +25,7 @@ export default function Profile() {
       
       setError(false);
       console.log(token);
-      const response = await axiosInstance.get(`/api/users/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, 
-          },
-        }
-      ); 
+      const response = await axiosInstance.get(`/api/users/${userId}`); 
       console.log(response.data);
        if(response.data.data){
         setCurrentUser(response.data.data);   
@@ -69,16 +63,16 @@ export default function Profile() {
                     <Text style={styles.loadingText}>loading...</Text>
                 </View>
              ):
-      ( <View>
+      ( <View style={{paddingBottom:20}}>
           <Intro  {...props}/>
-          <ProgressBarCard progress={currentUser.profilePercentage}/>
+          {role!='Mentors'&&<ProgressBarCard progress={currentUser.profilePercentage}/>}
           <Skillsets {...props}/>
           <PersonalDetails  {...props}/>
           <AddressDetails {...props}/>
-          <EducationalDetails {...props}/>
-          <CompanyDetails  {...props} />
-          <BankDetails {...props}/>
-          <AssetDetails {...props} assets={currentUser.assets}/>
+          {role!='Mentors'&&<EducationalDetails {...props}/>}
+          {role!='Mentors'&&<CompanyDetails  {...props} />}
+          {role!='Mentors'&& <BankDetails {...props}/>}
+          {role!='Mentors'&&<AssetDetails {...props} assets={currentUser.assets}/>}
         </View>
       ) : (
         <ErrorPage onRetry={fetchUser} />

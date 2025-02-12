@@ -19,8 +19,7 @@ export default function AdminHome() {
   const fetchHome = async()=>{
     try{
       const response = await axiosInstance.get(`api/users/count/status`);
-      const data = response.data?.data; 
-      console.log(data);
+      const data = response.data?.data;  
       
       setUsers({
         total:data?.totalCount||0,
@@ -34,8 +33,8 @@ export default function AdminHome() {
     }
   }
   return (
-    <ScrollView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}> 
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.content}> 
         <View>
           <Text style={styles.welcomeText}>Welcome {name}</Text>
         </View>
@@ -51,13 +50,17 @@ export default function AdminHome() {
           <Text style={styles.announcementTitle}>
           📢 Announcements
           </Text>
-          {announcement.length>0?announcement.map((data,i)=>(
-          <View key={i} style={styles.announcementItem}>
-            <Text style={styles.announcementText}> 
-               {data}
-            </Text>
-          </View>
-            )):<View style={{height:80,justifyContent:'center'}}><Text style={{textAlign:'center'}}>No Announcement Currently</Text></View>}
+          {announcement.length>0?
+          <View style={{ maxHeight: 300 }}>
+          <ScrollView nestedScrollEnabled={true}>
+            {announcement.map((data, i) => (
+              <View key={i} style={styles.announcementItem}>
+                <Text style={styles.announcementText}>{data}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+        :<View style={{height:80,justifyContent:'center'}}><Text style={{textAlign:'center'}}>No Announcement Currently</Text></View>}
         </View>
  
         <View style={styles.statCard}>
@@ -78,7 +81,13 @@ export default function AdminHome() {
           <Text style={styles.statValue}>{users.notActive}</Text>
         </View>
 
-      </ScrollView>
+        <View style={styles.statCard}>
+          <Icon name="users" size={32} color="gray" />
+          <Text style={styles.statTitle}>Deployed</Text>
+          <Text style={styles.statValue}>{users.deployed}</Text>
+        </View>
+
+      </View>
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>© 2025 InternGo. All rights reserved.</Text> 

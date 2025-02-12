@@ -13,13 +13,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.selvam2004.internGo"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.selvam2004.internGo"
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -66,8 +66,8 @@ export default function GiveFeedback({route}) {
   };
 
   const handleSubmitCheckboxes = () => { 
-    if(Object.keys(feedback).length<7){
-      showToast('error','You have to select atleast 7 parameters')
+    if(Object.keys(feedback).length<5){
+      showToast('error','You have to select atleast 5 parameters')
       return false;
     }
     setShowParameters(false);  
@@ -81,10 +81,18 @@ export default function GiveFeedback({route}) {
     );
   };
 
-  const handleSubmitFeedback = () => {  
-    console.log(feedback); 
-    
-    if(!description.trim()){
+  const handleSubmitFeedback = () => {   
+    let err=false;
+    Object.values(feedback).forEach(element=>{
+      if(element==0){
+        err=true;
+      }
+    })
+    if(err){
+      showToast('error',"*Please give ratings for all selected fields");
+      return
+    }
+    else if(!description.trim()){
       showToast('error',"*Please give the overall feedback");
       return
     }
@@ -107,7 +115,9 @@ export default function GiveFeedback({route}) {
         showToast('success','Feedback submitted successfully');
  
         setTimeout(()=>{
-          navigation.navigate('Interactions')
+          navigation.navigate('dashboard',{
+            screen:'InteractionsToTake'
+          })
         },1000);
       }
     }

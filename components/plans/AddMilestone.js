@@ -1,10 +1,14 @@
 import { View, Text, TextInput,StyleSheet, TouchableOpacity } from 'react-native'
 import React, { forwardRef, useImperativeHandle, useState } from 'react' 
 import { axiosInstance } from '../../utils/axiosInstance';
+import { Picker } from '@react-native-picker/picker';
+import { useSelector } from 'react-redux';
 
  const AddMilestone=forwardRef((props,ref)=>{
     const [valid, setValid] = useState("");
     const [showAddMilestoneCard, setShowAddMilestoneCard] = useState(false);
+    const mentors = useSelector(state=>state.mentors?.mentors) 
+
     const [newMilestone, setNewMilestone] = useState({
         name: "", 
         mentorName: "",
@@ -75,15 +79,12 @@ import { axiosInstance } from '../../utils/axiosInstance';
               onChangeText={(text) =>
                 setNewMilestone({ ...newMilestone,milestoneDays: text })
               }
-            />               
-            <TextInput 
-            style={styles.cardInput}
-            placeholder="Enter Mentor"
-            value={newMilestone.mentorName}
-            onChangeText={(text) =>
-              setNewMilestone({ ...newMilestone,mentorName: text })
-            }
-          /> 
+            />     
+            <View style={[styles.cardInput,{padding:0}]}>       
+             <Picker mode='dropdown'  selectedValue={newMilestone.mentorName} onValueChange={(text)=>setNewMilestone({ ...newMilestone,mentorName: text })}>
+                {mentors.length>0&&mentors.map((mentor,id)=>(<Picker.Item key={id} label={mentor} value={mentor}/>))} 
+              </Picker>
+              </View>    
     
             <View style={styles.cardButtons}>
               <TouchableOpacity
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
       cardInput: {
         borderWidth: 1,
         borderColor: "#ccc",
-        padding: 8,
+        padding: 15,
         borderRadius: 5,
         marginBottom: 10,
         backgroundColor: "#fff",

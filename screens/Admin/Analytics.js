@@ -6,8 +6,7 @@ import ErrorPage from '../User/Error';
 import { axiosInstance } from '../../utils/axiosInstance'; 
 import { useSelector } from 'react-redux'; 
 export default function Analytics() {
-  const [modalVisible, setModalVisible] = useState(false);
-  const {token} = useSelector((state)=> state.auth.data?.data);   
+  const [modalVisible, setModalVisible] = useState(false); 
   const [error,setError] = useState(false); 
   const [loading,setLoading] = useState(false); 
   const [search,setSearch] = useState(""); 
@@ -24,10 +23,11 @@ export default function Analytics() {
     current:1,
     limit:5, 
   })
-  const years = ['2023', '2024', '2025'];
-  const batches = ['Batch 1', 'Batch 2', 'Batch 3'];
-  const designations = ['frontend', 'backend', 'testing'];
-  const status = ["ACTIVE","NOT_ACTIVE","EXAMINATION","SHADOWING","DEPLOYED"];
+  const filters = useSelector(state=>state.filters?.filters);   
+  const years = filters?.years?.filter(y=>y);
+  const batches = filters?.batches?.filter(b=>b);
+  const designations = filters?.designations?.filter(d=>d);
+  const status = filters?.statuses?.filter(s=>s);
   const isFirstLoad = useRef(true);
 
   useEffect(()=>{
@@ -101,10 +101,7 @@ const handlePrev = () => {
           params: {
             limit: page.limit,
             offset: (page.limit*(page.current-1))
-          },
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          } 
         }
       )
       

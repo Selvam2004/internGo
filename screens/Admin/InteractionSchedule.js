@@ -4,11 +4,14 @@ import { Picker } from '@react-native-picker/picker'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import { axiosInstance } from '../../utils/axiosInstance';
 import Toast from "react-native-toast-message"; 
+import { useSelector } from 'react-redux';
 
 
 export default function InteractionSchedule() {
   const [error,setError] = useState(''); 
   const [loading,setLoading] = useState(false);
+  const mentors = useSelector(state=>state.mentors?.mentors)?.map(val=>val.name)
+  
   const scrollViewRef = useRef(null);
   const [isVisible,setIsVisible] = useState(
     {
@@ -149,8 +152,7 @@ export default function InteractionSchedule() {
             <Text style={styles.label}>Mentor:</Text>
             <View style={styles.input}>
               <Picker mode='dropdown' selectedValue={fields.mentorName} onValueChange={(text)=>handleChange('mentorName',text)}>
-                <Picker.Item label='Arshad' value='Arshad'/>
-                <Picker.Item label='Gokul' value='Gokul'/>
+                {mentors.length>0&&mentors.map((mentor,id)=>(<Picker.Item key={id} label={mentor} value={mentor}/>))} 
               </Picker>
             </View>
             </View>
@@ -159,8 +161,7 @@ export default function InteractionSchedule() {
             <Text style={styles.label}>interviewer:</Text>
             <View style={styles.input}>
               <Picker mode='dropdown'  selectedValue={fields.interviewer} onValueChange={(text)=>handleChange('interviewer',text)}>
-                <Picker.Item label='Arshad' value='Arshad'/>
-                <Picker.Item label='Gokul' value='Gokul'/>
+                {mentors.length>0&&mentors.map((mentor,id)=>(<Picker.Item key={id} label={mentor} value={mentor}/>))} 
               </Picker>
             </View>
             </View>

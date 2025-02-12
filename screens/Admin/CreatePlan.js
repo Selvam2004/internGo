@@ -8,8 +8,7 @@ import ErrorPage from "../User/Error";
 import { useFocusEffect } from "@react-navigation/native";
 
 
-export default function CreatePlan() {
-  const {token} = useSelector((state)=>state.auth.data?.data);
+export default function CreatePlan() { 
   const [loading,setLoading] = useState(false);
   const [error,setError] = useState("");
   const [plans,setPlans] = useState([]);
@@ -17,8 +16,7 @@ export default function CreatePlan() {
   const fetchPlans  = async()=>{
     try{
       setLoading(true);
-      setError(""); 
-      console.log(`Bearer ${token}`);
+      setError("");  
       const response = await axiosInstance.get('/api/plans')
       if(response){
         console.log(response.data.data);
@@ -49,8 +47,8 @@ export default function CreatePlan() {
       error?<ErrorPage onRetry={fetchPlans}/>:
       <View>
       <Text style={styles.heading}>Create</Text>
-      <CreateCard token={token} fetchPlans={fetchPlans}/>
-      <Plans token={token} plan={plans}/>
+      <CreateCard  fetchPlans={fetchPlans}/>
+      <Plans plan={plans}/>
       </View>}
     </ScrollView>
   );

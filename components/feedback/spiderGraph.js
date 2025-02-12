@@ -1,77 +1,39 @@
 import React from "react";
-import { View, Text, Dimensions } from "react-native";
-import Svg, { Polygon, Line, Text as SvgText, Circle } from "react-native-svg";
+import { StyleSheet,  View } from "react-native";
+import { RadarChart } from "@salmonco/react-native-radar-chart";
 
-const screenWidth = Dimensions.get("window").width;
-const size = screenWidth - 40; 
-const center = size / 2;  
-const radius = center - 70; 
-const levels = 5; 
-
-const polarToCartesian = (angle, value, maxValue) => ({
-  x: center + radius * (value / maxValue) * Math.cos(angle - Math.PI / 2),
-  y: center + radius * (value / maxValue) * Math.sin(angle - Math.PI / 2),
-});
-
-const  SpiderChart = ({ data }) => {
-  const categories = Object.keys(data);
-  const values = Object.values(data);
-  const maxValue = Math.max(...values);  
-  const angleStep = (2 * Math.PI) / categories.length;
- 
-  const points = categories.map((_, i) => {
-    const { x, y } = polarToCartesian(angleStep * i, values[i], maxValue);
-    return `${x},${y}`;
-  });
+const SpiderChart = ({data}) => {
+  const points =  [];
+  Object.entries(data).forEach(element=>{
+    points.push({label:element[0],value:element[1]})
+  }) 
 
   return (
-    <View>
-      <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
-        Performance Chart
-      </Text>
-
-      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>  
-        {[...Array(levels)].map((_, level) => {
-          const r = (radius * (level + 1)) / levels;
-          return (
-            <Polygon
-              key={level}
-              points={categories
-                .map((_, i) => {
-                  const { x, y } = polarToCartesian(angleStep * i, ((level + 1) / levels) * maxValue, maxValue);
-                  return `${x},${y}`;
-                })
-                .join(" ")}
-              stroke="gray"
-              fill="none"
-              strokeWidth="1"
-            />
-          );
-        })}
- 
-        {categories.map((_, i) => {
-          const { x, y } = polarToCartesian(angleStep * i, maxValue, maxValue);
-          return <Line key={i} x1={center} y1={center} x2={x} y2={y} stroke="gray" strokeWidth="1" />;
-        })}
- 
-        {categories.map((category, i) => {
-          const { x, y } = polarToCartesian(angleStep * i, maxValue * 1.1, maxValue);
-          return (
-            <SvgText key={i} x={x} y={y} fontSize="12" textAnchor="middle" fill="black">
-              {category}
-            </SvgText>
-          );
-        })}
- 
-        <Polygon points={points.join(" ")} fill="rgba(34, 202, 236, 0.5)" stroke="blue" strokeWidth="2" />
- 
-        {categories.map((_, i) => {
-          const { x, y } = polarToCartesian(angleStep * i, values[i], maxValue);
-          return <Circle key={i} cx={x} cy={y} r="5" fill="blue" />;
-        })}
-      </Svg>
+    <View style={styles.container}>
+      <RadarChart
+        data={points}
+        maxValue={5} 
+        fillColor="white"
+        stroke={["black", "black","black","black", "black"]} 
+        divisionStrokeWidth={1}
+        divisionStroke="black"
+        labelColor="black"
+        labelFontSize={10}
+        dataFillColor="rgba(34, 150, 243, 0.3)" 
+        dataStroke="blue"
+        dataStrokeWidth={2}  
+        scale={0.9}
+      />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center", 
+  },
+});
 
 export default SpiderChart;

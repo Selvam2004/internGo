@@ -36,12 +36,7 @@ const LoginCard = ({navigation}) => {
         }
     }
     const login = async()=>{ 
-        try{  
-            // dispatch(loginAction({
-            //     data:{
-            //         permissions:['profile.update','users.manage','plans.create','users.view']
-            //     }
-            // }));
+        try{   
             setLoading(true); 
             console.log("sending")
             const response = await axiosInstance.post('/api/auth/signin',{ 
@@ -52,8 +47,7 @@ const LoginCard = ({navigation}) => {
             if(response.data){
                 setError("");  
                 const token = response.data.data?.token;
-                if (token) {
-                    console.log(token);
+                if (token) { 
                     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
                     dispatch(loginAction(response.data));
                 }

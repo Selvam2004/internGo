@@ -5,14 +5,13 @@ import {
   ScrollView, 
   StyleSheet,
   TouchableOpacity,
-} from 'react-native';
-import { Rating } from 'react-native-ratings';  
+  Linking,
+} from 'react-native'; 
 import ErrorPage from '../../components/error/Error';
-import { axiosInstance } from '../../utils/axiosInstance';
-import SpiderChart from '../../components/feedback/spiderGraph';
+import { axiosInstance } from '../../utils/axiosInstance'; 
 import PerformanceChart from '../../components/Analytics/LineChart'; 
 import InteractionAttendedCard from '../../components/Analytics/InteractionAttended';
-import  Icon  from 'react-native-vector-icons/Entypo';
+import DownlodReport from '../../components/Analytics/DownlodReport';
 
 export default function SpecificAnalytics({route}) {
   const id = route.params.userId;   
@@ -48,11 +47,13 @@ export default function SpecificAnalytics({route}) {
     }
   }
 
+
+
   return (
     <ScrollView style={styles.container}>
             {error?<ErrorPage onRetry={fetchInteraction}/>:
       loading?<View style={{height:500,justifyContent:'center'}}><Text style={{fontWeight:'600',textAlign:'center'}}>Loading...</Text></View>:
-      <View style={{marginBottom:20}}> 
+      Object.keys(feedback).length>0?<View style={{marginBottom:20}}> 
       <Text
           style={{
             textAlign: "center",
@@ -64,27 +65,20 @@ export default function SpecificAnalytics({route}) {
         >
           Performance Analysis
         </Text>
+        <View>
        {Object.keys(feedback).length>0&&<PerformanceChart data={feedback}/>}
+       </View> 
 
-        <View style={{flexDirection:'row',justifyContent:'flex-end'}}>
-            <TouchableOpacity>
-       <View style={styles.downloadButton}>
-        <Text style={{color:'white',fontWeight:'600',fontSize:16,paddingRight:5}}>Download</Text>
-        <Icon name='download' color={'white'} size={18}/>
-        </View>
-        </TouchableOpacity>
-        </View>
-
+          <DownlodReport id={id}/>
 
        <View style={{marginTop:10}}> 
           <Text style={styles.label}>Interactions Attended:</Text> 
           {interaction.length>0&&interaction.map((intr,index)=>(<InteractionAttendedCard key={index} interaction={intr.interaction}/>))}
         </View>
-
  
 
 
-        </View>
+        </View>:<View style={{height:600,justifyContent:'center'}}><Text style={{fontWeight:'600',textAlign:'center'}}>No Feedback available for Analysis</Text></View>
       }
     </ScrollView>
   );
@@ -144,11 +138,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  downloadButton:{
-    flexDirection:'row',
-    backgroundColor:'#007BFF',   
-    marginTop:15,
-    padding:5,
-    borderRadius:5,
-}
+  
 });

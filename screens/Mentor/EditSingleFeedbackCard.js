@@ -15,8 +15,10 @@ import { useNavigation } from '@react-navigation/native';
 import ErrorPage from '../../components/error/Error';
 
 export default function EditSingleFeedback({route}) { 
-  const interaction = route.params.interaction;   
+  const interaction = route.params.interaction;  
+    
   const [feedback, setFeedback] = useState({});
+  const [feedbackId, setFeedbackId] = useState();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [description, setDescription] = useState('');
@@ -69,8 +71,8 @@ export default function EditSingleFeedback({route}) {
   };
 
   const handleSubmitCheckboxes = () => { 
-    if(Object.keys(feedback).length<7){
-      showToast('error','You have to select atleast 7 parameters')
+    if(Object.keys(feedback).length<5){
+      showToast('error','You have to select atleast 5 parameters')
       return false;
     }
     setShowParameters(false);  
@@ -84,11 +86,21 @@ export default function EditSingleFeedback({route}) {
     );
   };
 
-  const handleSubmitFeedback = () => {   
-    if(!description.trim()){
-      showToast('error',"*Please give the overall feedback");
+  const handleSubmitFeedback = () => {
+    let err=false;
+    Object.values(feedback).forEach(element=>{
+      if(element==0){
+        err=true;
+      }
+    })
+    if(err){
+      showToast('error',"*Please give ratings for all selected fields");
       return
     }
+    else if(!description.trim()){
+      showToast('error',"*Please give the overall feedback");
+      return
+    } 
     else{
       handleSubmit();
      }
@@ -98,7 +110,7 @@ export default function EditSingleFeedback({route}) {
   
   const handleSubmit =async ()=>{
     try{
-      const response = await axiosInstance.post(`/api/feedbacks/create`,{
+      const response = await axiosInstance.put(`/api/feedbacks/${feedbackId}/update`,{
         interactionId: interaction?.id,
         internId: interaction?.internId,
         interviewerId: interaction?.interviewerId,
@@ -109,7 +121,9 @@ export default function EditSingleFeedback({route}) {
         showToast('success','Feedback updated successfully');
  
         setTimeout(()=>{
-          navigation.navigate('Interactions')
+          navigation.navigate('dashboard',{
+            screen:'InteractionsToTake'
+          })
         },1000);
       }
     }
@@ -128,8 +142,10 @@ export default function EditSingleFeedback({route}) {
       setLoading(true);
       const response = await axiosInstance.get(`api/feedbacks/interaction/${interaction.id}`);
       if(response){
-        const data = response?.data?.data;
-        console.log(data);        
+        const data = response?.data?.data[0];
+        setDescription(data.descriptive_feedback);
+        setFeedback(data.ratings)
+        setFeedbackId(data.id);        
       }
     }
     catch(err){

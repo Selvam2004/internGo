@@ -15,10 +15,13 @@ import { Picker } from "@react-native-picker/picker";
 import Toast from "react-native-toast-message";
 import { axiosInstance } from "../../utils/axiosInstance"; 
 import { useNavigation } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 
 const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [isScheduled, setIsScheduled] = useState(false); 
+  const mentors = useSelector(state=>state.mentors?.mentors)?.map(val=>val.name)
+
   const [loading, setLoading] = useState(false); 
   const [isVisible, setIsVisible] = useState({
     date: false,
@@ -220,8 +223,8 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
                   handleChange("assignedInterviewer", text)
                 }
               >
-                <Picker.Item label="Arshad" value="Arshad" />
-                <Picker.Item label="Gokul" value="Gokul" />
+                 {mentors.length>0&&mentors.map((mentor,id)=>(<Picker.Item key={id} label={mentor} value={mentor}/>))} 
+
               </Picker>
             </View>
 

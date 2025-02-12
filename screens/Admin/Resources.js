@@ -24,10 +24,11 @@ export default function Resources() {
     current:1,
     limit:5, 
   })
-  const years = ['2023', '2024', '2025'];
-  const batches = ['Batch 1', 'Batch 2', 'Batch 3'];
-  const designations = ['frontend', 'backend', 'testing'];
-  const status = ["ACTIVE","NOT_ACTIVE","EXAMINATION","SHADOWING","DEPLOYED"];
+  const filters = useSelector(state=>state.filters?.filters);   
+  const years = filters?.years?.filter(y=>y);
+  const batches = filters?.batches?.filter(b=>b);
+  const designations = filters?.designations?.filter(d=>d);
+  const status = filters?.statuses?.filter(s=>s); 
   const isFirstLoad = useRef(true);
 
   useEffect(()=>{

@@ -14,6 +14,7 @@ import EP from "react-native-vector-icons/Entypo";
 import { axiosInstance } from "../../utils/axiosInstance";
 import ErrorPage from "../User/Error";
 import AddPlanUsersCard from "../../components/plans/AddPlanUsersCard";
+import { useSelector } from "react-redux";
 export default function AddUsersPlan({ route }) {
   const { id } = route.params;
   const [error, setError] = useState(false);
@@ -37,16 +38,11 @@ export default function AddUsersPlan({ route }) {
   const [selected,setSelected] = useState([]);
 
 
-  const years = ["2023", "2024", "2025"];
-  const batches = ["Batch 1", "Batch 2", "Batch 3"];
-  const designations = ["frontend", "backend", "testing"];
-  const status = [
-    "ACTIVE",
-    "NOT_ACTIVE",
-    "EXAMINATION",
-    "SHADOWING",
-    "DEPLOYED",
-  ];
+  const filters = useSelector(state=>state.filters?.filters);   
+  const years = filters?.years?.filter(y=>y);
+  const batches = filters?.batches?.filter(b=>b);
+  const designations = filters?.designations?.filter(d=>d);
+  const status = filters?.statuses?.filter(s=>s); 
   const planStatus = ['Present','Not Present']
   const [selectAll,SetSelectAll] = useState(false);
   const [prev,SetPrev] = useState('Not Present');

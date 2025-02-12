@@ -40,7 +40,10 @@ export default function EditPlan({ id }) {
   }
   const handleSave = () => {
     let isValid = true;  
-  
+    if(fields.planDays>180&&fields.planDays<1){
+      setValid("*Please Enter Days between 1 to 180");
+      return
+    }
     Object.keys(fields).forEach((key) => {
         if(key!='count'){
       if (!fields[key] || (typeof fields[key] === "string" && fields[key].trim() === "")) { 
@@ -127,7 +130,7 @@ export default function EditPlan({ id }) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalHeading}>Edit Personal Details</Text>
+            <Text style={styles.modalHeading}>Edit Plan Details</Text>
             <Text style={{display:valid?'':'none',color:'red'}}>{valid}</Text>
             <ScrollView>  
               <View style={styles.modalField}>

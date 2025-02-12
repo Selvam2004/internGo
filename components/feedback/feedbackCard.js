@@ -9,7 +9,7 @@ const FeedBackCard = ({ interaction}) => {
     const navigation = useNavigation();
     const handleFeedback = () => {
         navigation.navigate('Edit Feedback',{
-            id:interaction.id
+            interaction:interaction
         });
     };
     useEffect(()=>{

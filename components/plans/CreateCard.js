@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, TextInput,
 import React, { useState } from 'react'
 import { axiosInstance } from '../../utils/axiosInstance'; 
 
-export default function CreateCard({token,fetchPlans}) {
+export default function CreateCard({fetchPlans}) {
   const [isVisible,setIsVisible] = useState(false);
   const [error,setError] = useState("");
   const [fields,setFields] = useState({
@@ -32,6 +32,9 @@ export default function CreateCard({token,fetchPlans}) {
     if(Object.keys(update).length<3){
       setError("*Please fill all details");
     }
+    else if(update.planDays>180&&update.planDays<1){
+      setError("*Please Enter Days between 1 to 180");
+    }
     else{ 
       handleSubmit(update);
     }
@@ -43,11 +46,7 @@ export default function CreateCard({token,fetchPlans}) {
         name:update.name,
         description:update.description,
         planDays:Number(update.planDays)
-      },{
-        header:{
-          Authorization:`Bearer ${token}`
-        }
-      });
+      } );
       if(response){
         fetchPlans();
       }

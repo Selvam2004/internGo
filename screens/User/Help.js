@@ -1,35 +1,128 @@
-import React from "react";
-import { View, Dimensions } from "react-native";
-import { VictoryChart, VictoryArea, VictoryAxis } from "victory-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { Picker } from '@react-native-picker/picker';
+import { useSelector } from 'react-redux';
 
-const screenWidth = Dimensions.get("window").width;
+export default function Help() {
+  const [subject, setSubject] = useState('');
+  const [description, setDescription] = useState('');
+  const [priority, setPriority] = useState('Low');
+  const [recipient, setRecipient] = useState('Admin');
+  const [selectedMentor, setSelectedMentor] = useState('');
 
-// Example Data
-const DATA = [
-  { x: new Date(2024, 0, 1), y: 30 },
-  { x: new Date(2024, 1, 1), y: 45 },
-  { x: new Date(2024, 2, 1), y: 50 },
-  { x: new Date(2024, 3, 1), y: 70 },
-  { x: new Date(2024, 4, 1), y: 90 },
-];
+  const mentors = useSelector(state=>state.mentors?.mentors)?.map(val=>val.name); 
+  
+  const handleSubmit = () => {
+    console.log({ subject, description, priority, recipient, selectedMentor });
+    alert('Help request submitted!');
+  };
 
-export function MyChart() {
   return (
-    <View>
-      <VictoryChart width={screenWidth - 40}>
-        {/* X-Axis (Time) */}
-        <VictoryAxis tickFormat={(t) => `${t.getMonth() + 1}/${t.getFullYear()}`} />
+    <View style={styles.container}>
+      <Text style={styles.header}>Raise a Help Request</Text>
 
-        {/* Y-Axis */}
-        <VictoryAxis dependentAxis />
+      <Text style={styles.label}>Subject</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Enter subject"
+        value={subject}
+        onChangeText={setSubject}
+      />
 
-        {/* Area Chart */}
-        <VictoryArea
-          data={DATA}
-          style={{ data: { fill: "red", stroke: "red" } }}
-          interpolation="natural"
-        />
-      </VictoryChart>
+      <Text style={styles.label}>Description</Text>
+      <TextInput
+        style={[styles.input, styles.textArea]}
+        placeholder="Enter description"
+        multiline
+        numberOfLines={4}
+        value={description}
+        onChangeText={setDescription}
+      />
+
+      <Text style={styles.label}>Priority</Text>
+      <View style={styles.pickerContainer}>
+        <Picker selectedValue={priority} onValueChange={setPriority}>
+          <Picker.Item label="Low" value="Low" />
+          <Picker.Item label="Medium" value="Medium" />
+          <Picker.Item label="High" value="High" />
+        </Picker>
+      </View>
+
+      <Text style={styles.label}>Raise Help To</Text>
+      <View style={styles.pickerContainer}>
+        <Picker selectedValue={recipient} onValueChange={setRecipient}>
+          <Picker.Item label="Admin" value="Admin" />
+          <Picker.Item label="Mentor" value="Mentor" />
+        </Picker>
+      </View>
+
+      {recipient === 'Mentor' && (
+        <>
+          <Text style={styles.label}>Select Mentor</Text>
+          <View style={styles.pickerContainer}>
+            <Picker selectedValue={selectedMentor} onValueChange={setSelectedMentor}>
+              {mentors.map((mentor, index) => (
+                <Picker.Item key={index} label={mentor} value={mentor} />
+              ))}
+            </Picker>
+          </View>
+        </>
+      )}
+
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <Text style={styles.buttonText}>Submit</Text>
+      </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#f8f9fa',
+  },
+  header: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
+    color: '#007BFF',
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#333',
+  },
+  input: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 15,
+  },
+  textArea: {
+    height: 100,
+  },
+  pickerContainer: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    marginBottom: 15,
+  },
+  button: {
+    backgroundColor: '#007BFF',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});

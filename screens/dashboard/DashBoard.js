@@ -27,16 +27,20 @@ import EP from 'react-native-vector-icons/Entypo';
 import MI from 'react-native-vector-icons/MaterialIcons';
 import AD from 'react-native-vector-icons/AntDesign';
 import OI from 'react-native-vector-icons/Octicons';
-import Home from '../User/Home'; 
+import InternHome from '../User/InternHome'; 
 import { axiosInstance } from '../../utils/axiosInstance';
 import ViewDailyUpdates from '../Admin/ViewDailyUpdates';
 import { useNavigation } from '@react-navigation/native';
 import socket from '../../utils/socket';
-import { addNotification, setNotifications,markAsRead } from '../../redux/reducers/NotificationSlice';
+import { addNotification, setNotifications,markAsRead, setAnnouncement, addAnnouncement } from '../../redux/reducers/NotificationSlice';
 import AddUsers from '../Admin/AddUsers';
 import ViewFeedback from '../Admin/ViewFeedback';
 import Toast from 'react-native-toast-message';
 import Analytics from '../Admin/Analytics';
+import { setMentors } from '../../redux/reducers/MentorSlice';
+import { setFilters } from '../../redux/reducers/FilterSlice';
+import MentorHome from '../Mentor/MentorHome';
+import AdminHome from '../Admin/AdminHome';
  
 
 export default function DashBoard( ) {
@@ -44,6 +48,7 @@ export default function DashBoard( ) {
   const datas= useSelector(state=>state.auth.data?.data?.permissions);  
   const id= useSelector(state=>state.auth.data?.data?.userId);  
   const token= useSelector(state=>state.auth.data?.data?.token);  
+  const role= useSelector(state=>state.auth.data?.data?.role);  
   const permission = datas || null;
   const navigation = useNavigation(); 
   const handleLogOut = ()=>{
@@ -55,7 +60,7 @@ export default function DashBoard( ) {
 
   useEffect(()=>{
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-},[])
+  },[])
 
   useEffect(() => {   
     socket.on("connect", () => {
@@ -73,6 +78,13 @@ export default function DashBoard( ) {
       setBadgeCount(prev=>prev+1);
       dispatch(addNotification(newNotification))
     });
+    
+    socket.on("announcement",(data)=>{
+      const msg = data?.createdNotification?.message;
+      showToast('Announcement',msg) 
+      
+      dispatch(addAnnouncement(msg));
+    })
 
     socket.on("disconnect", () => {
       console.log("Socket disconnected. Attempting to reconnect...");
@@ -81,7 +93,8 @@ export default function DashBoard( ) {
     return () => {
       socket.off("connect");
       socket.off("notification");
-      socket.off("disconnect");   
+      socket.off("disconnect");    
+      socket.off('announcement')
     };
   }, [id]); 
  
@@ -95,10 +108,15 @@ export default function DashBoard( ) {
       visibilityTime:1500, 
     });
   }; 
+  
 
-
-  useEffect(()=>{ 
+  useEffect(()=>{  
     fetchNotification(); 
+    fetchAnnouncement()
+    fetchMentors();
+    if(role=='Admins'){
+      fetchFilters();
+    }
   },[])
  
   const fetchNotification = async()=>{  
@@ -126,18 +144,79 @@ export default function DashBoard( ) {
     }
   }
 
+  const fetchMentors = async()=>{
+    try{
+      const response = await axiosInstance.get(`api/users/role/fetch`,{
+        params:{roleName:['Mentors']}
+      });
+      if(response){
+        const mentors = response.data?.data 
+        
+        dispatch(setMentors(mentors));
+      }
+    }
+    catch(err){
+      console.log(err?.response?.data?.message);      
+    }
+  }
+
+  const fetchFilters = async()=>{
+    try{
+      const response = await axiosInstance.get(`api/users/distinct/filters`);
+      if(response){
+        const filters = response.data?.data
+        dispatch(setFilters(filters));       
+      }
+    }
+    catch(err){
+      console.log(err?.response?.data?.message);      
+    }
+  }
   
   const handleNotification = ()=>{ 
     setBadgeCount(0);
     navigation.navigate('Notifications')
   }
 
+  const fetchAnnouncement =  async()=>{
+    try{
+      const response = await axiosInstance.get(`/api/notifications/get/announcements`);
+      if(response){         
+        let announcement = response.data.data||[];
+        if(announcement.length>0){
+          announcement=announcement.map((dt)=>(dt.message))
+        }           
+        dispatch(setAnnouncement(announcement));
+      }
+    }
+    catch(err){
+      dispatch(setAnnouncement([]));
+      console.log(err?.response?.data?.message);      
+    }
+  }
+
   const tabs = [
     {
       label: 'Home',
-      name: 'Home',
-      permission: 'profile.update',
-      component: Home,
+      name: 'InternHome',
+      permission: 'tasks.update',
+      component: InternHome,
+      icon:EP,
+      iconlabel:'home'
+    },
+    {
+      label: 'Home',
+      name: 'MentorHome',
+      permission: 'feedback.create',
+      component: MentorHome,
+      icon:EP,
+      iconlabel:'home'
+    },
+    {
+      label: 'Home',
+      name: 'AdminHome',
+      permission: 'users.manage',
+      component: AdminHome,
       icon:EP,
       iconlabel:'home'
     },
@@ -165,14 +244,7 @@ export default function DashBoard( ) {
     //   icon:FA,
     //   label:'map-marked-alt'
     // },
-    // {
-    //   label: 'Help',
-    //   name: 'Help',
-    //   permission: 'profile.update',
-    //   component: Help,
-    //   icon:MI,
-    //   label:'contact-support'
-    // },
+
     {
       label: 'Create Plan',
       name: 'Create Plan',
@@ -254,22 +326,22 @@ export default function DashBoard( ) {
       icon:EP,
       iconlabel:'bar-graph'
     },
-    {
-      label: 'FeedBack',
-      name: 'View FeedBack',
-      permission: 'feedback.view',
-      component: ViewFeedback,
-      icon:EP,
-      iconlabel:'chat'
-    },
-    {
-      label: 'FeedBack',
-      name: 'edit FeedBack',
-      permission: 'feedback.create',
-      component: EditFeedback,
-      icon:EP,
-      iconlabel:'chat'
-    },
+    // {
+    //   label: 'FeedBack',
+    //   name: 'View FeedBack',
+    //   permission: 'feedback.view',
+    //   component: ViewFeedback,
+    //   icon:EP,
+    //   iconlabel:'chat'
+    // },
+    // {
+    //   label: 'FeedBack',
+    //   name: 'edit FeedBack',
+    //   permission: 'feedback.create',
+    //   component: EditFeedback,
+    //   icon:EP,
+    //   iconlabel:'chat'
+    // },
 
     // {
     //   name: 'Records',
@@ -278,13 +350,14 @@ export default function DashBoard( ) {
     //   icon:AD,
     //   label:'folderopen'
     // },
-    // {
-    //   name: 'Pending Tickets',
-    //   permission: 'plans.create',
-    //   component: PendingTickets,
-    //   icon:MI,
-    //   label:'pending-actions'
-    // },    
+    {
+      label: 'Help',
+      name: 'Help',
+      permission: 'tasks.update',
+      component: Help,
+      icon:MI,
+      iconlabel:'contact-support'
+    },
     {
       label: 'Create Announcement',
       name: 'Create Announcement',
@@ -293,6 +366,15 @@ export default function DashBoard( ) {
       icon:AD,
       iconlabel:'notification'
     },
+    {
+      label: 'Pending Tickets',
+      name: 'Pending Tickets',
+      permission: 'plans.create',
+      component: PendingTickets,
+      icon:MI,
+      iconlabel:'pending-actions'
+    },    
+
 
   ] 
 

@@ -47,7 +47,7 @@ export default function ViewSingleFeedback({route}) {
     <ScrollView style={styles.container}>
             {error?<ErrorPage onRetry={fetchInteraction}/>:
       loading?<View style={{height:500,justifyContent:'center'}}><Text style={{fontWeight:'600',textAlign:'center'}}>Loading...</Text></View>:
-      <View> 
+     <View> 
        <SpiderChart data={feedback}/>
 
         <View style={styles.card}>
@@ -57,6 +57,7 @@ export default function ViewSingleFeedback({route}) {
           type='star'
           ratingCount={5}
           imageSize={20}
+          readonly
           startingValue={ avg?? 0}
           />
           </View> 

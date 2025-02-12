@@ -42,8 +42,7 @@ export default function Plans({ plan }) {
 
   const submitDelete = async(id)=>{
     try{
-      const response = await axiosInstance.delete(`/api/plans/delete/${id}`)
-      console.log(response);
+      const response = await axiosInstance.delete(`/api/plans/delete/${id}`) 
       if(response){
         const newList = plans.filter(itm=>itm.id!=id);
         console.log(newList);

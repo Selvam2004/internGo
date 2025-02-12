@@ -11,12 +11,15 @@ import React, { useEffect, useState } from "react";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { axiosInstance } from "../../utils/axiosInstance";
 import { Picker } from "@react-native-picker/picker";
+import { useSelector } from "react-redux";
 
 
 export default function Milestones(props) { 
   const [milestones, setMilestones] = useState([]);
   const [editable, setEditable] = useState(null);
   const [loading, setLoading] = useState(false);
+  const mentors = useSelector(state=>state.mentors?.mentors)?.map(val=>val.name)
+
   const [error, setError] = useState("");
     useEffect(() => {
       if (props.milestones) {
@@ -211,6 +214,10 @@ export default function Milestones(props) {
       updated.milestoneDays == "0"
     ) {
       setError("*Please fill milestone details");
+      return false;
+    }
+    if(mentors.length>0&&(!mentors.includes(updated.mentorName))){
+      setError("*Please provide valid mentor name");
       return false;
     }
     updated.objectives?.forEach((field) => {

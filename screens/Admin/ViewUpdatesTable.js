@@ -4,6 +4,7 @@ import { axiosInstance } from '../../utils/axiosInstance'
 import DailyUpdatesViewTable from '../../components/dailyupdates/DailyUpdatesViewTable';
 import ErrorPage from '../../components/error/Error';
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { useSelector } from 'react-redux';
 
  
 export default function TaskTable({route}) {
@@ -26,10 +27,10 @@ export default function TaskTable({route}) {
     const [error, setError] = useState("");  
 
     const isFirstLoad = useRef(true);
-    const years = ["2023", "2024", "2025"];
-    const batches = ["Batch 1", "Batch 2", "Batch 3"];
-    const designations = ["frontend", "backend", "testing"];
-
+    const filters = useSelector(state=>state.filters?.filters);   
+    const years = filters?.years?.filter(y=>y);
+    const batches = filters?.batches?.filter(b=>b);
+    const designations = filters?.designations?.filter(d=>d); 
 
   const toggleSelection = (item) => {
     const { selectedFilter } = filter;

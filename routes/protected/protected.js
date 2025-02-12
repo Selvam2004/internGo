@@ -1,9 +1,7 @@
 import { View, Text, StyleSheet, TouchableHighlight } from 'react-native'
 import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack';
-import DashBoard from '../../screens/dashboard/DashBoard';
-import Batches from '../../components/records/Batches'
-import UserTable from '../../components/records/UserTable'
+import DashBoard from '../../screens/dashboard/DashBoard';  
 import { useDispatch, useSelector } from 'react-redux';
 import NoPermission from '../../screens/User/NoPermission';
 import Profile from '../../screens/User/Profile';
@@ -21,9 +19,8 @@ import { clearAllNotifications } from '../../redux/reducers/NotificationSlice';
 import EditSingleFeedback from '../../screens/Mentor/EditSingleFeedbackCard';
 import ViewSingleFeedback from '../../screens/Admin/ViewSingleFeedback';
 import SpecificAnalytics from '../../screens/Admin/SpecificAnalytics';
-const tabs = [
-    {name : 'Batches',permission:'profile.update',component:Batches}, 
-    {name : 'Users',permission:'profile.update',component:UserTable},
+
+const tabs = [  
     {name : 'User',permission:'profile.update',component:Profile},
     {name : 'User Profile',permission:'profile.update',component:SpecificProfile}, 
     {name : 'Add Users',permission:'plans.create',component:AddUsersPlan}, 

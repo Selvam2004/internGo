@@ -47,7 +47,7 @@ export default function MentorHome() {
           </Text>
           {announcement.length>0?
           <View style={{ maxHeight: 300 }}>
-          <ScrollView nestedScrollEnabled={true}>
+          <ScrollView  showsVerticalScrollIndicator={false} nestedScrollEnabled={true}>
             {announcement.map((data, i) => (
               <View key={i} style={styles.announcementItem}>
                 <Text style={styles.announcementText}>{data}</Text>

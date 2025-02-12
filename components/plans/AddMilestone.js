@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
  const AddMilestone=forwardRef((props,ref)=>{
     const [valid, setValid] = useState("");
     const [showAddMilestoneCard, setShowAddMilestoneCard] = useState(false);
-    const mentors = useSelector(state=>state.mentors?.mentors) 
+    const mentors = useSelector(state=>state.mentors?.mentors)?.map(val=>val.name)
 
     const [newMilestone, setNewMilestone] = useState({
         name: "", 
@@ -52,8 +52,7 @@ import { useSelector } from 'react-redux';
                 props.fetchMilestone();
             }
         }
-        catch(err){
-            console.log(err.response?.data?.message);
+        catch(err){ 
             setValid("Milestone not added.Please try later")
         } 
     }

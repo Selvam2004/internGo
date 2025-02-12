@@ -6,35 +6,27 @@ import { logout } from '../../redux/reducers/AuthSlice';
 import Logo from '../../assets/internGo.png';
 import {createDrawerNavigator, DrawerContentScrollView, DrawerItemList} from '@react-navigation/drawer'
 import Profile from '../User/Profile';
-import DailyUpdate from '../User/DailyUpdate';
-import Roadmap from '../User/Roadmap';
-import Help from '../User/Help';
-import CreateRoadmap from '../Mentor/CreateRoadmap';
-import EditFeedback from '../Mentor/EditFeedback';
+import DailyUpdate from '../User/DailyUpdate'; 
 import Interactions from '../User/Interactions';
 import CreatePlan from '../Admin/CreatePlan';
 import InteractionSchedule from '../Admin/InteractionSchedule'
 import EditInteractions from '../Admin/EditInteraction'
-import InteractionsToTake from '../Mentor/InteractionToTake'
-import Records from '../Admin/Records'
-import CreateAnnouncement from '../Admin/CreateAnnouncement';
-import PendingTickets from '../Admin/PendingTickets';
+import InteractionsToTake from '../Mentor/InteractionToTake' 
+import CreateAnnouncement from '../Admin/CreateAnnouncement'; 
 import NoPermission from '../User/NoPermission';
 import Icon from 'react-native-vector-icons/MaterialIcons';  
 import Resources from '../Admin/Resources'; 
 import FA from 'react-native-vector-icons/FontAwesome5'; 
 import EP from 'react-native-vector-icons/Entypo';
 import MI from 'react-native-vector-icons/MaterialIcons';
-import AD from 'react-native-vector-icons/AntDesign';
-import OI from 'react-native-vector-icons/Octicons';
+import AD from 'react-native-vector-icons/AntDesign'; 
 import InternHome from '../User/InternHome'; 
 import { axiosInstance } from '../../utils/axiosInstance';
 import ViewDailyUpdates from '../Admin/ViewDailyUpdates';
 import { useNavigation } from '@react-navigation/native';
 import socket from '../../utils/socket';
 import { addNotification, setNotifications,markAsRead, setAnnouncement, addAnnouncement } from '../../redux/reducers/NotificationSlice';
-import AddUsers from '../Admin/AddUsers';
-import ViewFeedback from '../Admin/ViewFeedback';
+import AddUsers from '../Admin/AddUsers'; 
 import Toast from 'react-native-toast-message';
 import Analytics from '../Admin/Analytics';
 import { setMentors } from '../../redux/reducers/MentorSlice';
@@ -63,8 +55,7 @@ export default function DashBoard( ) {
   },[])
 
   useEffect(() => {   
-    socket.on("connect", () => {
-      console.log("Socket connected:", socket.id); 
+    socket.on("connect", () => { 
       socket.emit("join", {userId:id});
     });
 
@@ -235,16 +226,7 @@ export default function DashBoard( ) {
       component: DailyUpdate,
       icon:FA,
       iconlabel:'list-ul'
-    },
-    // {
-    //   label: 'RoadMap',
-    //   name: 'RoadMap',
-    //   permission: 'RoadMap',
-    //   component: Roadmap,
-    //   icon:FA,
-    //   label:'map-marked-alt'
-    // },
-
+    }, 
     {
       label: 'Create Plan',
       name: 'Create Plan',
@@ -284,16 +266,7 @@ export default function DashBoard( ) {
       component: InteractionSchedule,
       icon:MI,
       iconlabel:'pending-actions'
-    },
-
-    // {
-    //   label: 'Create RoadMap',
-    //   name: 'Create RoadMap',
-    //   permission: 'roadmaps.view',
-    //   component: CreateRoadmap,
-    //   icon:FA,
-    //   label:'map-marked-alt'
-    // },
+    }, 
     {
       label: 'Interactions',
       name: 'Interactions',
@@ -325,39 +298,7 @@ export default function DashBoard( ) {
       component: Analytics,
       icon:EP,
       iconlabel:'bar-graph'
-    },
-    // {
-    //   label: 'FeedBack',
-    //   name: 'View FeedBack',
-    //   permission: 'feedback.view',
-    //   component: ViewFeedback,
-    //   icon:EP,
-    //   iconlabel:'chat'
-    // },
-    // {
-    //   label: 'FeedBack',
-    //   name: 'edit FeedBack',
-    //   permission: 'feedback.create',
-    //   component: EditFeedback,
-    //   icon:EP,
-    //   iconlabel:'chat'
-    // },
-
-    // {
-    //   name: 'Records',
-    //   permission: 'users.view',
-    //   component: Records,
-    //   icon:AD,
-    //   label:'folderopen'
-    // },
-    {
-      label: 'Help',
-      name: 'Help',
-      permission: 'tasks.update',
-      component: Help,
-      icon:MI,
-      iconlabel:'contact-support'
-    },
+    }, 
     {
       label: 'Create Announcement',
       name: 'Create Announcement',
@@ -365,17 +306,7 @@ export default function DashBoard( ) {
       component: CreateAnnouncement,
       icon:AD,
       iconlabel:'notification'
-    },
-    {
-      label: 'Pending Tickets',
-      name: 'Pending Tickets',
-      permission: 'plans.create',
-      component: PendingTickets,
-      icon:MI,
-      iconlabel:'pending-actions'
-    },    
-
-
+    }, 
   ] 
 
 

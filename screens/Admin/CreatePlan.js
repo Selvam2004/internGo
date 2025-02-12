@@ -1,8 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import CreateCard from "../../components/plans/CreateCard";
-import Plans from "../../components/plans/Plans";
-import { useSelector } from "react-redux";
+import Plans from "../../components/plans/Plans"; 
 import { axiosInstance } from "../../utils/axiosInstance";
 import ErrorPage from "../User/Error";
 import { useFocusEffect } from "@react-navigation/native";
@@ -18,13 +17,11 @@ export default function CreatePlan() {
       setLoading(true);
       setError("");  
       const response = await axiosInstance.get('/api/plans')
-      if(response){
-        console.log(response.data.data);
+      if(response){ 
         setPlans(response.data.data);
       }
     }
-    catch(err){
-      console.log(err.response);
+    catch(err){ 
       setError(err.response);
     }
     finally{

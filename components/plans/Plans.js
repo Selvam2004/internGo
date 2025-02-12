@@ -44,8 +44,7 @@ export default function Plans({ plan }) {
     try{
       const response = await axiosInstance.delete(`/api/plans/delete/${id}`) 
       if(response){
-        const newList = plans.filter(itm=>itm.id!=id);
-        console.log(newList);
+        const newList = plans.filter(itm=>itm.id!=id); 
         setPlans(newList);
         setMessage({
           color:'skyblue',
@@ -53,8 +52,7 @@ export default function Plans({ plan }) {
         })
       }
     }
-    catch(err){
-      console.log(err)
+    catch(err){ 
       setMessage({
         color:'red',
         message:"failed to delete.Try again later"

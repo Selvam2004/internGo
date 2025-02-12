@@ -105,12 +105,9 @@ const SignUpCard = ({navigation}) => {
         </View>
        <View>
          <TouchableOpacity onPress={()=>navigation.navigate('login')}>
-         <Text style={Styles.bottom}>Already have an Account?<Text style={{color:"blue"}}> Click Here</Text></Text>
+         <Text style={[Styles.bottom,{marginBottom:20}]}>Already have an Account?<Text style={{color:"blue"}}> Click Here</Text></Text>
          </TouchableOpacity>
-       </View> 
-       <View>
-        <Text style={[Styles.bottom,{marginBottom:20}]}>Forgot Password?<Text style={{color:"blue"}}> Click Here</Text></Text>
-       </View> 
+       </View>  
 
        {loading && (
                 <View style={Styles.loadingContainer}> 
@@ -149,7 +146,9 @@ const Styles = StyleSheet.create({
         marginTop:15, 
         borderWidth:2,
         borderColor:'gray',
-        borderRadius:10
+        borderRadius:10,
+        padding:5,
+        paddingVertical:10
     },
     loginBtn:{
         marginTop:20,   

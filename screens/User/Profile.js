@@ -21,18 +21,14 @@ export default function Profile() {
   const [loading,setLoading] = useState(false); 
  
   const fetchUser = async()=>{
-    try{
-      
-      setError(false);
-      console.log(token);
-      const response = await axiosInstance.get(`/api/users/${userId}`); 
-      console.log(response.data);
+    try{      
+      setError(false); 
+      const response = await axiosInstance.get(`/api/users/${userId}`);  
        if(response.data.data){
         setCurrentUser(response.data.data);   
        }
     }
-    catch(error){
-      console.log(error);
+    catch(error){ 
       setError(true)
     }
     finally{

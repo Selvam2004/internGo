@@ -105,8 +105,7 @@ export default function AddUsersPlan({ route }) {
           current: page.current <= Math.ceil(dt.total_pages) ? page.current : 1,
         });
       }
-    } catch (err) {
-      console.log(err);
+    } catch (err) { 
       setError(err);
     } finally {
       setLoading(false);

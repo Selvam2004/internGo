@@ -31,8 +31,7 @@ export default function Milestones(props) {
     "Name",
     "Description",
     "Days",
-    "Interactions",
-    "RoadmapType",
+    "Interactions", 
   ];
 
   const handleFill = (milestone) => {
@@ -172,8 +171,7 @@ export default function Milestones(props) {
       }
       if(update.length>0){
         apiCalls.push(axiosInstance.patch(`/api/plans/${props.id}/update/objectives`,{objectiveDatas:update}))
-      }
-      console.log(apiCalls.length);
+      } 
       if(apiCalls.length>0){
         handleSubmitUpdate(apiCalls);
       }
@@ -190,8 +188,7 @@ export default function Milestones(props) {
       const response =await Promise.allSettled(apiCalls);
       response.forEach((result, index) => {
         if (result.status === "fulfilled") {
-          setEditable(null);
-          console.log(`Request ${index + 1} succeeded:`, result.value.data);
+          setEditable(null); 
         } else {
           console.log(`Request ${index + 1} failed:`, result.reason);
         }
@@ -386,11 +383,9 @@ export default function Milestones(props) {
                       {field}
                     </Text>
                   ))}
-                  {editable == milestone.id && (
-                    <Text style={[styles.headerText, { width: 70 }]}>
-                      Delete
-                    </Text>
-                  )}
+{editable == milestone.id ? (
+  <Text style={[styles.headerText, { width: 70 }]}>Delete</Text>
+) : null}
                 </View>
 
                 {milestone.objectives &&
@@ -450,25 +445,7 @@ export default function Milestones(props) {
                         }
                         editable={editable == milestone.id}
                         keyboardType="number-pad"
-                      />
-                      <View style={styles.input}>
-                        <Picker
-                          enabled={editable == milestone.id}
-                          selectedValue={row.roadmapType}
-                          onValueChange={(text) =>
-                            handleRowChange(
-                              milestone.id,
-                              row.id,
-                              "roadmapType",
-                              text
-                            )
-                          }
-                           style={{ flex: 1, height: "100%" }}
-                        >
-                          <Picker.Item label="DEFAULT" value="DEFAULT" />
-                          <Picker.Item label="CUSTOM" value="CUSTOM" />
-                        </Picker>
-                      </View>
+                      /> 
                       {editable == milestone.id && (
                         <TouchableOpacity
                           style={styles.delete}

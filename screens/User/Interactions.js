@@ -4,6 +4,7 @@ import ErrorPage from '../User/Error';
 import InteractionCard from '../../components/interactions/InteractionCard';
 import { axiosInstance } from '../../utils/axiosInstance';
 import { useSelector } from 'react-redux';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 export default function Interactions() { 
@@ -20,8 +21,7 @@ export default function Interactions() {
         setInteractions(response.data.data?.interactionsAttended||[]);     
       }
     }
-    catch(err){
-      console.log(err.response.data?.message);
+    catch(err){ 
       setError(true);
     }
     finally{
@@ -35,7 +35,7 @@ export default function Interactions() {
   return (
     <View style={styles.container}>
       {error?<ErrorPage onRetry={fetchInteractions}/>:
-      <>
+      <ScrollView showsVerticalScrollIndicator={false}>
       <Text style={styles.header}>Interactions</Text>
  
       { 
@@ -49,7 +49,7 @@ export default function Interactions() {
         <View style={{height:500,justifyContent:'center'}}><Text style={{fontSize:15,fontWeight:'400',textAlign:'center'}}>No Interactions Available</Text></View>}
         </>
       }
-      </>
+      </ScrollView>
       }
     </View>
   )

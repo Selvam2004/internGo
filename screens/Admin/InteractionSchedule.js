@@ -64,7 +64,7 @@ export default function InteractionSchedule() {
           
           const response = await axiosInstance.post(`/api/interactions/schedule`,{
             name:fields.interactionName,
-            assignedIntern:fields.internName,
+            assignedIntern:fields.internName?.trim(),
             internEmail:fields.internEmail,
             assignedMentor:fields.mentorName,
             assignedInterviewer:fields.interviewer,

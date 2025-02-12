@@ -30,31 +30,26 @@ const LoginCard = ({navigation}) => {
             setError("*Please enter password");
         } 
         else{
-            setError("");
-            console.log('submitted');
+            setError(""); 
             login();
         }
     }
     const login = async()=>{ 
         try{   
-            setLoading(true); 
-            console.log("sending")
+            setLoading(true);  
             const response = await axiosInstance.post('/api/auth/signin',{ 
                 email:user.email,
                 password:user.password
-            });
-            console.log('finished');
+            }); 
             if(response.data){
                 setError("");  
                 const token = response.data.data?.token;
-                if (token) { 
-                    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                if (token) {  
                     dispatch(loginAction(response.data));
                 }
             } 
         }
-        catch(err){
-            console.log(err)
+        catch(err){ 
             setError(err?.response?.data?.message||"Something went wrong while Signin"); 
             
         }
@@ -86,12 +81,9 @@ const LoginCard = ({navigation}) => {
         </View>
        <View>
        <TouchableOpacity onPress={()=>navigation.navigate('signup')}>
-        <Text style={Styles.bottom} >Don't have an Account?<Text style={{color:"blue"}}> Click Here</Text></Text>
+        <Text style={[Styles.bottom,{marginBottom:20}]} >Don't have an Account?<Text style={{color:"blue"}}> Click Here</Text></Text>
         </TouchableOpacity>
-       </View> 
-       <View>
-        <Text style={[Styles.bottom,{marginBottom:20}]}>Forgot Password?<Text style={{color:"blue"}}> Click Here</Text></Text>
-       </View> 
+       </View>  
 
             {loading && (
                 <View style={Styles.loadingContainer}> 
@@ -130,7 +122,8 @@ const Styles = StyleSheet.create({
         marginTop:15, 
         borderWidth:2,
         borderColor:'gray',
-        borderRadius:10
+        borderRadius:10,
+        padding:10
     },
     loginBtn:{
         marginTop:20,   

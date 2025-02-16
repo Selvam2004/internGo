@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet, TextInput, ScrollView } from 'react-native'
-import React, { useEffect, useState } from 'react' 
+import React, { useCallback, useEffect, useState } from 'react' 
 import ErrorPage from './../../components/error/Error'; 
 import { axiosInstance } from '../../utils/axiosInstance';
 import { useSelector } from 'react-redux';
 import MentorInteractionCard from '../../components/interactions/MentorInteractionCard';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 export default function Interactions() { 
@@ -29,10 +30,13 @@ export default function Interactions() {
       setLoading(false)
     }
   }
-
-  useEffect(()=>{
-    fetchInteractions();
-  },[])
+ 
+  useFocusEffect(
+    useCallback(() => { 
+      fetchInteractions() 
+    }, [])
+  ); 
+  
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>

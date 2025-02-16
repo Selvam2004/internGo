@@ -35,8 +35,7 @@ export default function Profile() {
       setLoading(false);
     }
 
-  }
- 
+  } 
   useEffect(()=>{
     setLoading(true);
     fetchUser();
@@ -61,14 +60,14 @@ export default function Profile() {
              ):
       ( <View style={{paddingBottom:20}}>
           <Intro  {...props}/>
-          {role!='Mentors'&&<ProgressBarCard progress={currentUser.profilePercentage}/>}
-          <Skillsets {...props}/>
+          {role=='Interns'&&<ProgressBarCard progress={currentUser.profilePercentage}/>}
+          {role=='Interns'&&<Skillsets {...props}/>}
           <PersonalDetails  {...props}/>
           <AddressDetails {...props}/>
           {role!='Mentors'&&<EducationalDetails {...props}/>}
-          {role!='Mentors'&&<CompanyDetails  {...props} />}
-          {role!='Mentors'&& <BankDetails {...props}/>}
-          {role!='Mentors'&&<AssetDetails {...props} assets={currentUser.assets}/>}
+          {role=='Interns'&&<CompanyDetails  {...props} />}
+          {role=='Interns'&& <BankDetails {...props}/>}
+          {role=='Interns'&&<AssetDetails {...props} assets={currentUser.assets}/>}
         </View>
       ) : (
         <ErrorPage onRetry={fetchUser} />

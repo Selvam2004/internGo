@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import ErrorPage from '../User/Error';
 import { axiosInstance } from '../../utils/axiosInstance'; 
 import { useSelector } from 'react-redux'; 
+import { useFocusEffect } from '@react-navigation/native';
 export default function Analytics() {
   const [modalVisible, setModalVisible] = useState(false); 
   const [error,setError] = useState(false); 
@@ -30,9 +31,12 @@ export default function Analytics() {
   const status = filters?.statuses?.filter(s=>s);
   const isFirstLoad = useRef(true);
 
-  useEffect(()=>{
-    fetchResource();
-  },[page.current])
+
+  useFocusEffect(
+    useCallback(() => { 
+      fetchResource();
+    }, [page.current])
+  ); 
   
   const handleSearch = (text)=>{
     setSearch(text); 

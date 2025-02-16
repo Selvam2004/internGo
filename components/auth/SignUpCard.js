@@ -1,10 +1,13 @@
 import { View, Text, StyleSheet, TextInput,  ActivityIndicator , TouchableOpacity, KeyboardAvoidingView } from 'react-native'
 import React, { useState } from 'react'
 import { axiosInstance } from '../../utils/axiosInstance';
+import Icon from 'react-native-vector-icons/Feather'
+import Toast from 'react-native-toast-message';
 
 const SignUpCard = ({navigation}) => {
-    const [loading, setLoading] = useState(false);
-    const [error,setError] = useState("");
+    const [loading, setLoading] = useState(false); 
+    const [passwordVisible, setPasswordVisisble] = useState(false);
+    const [passwordVisible2, setPasswordVisisble2] = useState(false);
     const [user,setUser] = useState({
         name:"",
         email:"",
@@ -18,56 +21,64 @@ const SignUpCard = ({navigation}) => {
             [name]:text
         }))
     }
+
+    const showToast = (state,message) => {     
+        Toast.show({
+          type: state,  
+          text1: "Sign Up",
+          text2: message,
+          position: "top",   
+          swipeable:true,
+          visibilityTime:1500, 
+        });
+      };
+
     const handleSubmit = ()=>{
         const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if(!user.name){
-            setError("*Please enter your name");
+            showToast('error',"*Please enter your name");
         }
-        else if(user.name.length<4){
-            setError("*Please enter valid name");
+        else if((user.name.length<4)||(!/^[a-zA-Z\s]+$/.test(user.name))){
+            showToast('error',"*Please enter valid name");
         }
         else if(!user.email){
-            setError("*Please enter your email");
+            showToast('error',"*Please enter your email");
         }
-        else if(!/^[a-zA-Z0-9._%+-]+@(?:finestcoder\.com|codingmart\.com)$/.test(user.email)){
-            setError("*Please enter valid email");
+        else if(!/^[a-z0-9.]+@(?:finestcoder\.com)$/.test(user.email)){
+            showToast('error',"*Please enter official email");
         }
         else if(!user.password){
-            setError("*Please enter password");
+            showToast('error',"*Please enter password");
         }
         else if(!passwordRegex.test(user.password)){
-            setError("*Please enter strong password");
+            showToast('error',"*Please enter strong password");
         }
         else if(!user.confirmPassword){
-            setError("*Please enter confirm password");
+            showToast('error',"*Please enter confirm password");
         }
         else if(user.confirmPassword!==user.password){
-            setError("*Password didn't match");
+            showToast('error',"*Password didn't match");
         }
         else{
-            register();
-            console.log('submitted');
+            register(); 
         }
     }
 
     const register = async()=>{
-        try{
-            console.log("sending")
+        try{ 
             setLoading(true)
             const response = await axiosInstance.post('/api/auth/signup',{
-                name:user.name,
-                email:user.email,
+                name:user.name.trim(),
+                email:user.email.trim(),
                 password:user.password
             });
             
-            if(response.data){
-                setError("");
-                navigation.navigate('login');
-                console.log(response.data.message);
+            if(response.data){ 
+                navigation.navigate('login'); 
             } 
         }
         catch(err){
-            setError(err.response.data.message); 
+            showToast('error',JSON.stringify(err.response?.data?.message)||'User not registered'); 
         }
         finally{
             setLoading(false);
@@ -75,13 +86,11 @@ const SignUpCard = ({navigation}) => {
     }
 
   return (
+    <>
     <KeyboardAvoidingView behavior='padding' style={Styles.container}>
         <View style={Styles.heading}>
          <Text style={{fontWeight:"bold",fontSize:24}}>SignUp</Text>
-        </View>
-        <View>
-            <Text style={Styles.error}>{error}</Text>
-        </View>
+        </View> 
         <View style={Styles.userName}>
             <Text style={{fontSize:16 }}>Name:</Text>
             <TextInput style={Styles.loginInp} placeholder='Enter your Name' value={user.name} onChangeText={(text)=>handleChange('name',text)}/>
@@ -92,11 +101,17 @@ const SignUpCard = ({navigation}) => {
         </View>
         <View style={Styles.password}>
             <Text style={{fontSize:16}}>Password:</Text>
-            <TextInput style={Styles.loginInp} placeholder='Enter your Password'  value={user.password} onChangeText={(text)=>handleChange('password',text)} secureTextEntry/>
+            <View style={[Styles.loginInp,{flexDirection:'row',justifyContent:'space-between', alignItems:'center',paddingHorizontal:5}]}>
+                <TextInput placeholder='Enter your Password'  value={user.password} onChangeText={(text)=>handleChange('password',text)} secureTextEntry={!passwordVisible}/>
+                <TouchableOpacity onPress={()=>setPasswordVisisble(!passwordVisible)}>{passwordVisible?<Icon name='eye' style={{paddingRight:10}} size={15}/>:<Icon name='eye-off' style={{paddingRight:10}} size={15}/>}</TouchableOpacity>
+            </View>
         </View>
         <View style={Styles.password}>
             <Text style={{fontSize:16}}>Confirm Password:</Text>
-            <TextInput style={Styles.loginInp} placeholder='Confirm your Password'  value={user.confirmPassword} onChangeText={(text)=>handleChange('confirmPassword',text)} secureTextEntry/>
+            <View style={[Styles.loginInp,{flexDirection:'row',justifyContent:'space-between', alignItems:'center',paddingHorizontal:5}]}>
+            <TextInput placeholder='Confirm your Password'  value={user.confirmPassword} onChangeText={(text)=>handleChange('confirmPassword',text)} secureTextEntry={!passwordVisible2}/>
+            <TouchableOpacity onPress={()=>setPasswordVisisble2(!passwordVisible2)}>{passwordVisible2?<Icon name='eye' style={{paddingRight:10}} size={15}/>:<Icon name='eye-off' style={{paddingRight:10}} size={15}/>}</TouchableOpacity>
+            </View>
         </View>
         <View style={Styles.loginBtn}>
             <TouchableOpacity onPress={handleSubmit}>
@@ -117,6 +132,8 @@ const SignUpCard = ({navigation}) => {
         )}
 
     </KeyboardAvoidingView>
+    <Toast/>
+    </>
   )
 }
 
@@ -137,7 +154,7 @@ const Styles = StyleSheet.create({
         marginHorizontal:'auto', 
     },
     userName:{
-        marginTop:20, 
+        marginTop:5, 
     },
     password:{
         marginTop:20

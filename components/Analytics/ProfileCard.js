@@ -5,10 +5,11 @@ import FA from 'react-native-vector-icons/EvilIcons';
 
 
 const ProfileCard = ({user}) => {  
-  const navigation = useNavigation();
+  const navigation = useNavigation(); 
+  
   const handleNavigate = ()=>{
     navigation.navigate('Analytics',{
-      userId:user.id
+      user:user
     })
   }
   return (

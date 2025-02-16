@@ -9,10 +9,15 @@
       "distribution": "internal"
     },
     "preview": {
+      "channel": "staging",
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "channel": "production",
+      "distribution": "internal",
+      "android": {
+        "gradleCommand": ":app:assembleRelease"
+      }
     }
   },
   "submit": {

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, Modal, TouchableWithoutFeedback, Alert } from 'react-native';
-import React, { use, useEffect, useState } from 'react'; 
+import React, {  useEffect, useState } from 'react'; 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import FileIcon from 'react-native-vector-icons/AntDesign';  
 import CameraIcon from 'react-native-vector-icons/FontAwesome';   
@@ -8,11 +8,22 @@ import { axiosInstance } from '../../utils/axiosInstance';
 import { useSelector } from 'react-redux';
 import EP from 'react-native-vector-icons/Entypo';
 import * as ImageManipulator from 'expo-image-manipulator';
-export default function Intro({user,edit,token,fetchUser}) {
+import Toast from 'react-native-toast-message';
+export default function Intro({user,edit,fetchUser}) {
   const [isVisible, setIsVisible] = useState(false);
   const [isImgVisible, setImgVisible] = useState(false);
   const [imageUrl, setImageUrl] = useState(user.profilePhoto);  
   const role = useSelector(state=>state.auth.data?.data.role);   
+  const showToast = (state, message) => {
+    Toast.show({
+      type: state,
+      text1: 'Profile update',
+      text2: message,
+      position: 'top',
+      swipeable: true,
+      visibilityTime: 1500,
+    });
+  };
   useEffect(() => {
     requestPermissions(); 
   }, []);
@@ -80,20 +91,18 @@ export default function Intro({user,edit,token,fetchUser}) {
       try{ 
         const response = await axiosInstance.patch(`/api/users/update/${user.id}`,{
           profilePhoto:image
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, 
-          },
-        }) 
-        if(response){
-          console.log(response.data.data);
+        } ) 
+        if(response){ 
+          showToast('success','Profile image updated successfully!'),
           fetchUser();
         }
       }
-      catch(error){
-        console.log(error);
-        console.log(error.response.status) 
+      catch(error){  
+        let msg =  'Profile image not updated!'
+        if(error.response?.status==413){
+          msg = 'Image size is too large'
+        }
+        showToast('error',msg);
       }
     } 
 
@@ -111,7 +120,7 @@ export default function Intro({user,edit,token,fetchUser}) {
               style={styles.profile}
             />
           ) : (
-            <EP name="user" size={100} style={styles.profile} />
+            <EP name="user" size={100} style={styles.profile} /> 
           )}
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setIsVisible(true)}>
@@ -127,7 +136,7 @@ export default function Intro({user,edit,token,fetchUser}) {
         </TouchableOpacity>
       </View>
 
-      <View style={{ marginLeft: 15, marginTop: 5, width: "55%" }}>
+      <View style={{ marginLeft: 15, marginTop: 5, width: "50%" }}>
         <View
           style={{
             flexDirection: "row",
@@ -136,21 +145,21 @@ export default function Intro({user,edit,token,fetchUser}) {
           }}
         >
           <Text style={{ fontWeight: "bold", fontSize: 20 ,flex:3,}}>Profile</Text>
-          {role=='Mentors'?          <Text
+          {(role=='Interns'||!edit)?   <Text
             style={[
               styles.badge,
-              { backgroundColor:  "green"   },
+              { backgroundColor: user.status == "ACTIVE" ? "green" : "gray"   },
             ]}
           >
-            ACTIVE
+           {user.status || "IDLE"} 
           </Text>:
           <Text
             style={[
               styles.badge,
-              { backgroundColor: user.status == "ACTIVE" ? "green" : "gray" },
+              { backgroundColor: "green" },
             ]}
           >
-            {user.status || "IDLE"}
+            ACTIVE
           </Text>}
         </View>
         <Text
@@ -166,11 +175,11 @@ export default function Intro({user,edit,token,fetchUser}) {
         <Text style={{ fontSize: 12, marginTop: 5 }}>
           {user.email || "example@gmail.com"}
         </Text>
-        {role=='Interns'&&<Text style={{ fontSize: 12, marginTop: 5 }}>
-          {user.batch || "Batch N/A"} {user.phase || "Phase N/A"}
+        {(role=='Interns'||!edit)&&<Text style={{ fontSize: 12, marginTop: 5 }}>
+          {user.batch || "Batch ---"} {user.phase || "Phase ---"}
         </Text>}
         <Text style={{ fontSize: 12, marginTop: 5 }}>
-          {role=='Mentors'?'Mentor':(role=='Admins'&edit)?'Admin': user.designation || "Designation N/A"}
+          {role=='Mentors'?'Mentor':(role=='Admins'&edit)?'Admin': user.designation || "Designation --"}
         </Text>
       </View>
 
@@ -231,6 +240,7 @@ export default function Intro({user,edit,token,fetchUser}) {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+      <Toast/>
     </View>
   );
 }

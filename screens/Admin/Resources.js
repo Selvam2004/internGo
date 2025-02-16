@@ -102,15 +102,11 @@ const handlePrev = () => {
           params: {
             limit: page.limit,
             offset: (page.limit*(page.current-1))
-          },
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          } 
         }
       )
       
-      if(response){
-        console.log(response.data.data); 
+      if(response){ 
         const dt = response.data.data;
         setUser(dt.data);
         setPage({...page,total:Math.ceil(dt.total_pages),current:page.current<=Math.ceil(dt.total_pages)?page.current:1}); 

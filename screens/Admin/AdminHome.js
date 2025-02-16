@@ -83,7 +83,7 @@ export default function AdminHome() {
 
         <View style={styles.statCard}>
           <Icon name="users" size={32} color="gray" />
-          <Text style={styles.statTitle}>Deployed</Text>
+          <Text style={styles.statTitle}>Deployed Interns</Text>
           <Text style={styles.statValue}>{users.deployed}</Text>
         </View>
 

@@ -12,7 +12,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
 import { axiosInstance } from '../../utils/axiosInstance';
 
-const DEFAULT = "N/A";
+const DEFAULT = "---";
 
 export default function AddressDetails({ user, edit, fetchUser, token }) {
   const [isModalVisible, setModalVisible] = useState(false); 

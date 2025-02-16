@@ -68,9 +68,7 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
   }, [interaction]);
 
   const handleSave = async () => {
-    if(editedDetails.duration?.trim()==''){
-        console.log('empty');
-        
+    if(editedDetails.duration?.trim()==''){ 
         showToast('error','Please enter all details')
         return;
     }
@@ -90,8 +88,7 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
             },1000)
         }
     }
-    catch(err){
-        console.log(err.response.data||'something went wrong');
+    catch(err){ 
         showToast('error',err.response.data?.message||'Details not updated.Please try later')
     }
     finally{ 
@@ -124,9 +121,10 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
       const sch=isScheduled;
       setIsScheduled(!isScheduled);              
       const response = await axiosInstance.get(`/api/interactions/${interaction.id}/toggleSchedule?isScheduled=${!sch}`); 
+      showToast('info',`Interaction schedule changed successfully `)
     }
     catch(err){ 
-      console.log(err?.response?.data?.message||'scheduling failed');      
+      showToast('error',`Interaction schedule change failed`)
     }
   }
  const navigation = useNavigation();
@@ -146,7 +144,7 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
               styles.statusDot,
               details.interactionStatus === "COMPLETED"
                 ? styles.greenDot
-                : styles.redDot,
+                :details.interactionStatus=='PENDING'? styles.redDot:styles.yellowDot
             ]}
           ></View>
           <Text style={styles.title}>{details.name}</Text>
@@ -195,12 +193,13 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
       >
         <Text style={styles.editText}>Edit Interaction</Text>
       </TouchableOpacity>:
+      details.interactionStatus === "COMPLETED"? 
             <TouchableOpacity
             style={styles.editButton}
             onPress={handleViewFeedback}
           >
             <Text style={styles.editText}>View Feedback</Text>
-          </TouchableOpacity>}
+          </TouchableOpacity>:null}
 
       <Modal
         visible={modalVisible}
@@ -335,6 +334,9 @@ const styles = StyleSheet.create({
   },
   redDot: {
     backgroundColor: "red",
+  },
+  yellowDot:{
+    backgroundColor:'yellow'
   },
   namesContainer: {
     flexDirection: "row",

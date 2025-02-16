@@ -1,4 +1,4 @@
-import { View,  FlatList } from 'react-native';
+import { View  } from 'react-native';
 import React, { useEffect, useState }  from 'react'; 
 import NotificationCard from '../../components/notifications/NotificationCard';
 import { useDispatch, useSelector } from 'react-redux';
@@ -30,7 +30,7 @@ export default function Notification() {
       console.log(err.response.data?.message);      
     }
   } 
-  const handleClear = async(id)=>{  
+  const handleClear = async(id)=>{    
     dispatch(removeNotification(id)); 
     try{ 
       await axiosInstance.delete(`api/notifications/delete`,{
@@ -45,9 +45,9 @@ export default function Notification() {
   }
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
+    <View style={{ flex: 1, paddingHorizontal: 20 }}>
 <SwipeListView
-      data={notifications}
+      data={notifications}      
       ListEmptyComponent={
         <View style={{ height: 500, justifyContent: "center" }}>
           <Text style={{ textAlign: "center", fontWeight: "600" }}>Notifications Empty</Text>
@@ -57,9 +57,14 @@ export default function Notification() {
       renderItem={NotificationCard}
       renderHiddenItem={renderHidden}
       leftOpenValue={360} 
-      onRowDidOpen={(rowKey) => handleClear(rowKey)}
+      onSwipeValueChange={(swipeData) => { 
+        const { key, value } = swipeData;
+        if (value > 360) { 
+          handleClear(key);
+        }
+      }}
       disableLeftSwipe  
-      swipeToOpenPercent={20} 
+      swipeToOpenPercent={10} 
       showsVerticalScrollIndicator={false}
     />
     </View>

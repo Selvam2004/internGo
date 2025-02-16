@@ -6,7 +6,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { axiosInstance } from '../../utils/axiosInstance';
 import { Picker } from '@react-native-picker/picker'; 
 
-const DEFAULT = "N/A";
+const DEFAULT = "---";
 
 export default function AssetDetails({ user, assets , fetchUser, token }) {
   const [isModalVisible, setModalVisible] = useState(false);

@@ -30,6 +30,14 @@
       "eas": {
         "projectId": "4968fee5-3027-4804-9bfe-51fb07236841"
       }
-    }
+    },
+    "runtimeVersion": "1.0.0",
+"updates": {
+  "enabled": true,
+  "url": "https://u.expo.dev/4968fee5-3027-4804-9bfe-51fb07236841",
+  "checkAutomatically": "ON_LOAD",
+  "fallbackToCacheTimeout": 0
+}
+
   }
 }

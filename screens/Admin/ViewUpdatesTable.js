@@ -1,5 +1,5 @@
 import { Text, StyleSheet,  ScrollView, View, TextInput, TouchableOpacity, Modal  } from 'react-native'
-import React, { useCallback, useEffect, useRef, useState } from 'react' 
+import React, { useEffect, useRef, useState } from 'react' 
 import { axiosInstance } from '../../utils/axiosInstance' 
 import DailyUpdatesViewTable from '../../components/dailyupdates/DailyUpdatesViewTable';
 import ErrorPage from '../../components/error/Error';

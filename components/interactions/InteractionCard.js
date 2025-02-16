@@ -5,7 +5,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const InteractionCard = ({ interaction}) => {
     const [details,setDetails] = useState(interaction); 
-    useEffect(()=>{
+    useEffect(()=>{         
         setDetails(interaction)
     },[interaction])
     return (
@@ -13,7 +13,7 @@ const InteractionCard = ({ interaction}) => {
 
             <View style={styles.header}>
                 <Text style={styles.title}>{details.name}</Text>
-                <View style={[styles.statusDot, details.interactionStatus === 'COMPLETED' ? styles.greenDot : styles.redDot]} ></View>
+                <View style={[styles.statusDot, details.interactionStatus === 'COMPLETED' ?styles.greenDot:details.interactionStatus=='PENDING'? styles.redDot:styles.yellowDot]} ></View>
             </View>
  
             <View style={styles.namesContainer}>
@@ -88,6 +88,9 @@ const styles = StyleSheet.create({
     },
     redDot: {
         backgroundColor: 'red',
+    },
+    yellowDot:{
+        backgroundColor:'yellow'
     },
     namesContainer: {
         flexDirection: 'row',

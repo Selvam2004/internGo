@@ -29,8 +29,7 @@ export default function PlanDetails({ route }) {
         setMilestones(res);
       }
     }
-    catch(err){
-      console.log(err);
+    catch(err){ 
       setError(true);
     }
     finally{

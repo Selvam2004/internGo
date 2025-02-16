@@ -1,11 +1,12 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Modal, ScrollView, FlatList, ActivityIndicator } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react' 
+import React, { useCallback, useEffect, useRef, useState } from 'react' 
 import ErrorPage from '../../components/error/Error'; 
 import Icon from "react-native-vector-icons/MaterialIcons";
 import InteractionEditCard from '../../components/interactions/InteractionEditCard';
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import { axiosInstance } from '../../utils/axiosInstance';
 import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 export default function Interactions() { 
@@ -55,10 +56,12 @@ export default function Interactions() {
     };
   }, [search]);
 
-  useEffect(() => { 
-
+  
+  useFocusEffect(
+    useCallback(() => { 
       fetchInteractions(true) 
-  }, []);
+    }, [])
+  ); 
    
   const fetchInteractions = async (reset = false) => {
     if (loading || fetchMoreLoading) return;
@@ -94,8 +97,7 @@ export default function Interactions() {
         setInteractions((prev) => (reset ? newData : [...prev, ...newData]));
         setHasMore(newData.length > 0); 
       }
-    } catch (err) {
-      console.log(err.response?.data?.message || err.message);
+    } catch (err) { 
       setError(true);
     } finally {
       setModalVisible(false)
@@ -165,7 +167,7 @@ export default function Interactions() {
       {error?<ErrorPage onRetry={fetchInteractions}/>:
       <>
       { 
-      loading?<View style={{justifyContent:'center',height:500}}><Text style={{textAlign:'center'}}>Loading...</Text></View>:
+      loading?<View style={{justifyContent:'center',flexDirection:'row',alignItems:'center',height:600}}><ActivityIndicator/><Text style={{textAlign:'center',fontWeight:'600'}}>Loading...</Text></View>:
         <View>
         <FlatList
         data={interactions}

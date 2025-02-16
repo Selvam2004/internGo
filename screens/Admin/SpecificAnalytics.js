@@ -3,21 +3,21 @@ import {
   View,
   Text, 
   ScrollView, 
-  StyleSheet,
-  TouchableOpacity,
-  Linking,
+  StyleSheet, 
 } from 'react-native'; 
 import ErrorPage from '../../components/error/Error';
 import { axiosInstance } from '../../utils/axiosInstance'; 
 import PerformanceChart from '../../components/Analytics/LineChart'; 
 import InteractionAttendedCard from '../../components/Analytics/InteractionAttended';
 import DownlodReport from '../../components/Analytics/DownlodReport';
+import Toast from 'react-native-toast-message';
 
 export default function SpecificAnalytics({route}) {
-  const id = route.params.userId;   
+  const user = route.params.user;   
+  const id = user.id; 
+  
   const [feedback, setFeedback] = useState({});
-  const [interaction, setInteraction] = useState([]);
-  const [description, setDescription] = useState('');   
+  const [interaction, setInteraction] = useState([]);  
   const [loading,setLoading] = useState(false);
   const [error,setError] = useState(false); 
   useEffect(()=>{
@@ -27,7 +27,7 @@ export default function SpecificAnalytics({route}) {
     try{
       setError(false);
       setLoading(true);
-      const response = await axiosInstance.get(`api/feedbacks/intern/${id}`);
+      const response = await axiosInstance.get(`api/feedbacks/intern/${id}`); 
       if(response){
         const data = response?.data?.data; 
         const dt ={};
@@ -39,13 +39,23 @@ export default function SpecificAnalytics({route}) {
       }
     }
     catch(err){
-      setError(true);        
-      console.log(err?.response?.data?.message);      
+      setError(true);           
     }
     finally{
       setLoading(false);
     }
   }
+
+  const showToast = (state, message) => {
+    Toast.show({
+      type: state,
+      text1: 'Download',
+      text2: message,
+      position: 'top',
+      swipeable: true,
+      visibilityTime: 1500,
+    });
+  };
 
 
 
@@ -69,17 +79,17 @@ export default function SpecificAnalytics({route}) {
        {Object.keys(feedback).length>0&&<PerformanceChart data={feedback}/>}
        </View> 
 
-          <DownlodReport id={id}/>
+          <DownlodReport showToast={showToast} name={user.name} batch={user.batch} id={id}/>
 
        <View style={{marginTop:10}}> 
           <Text style={styles.label}>Interactions Attended:</Text> 
           {interaction.length>0&&interaction.map((intr,index)=>(<InteractionAttendedCard key={index} interaction={intr.interaction}/>))}
         </View>
- 
 
 
         </View>:<View style={{height:600,justifyContent:'center'}}><Text style={{fontWeight:'600',textAlign:'center'}}>No Feedback available for Analysis</Text></View>
       }
+      <Toast/>
     </ScrollView>
   );
 }

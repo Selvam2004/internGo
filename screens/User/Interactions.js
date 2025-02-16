@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet, TextInput } from 'react-native'
-import React, { useEffect, useState } from 'react' 
+import React, { useCallback, useEffect, useState } from 'react' 
 import ErrorPage from '../User/Error';
 import InteractionCard from '../../components/interactions/InteractionCard';
 import { axiosInstance } from '../../utils/axiosInstance';
 import { useSelector } from 'react-redux';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 export default function Interactions() { 
@@ -29,9 +30,11 @@ export default function Interactions() {
     }
   }
 
-  useEffect(()=>{
-    fetchInteractions();
-  },[])
+  useFocusEffect(
+    useCallback(() => {
+      fetchInteractions();
+    }, [])
+  );
   return (
     <View style={styles.container}>
       {error?<ErrorPage onRetry={fetchInteractions}/>:

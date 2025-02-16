@@ -42,7 +42,7 @@ export default function InternHome() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Get Started!</Text>
           <Text style={styles.cardDescription}>
-            Explore your dashboard to manage your internships, track applications, and communicate with mentors.
+            Explore your dashboard to manage your internship, track your training status and daily updates.
           </Text>
         </View>
  
@@ -66,20 +66,20 @@ export default function InternHome() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Training Details</Text>
           <Text style={styles.cardDescription}>
-            <Text style={styles.boldText}>Mentor:</Text> {mentorDetails.mentorName||"N/A"}
+            <Text style={styles.boldText}>Mentor:</Text> {mentorDetails.mentorName||"Not Assigned"}
           </Text>
           <Text style={styles.cardDescription}>
-            <Text style={styles.boldText}>Current Plans:</Text> {mentorDetails.currentPlans||"N/A"}
+            <Text style={styles.boldText}>Current Plans:</Text> {mentorDetails.currentPlans||"Not Assigned"}
           </Text>
           <Text style={styles.cardDescription}>
-            <Text style={styles.boldText}>Days Allotted:</Text> {mentorDetails.daysAllotted||"N/A"}
+            <Text style={styles.boldText}>Days Allotted:</Text> {mentorDetails.daysAllotted||"0"}
           </Text>
         </View> 
 
         <View style={styles.performanceCard}>
           <Text style={styles.sectionTitle}>Performance</Text>
-          <Text style={[styles.zoneText, {color:zone=='GREEN ZONE'?'green':zone=='YELLOW ZONE'?'yellow':'red'}]}>
-            {zone}
+          <Text style={[styles.zoneText, {color:zone=='GREEN ZONE'?'green':zone=='YELLOW ZONE'?'yellow':zone=='RED ZONE'?'red':'gray'}]}>
+            {zone||'NOT UPDATED'}
           </Text>
         </View>
 

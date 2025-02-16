@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback,  useState } from "react";
 import CreateCard from "../../components/plans/CreateCard";
 import Plans from "../../components/plans/Plans"; 
 import { axiosInstance } from "../../utils/axiosInstance";

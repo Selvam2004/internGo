@@ -33,13 +33,14 @@ import { setMentors } from '../../redux/reducers/MentorSlice';
 import { setFilters } from '../../redux/reducers/FilterSlice';
 import MentorHome from '../Mentor/MentorHome';
 import AdminHome from '../Admin/AdminHome';
+import Help from '../User/Help';
+import PendingTickets from '../Admin/PendingTickets';
  
 
 export default function DashBoard( ) {
   const dispatch = useDispatch();   
   const datas= useSelector(state=>state.auth.data?.data?.permissions);  
-  const id= useSelector(state=>state.auth.data?.data?.userId);  
-  const token= useSelector(state=>state.auth.data?.data?.token);  
+  const id= useSelector(state=>state.auth.data?.data?.userId);   
   const role= useSelector(state=>state.auth.data?.data?.role);  
   const permission = datas || null;
   const navigation = useNavigation(); 
@@ -48,13 +49,10 @@ export default function DashBoard( ) {
   }
   const Drawer = createDrawerNavigator()
   const [badgeCount, setBadgeCount] = useState(0);  
-
-
-  useEffect(()=>{
-    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  },[])
+ 
 
   useEffect(() => {   
+    socket.connect();
     socket.on("connect", () => { 
       socket.emit("join", {userId:id});
     });
@@ -72,8 +70,7 @@ export default function DashBoard( ) {
     
     socket.on("announcement",(data)=>{
       const msg = data?.createdNotification?.message;
-      showToast('Announcement',msg) 
-      
+      showToast('Announcement',msg)       
       dispatch(addAnnouncement(msg));
     })
 
@@ -86,6 +83,7 @@ export default function DashBoard( ) {
       socket.off("notification");
       socket.off("disconnect");    
       socket.off('announcement')
+      socket.disconnect()
     };
   }, [id]); 
  
@@ -307,8 +305,23 @@ export default function DashBoard( ) {
       icon:AD,
       iconlabel:'notification'
     }, 
+    {
+      label: 'Help',
+      name: 'Help',
+      permission: 'tasks.update',
+      component: Help,
+      icon:MI,
+      iconlabel:'help'
+    }, 
+    {
+      label: 'Pending Requests',
+      name: 'Pending tickets',
+      permission: 'users.manage',
+      component: PendingTickets,
+      icon:MI,
+      iconlabel:'pending'
+    }, 
   ] 
-
 
   return (
     <>
@@ -318,6 +331,7 @@ export default function DashBoard( ) {
       <Image
         source={Logo}
         style={{ width: 120, height: 120 }} 
+        resizeMode='contain'
       />
        
     ) , 

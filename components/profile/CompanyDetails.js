@@ -14,7 +14,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { axiosInstance } from '../../utils/axiosInstance';
 import { TextInput } from 'react-native-gesture-handler';
 
-const DEFAULT = "N/A";
+const DEFAULT = "---";
 
 export default function EmployeeDetails({ user,edit, fetchUser , token }) {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -22,28 +22,28 @@ export default function EmployeeDetails({ user,edit, fetchUser , token }) {
   const role = useSelector((state) => state.auth.data?.data.role); 
   
   const [fields, setFields] = useState({
-    designation: user.designation || DEFAULT,
-    status: user.status || DEFAULT,
-    employeeId: user.employeeId || DEFAULT,
-    certificates_submission_status: user.certificates_submission_status || DEFAULT,
-    dateOfJoining: user.dateOfJoining?.split('T')[0] || DEFAULT,
-    batch: user.batch || DEFAULT,
-    phase: user.phase || DEFAULT,
-    year:Number(user.year) || DEFAULT
+    designation: user.designation  ,
+    status: user.status  ,
+    employeeId: user.employeeId  ,
+    certificates_submission_status: user.certificates_submission_status ,
+    dateOfJoining: user.dateOfJoining?.split('T')[0]  ,
+    batch: user.batch  ,
+    phase: user.phase  ,
+    year:Number(user.year)
 
   });
   
   useEffect(()=>{
     if(user){
       setFields({
-        designation: user.designation || DEFAULT,
-        certificates_submission_status: user.certificates_submission_status || DEFAULT,
-        employeeId: user.employeeId || DEFAULT,
-        status: user.status || DEFAULT,
-        dateOfJoining: user.dateOfJoining?.split('T')[0] || DEFAULT,
-        batch: user.batch || DEFAULT,
-        phase: user.phase || DEFAULT,
-        year:user.year || DEFAULT
+        designation: user.designation ,
+        certificates_submission_status: user.certificates_submission_status  ,
+        employeeId: user.employeeId  ,
+        status: user.status  ,
+        dateOfJoining: user.dateOfJoining?.split('T')[0]  ,
+        batch: user.batch  ,
+        phase: user.phase ,
+        year:user.year  
       });
     }
   },[user])
@@ -190,15 +190,15 @@ export default function EmployeeDetails({ user,edit, fetchUser , token }) {
                   onValueChange={(value) => handleChange('designation', value)}
                 >
                   <Picker.Item label="Select Designation" />
-                  <Picker.Item label="frontend" value="Front-end" />
-                  <Picker.Item label="backend" value="Back-end" />
-                  <Picker.Item label="testing" value="Testing" />
+                  <Picker.Item label="frontend" value="frontend" />
+                  <Picker.Item label="backend" value="backend" />
+                  <Picker.Item label="testing" value="testing" />
                 </Picker>
                 </View>
               </View>
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Employee ID</Text>
-                <View style={styles.picker}> 
+                <View style={[styles.picker,{padding:15}]}> 
                   <TextInput value={fields.employeeId} onChangeText={(text)=>handleChange('employeeId',text)}/>
                  </View>
               </View>
@@ -222,7 +222,7 @@ export default function EmployeeDetails({ user,edit, fetchUser , token }) {
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Date of Joining</Text>
                 <TouchableOpacity onPress={showDatePicker} style={styles.modalInput}>
-                  <Text style={{ color: fields.dateOfJoining === DEFAULT ? '#aaa' : '#333' }}>
+                  <Text style={{ color: fields.dateOfJoining === DEFAULT ? '#aaa' : '#333',padding:8 }}>
                     {fields.dateOfJoining === DEFAULT ? 'Select Date' : fields.dateOfJoining}
                   </Text>
                 </TouchableOpacity>
@@ -260,17 +260,9 @@ export default function EmployeeDetails({ user,edit, fetchUser , token }) {
                 }          
                {!edit&&role=='Admins'&&<View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Year</Text>
-                <View style={styles.picker}>
-                <Picker
-                  selectedValue={fields.year}
-                  onValueChange={(value) => handleChange('year', value)}
-                >
-                  <Picker.Item label="Select Year" />
-                  <Picker.Item label="2023" value="2023" />
-                  <Picker.Item label="2024" value="2024" />
-                  <Picker.Item label="2025" value="2025" />
-                </Picker>
-                </View>
+                <View style={[styles.picker,{padding:15}]}> 
+                  <TextInput keyboardType='numeric' value={fields.year} onChangeText={(text)=>handleChange('year',text)}/>
+                 </View>
               </View>
                 }      
               {!edit&&role=='Admins'&&<View style={styles.modalField}>
@@ -360,7 +352,7 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: 16,
-    color: '#333',
+    color: '#333', 
   },
   modalOverlay: {
     flex: 1,
@@ -402,6 +394,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     fontSize: 14,
+    padding:20,
     color: '#333',
   },
   picker: {

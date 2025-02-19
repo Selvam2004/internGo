@@ -2,14 +2,16 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import Icon2 from 'react-native-vector-icons/MaterialIcons';
 import { axiosInstance } from '../../utils/axiosInstance';
 
 export default function MentorHome() { 
   const { name ,userId} = useSelector((state) => state.auth.data?.data); 
-  const announcement = useSelector(state=>state.notifications?.announcement)
+  const announcement = useSelector(state=>state.notifications?.announcement)||[]
   const [interactions,setInteractions ] = useState({
     interactionsTaken:0,
-    interactionsPending:0
+    interactionsPending:0,
+    feedbackPending:0
   })
   useEffect(()=>{
     fetchHome();
@@ -20,7 +22,8 @@ export default function MentorHome() {
       const data = response.data?.data;   
       setInteractions({
         interactionsTaken:data?.interactionTaken||0,
-        interactionsPending:data?.interactionPending||0
+        interactionsPending:data?.interactionPending||0,
+        feedbackPending:data?.interactionFeedbackPending||0
       })
     }
     catch(err){
@@ -60,14 +63,20 @@ export default function MentorHome() {
  
         <View style={styles.statCard}>
           <Icon name="clipboard-check" size={32} color="green" />
-          <Text style={styles.statTitle}>Interactions Taken</Text>
+          <Text style={styles.statTitle}>Interactions Completed</Text>
           <Text style={styles.statValue}>{interactions.interactionsTaken}</Text>
         </View>
 
         <View style={styles.statCard}>
           <Icon name="clock" size={32} color="red" />
-          <Text style={styles.statTitle}>Interactions Pending</Text>
+          <Text style={styles.statTitle}>Upcoming Interactions</Text>
           <Text style={styles.statValue}>{interactions.interactionsPending}</Text>
+        </View>
+
+        <View style={styles.statCard}>
+          <Icon2 name="feedback" size={32} color="orange" />
+          <Text style={styles.statTitle}>Feedback Pending</Text>
+          <Text style={styles.statValue}>{interactions.feedbackPending}</Text>
         </View>
 
       </View>

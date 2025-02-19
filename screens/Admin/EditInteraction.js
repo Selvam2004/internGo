@@ -33,10 +33,10 @@ export default function Interactions() {
   const [hasMore, setHasMore] = useState(true); 
   const [fetchMoreLoading, setFetchMoreLoading] = useState(false);  
 
-  const filters = useSelector(state=>state.filters?.filters);    
-  const batches = filters?.batches?.filter(b=>b);
-  const designations = filters?.designations?.filter(d=>d);
-  const status = filters?.statuses?.filter(s=>s); 
+  const filters = useSelector(state=>state.filters?.filters)||[];    
+  const batches = filters?.batches?.filter(b=>b)||[];
+  const designations = filters?.designations?.filter(d=>d)||[];
+  const status = filters?.statuses?.filter(s=>s)||[]; 
   const isFirstLoad = useRef(true);
   const isFirst = useRef(true);
   const handleSearch = (text) => {

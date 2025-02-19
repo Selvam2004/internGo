@@ -25,12 +25,12 @@ import { axiosInstance } from '../../utils/axiosInstance';
 import ViewDailyUpdates from '../Admin/ViewDailyUpdates';
 import { useNavigation } from '@react-navigation/native';
 import socket from '../../utils/socket';
-import { addNotification, setNotifications,markAsRead, setAnnouncement, addAnnouncement } from '../../redux/reducers/NotificationSlice';
+import { addNotification, setNotifications,markAsRead, setAnnouncement, addAnnouncement, fetchNotifications, fetchAnnouncements } from '../../redux/reducers/NotificationSlice';
 import AddUsers from '../Admin/AddUsers'; 
 import Toast from 'react-native-toast-message';
 import Analytics from '../Admin/Analytics';
-import { setMentors } from '../../redux/reducers/MentorSlice';
-import { setFilters } from '../../redux/reducers/FilterSlice';
+import { fetchMentors, setMentors } from '../../redux/reducers/MentorSlice';
+import { fetchFilters, setFilters } from '../../redux/reducers/FilterSlice';
 import MentorHome from '../Mentor/MentorHome';
 import AdminHome from '../Admin/AdminHome';
 import Help from '../User/Help';
@@ -100,89 +100,18 @@ export default function DashBoard( ) {
   
 
   useEffect(()=>{  
-    fetchNotification(); 
-    fetchAnnouncement()
-    fetchMentors();
+    dispatch(fetchNotifications(id)); 
+    dispatch(fetchAnnouncements());
+    dispatch(fetchMentors());
     if(role=='Admins'){
-      fetchFilters();
+      dispatch(fetchFilters());
     }
   },[])
- 
-  const fetchNotification = async()=>{  
-    try{
-      const response = await axiosInstance.get(`/api/notifications/${id}`);
-      if(response){ 
-        
-        let notification = response.data.data||[];
-        if(notification.length>0){
-          notification=notification.map((dt)=>({
-            id:dt.id,message:dt.message,type:dt.type,timestamp:new Date(dt.createdAt).toLocaleString("en-US", { 
-              year: "numeric", month: "long", day: "numeric", 
-              hour: "2-digit", minute: "2-digit"
-          }),isRead:dt.isRead})
-          )
-        }          
-        const count =notification.filter(n=>!n.isRead);
-        setBadgeCount(count.length);
-        dispatch(setNotifications(notification));
-      }
-    }
-    catch(err){
-      dispatch(setNotifications([]));
-      console.log(err.response.data?.message);      
-    }
-  }
-
-  const fetchMentors = async()=>{
-    try{
-      const response = await axiosInstance.get(`api/users/role/fetch`,{
-        params:{roleName:['Mentors']}
-      });
-      if(response){
-        const mentors = response.data?.data 
-        
-        dispatch(setMentors(mentors));
-      }
-    }
-    catch(err){
-      console.log(err?.response?.data?.message);      
-    }
-  }
-
-  const fetchFilters = async()=>{
-    try{
-      const response = await axiosInstance.get(`api/users/distinct/filters`);
-      if(response){
-        const filters = response.data?.data
-        dispatch(setFilters(filters));       
-      }
-    }
-    catch(err){
-      console.log(err?.response?.data?.message);      
-    }
-  }
-  
   const handleNotification = ()=>{ 
     setBadgeCount(0);
     navigation.navigate('Notifications')
   }
-
-  const fetchAnnouncement =  async()=>{
-    try{
-      const response = await axiosInstance.get(`/api/notifications/get/announcements`);
-      if(response){         
-        let announcement = response.data.data||[];
-        if(announcement.length>0){
-          announcement=announcement.map((dt)=>(dt.message))
-        }           
-        dispatch(setAnnouncement(announcement));
-      }
-    }
-    catch(err){
-      dispatch(setAnnouncement([]));
-      console.log(err?.response?.data?.message);      
-    }
-  }
+ 
 
   const tabs = [
     {
@@ -317,6 +246,14 @@ export default function DashBoard( ) {
       label: 'Pending Requests',
       name: 'Pending tickets',
       permission: 'users.manage',
+      component: PendingTickets,
+      icon:MI,
+      iconlabel:'pending'
+    }, 
+    {
+      label: 'Pending Requests',
+      name: 'Pending tickets for mentor',
+      permission: 'feedback.create',
       component: PendingTickets,
       icon:MI,
       iconlabel:'pending'

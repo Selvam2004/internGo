@@ -36,20 +36,20 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
     });
   };
   const [fields, setFields] = useState({ 
-    name:user.name,
-    dob: user.dateOfBirth?.split('T')[0]  ,
-    personalEmail:user.personalEmail ,
-    contact: user.phone_no  , 
+    name:user.name||'' ,
+    dob: user.dateOfBirth?.split('T')[0]||''   ,
+    personalEmail:user.personalEmail ||'' ,
+    contact: user.phone_no ||''  , 
     gender: user.gender || "Select Gender",
     bloodGroup: user.bloodGroup || "Select Blood Group",
   });
   useEffect(()=>{
     if(user){
       setFields({ 
-        name:user.name,
-        dob: user.dateOfBirth?.split('T')[0]  ,
-        personalEmail:user.personalEmail ,
-        contact: user.phone_no , 
+        name:user.name||'' ,
+        dob: user.dateOfBirth?.split('T')[0]||''   ,
+        personalEmail:user.personalEmail ||'' ,
+        contact: user.phone_no ||'' , 
         gender: user.gender || "Select Gender",
         bloodGroup: user.bloodGroup || "Select Blood Group",
       })
@@ -65,7 +65,7 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
     let err = "";
     let update ={}
     setError('');
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.personalEmail)){
+    if(!/^[a-z0-9.]+@[a-z.]+\.[a-z]{2,}$/.test(fields.personalEmail)){
       err="*Please enter valid email"; 
     }
     if(fields.name?.trim()==''){
@@ -85,7 +85,7 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
     } 
 
     if(fields.contact!=''&&fields.contact!=user.phone_no){
-      if(fields.contact.length!=10){
+      if(fields.contact.length!=10||Number(fields.contact[0])<6){
         err  = "*Enter valid contact number"
       }
       else{

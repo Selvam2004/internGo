@@ -4,6 +4,7 @@ import {
   Text, 
   ScrollView, 
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import { Rating } from 'react-native-ratings';  
 import ErrorPage from '../../components/error/Error';
@@ -46,7 +47,7 @@ export default function ViewSingleFeedback({route}) {
   return (
     <ScrollView style={styles.container}>
             {error?<ErrorPage onRetry={fetchInteraction}/>:
-      loading?<View style={{height:500,justifyContent:'center'}}><Text style={{fontWeight:'600',textAlign:'center'}}>Loading...</Text></View>:
+      loading?<View style={{height:500,justifyContent:'center',flexDirection:'row',alignItems:'center'}}><ActivityIndicator/><Text style={{fontWeight:'600',textAlign:'center'}}>Loading...</Text></View>:
      <View> 
        <SpiderChart data={feedback}/>
 

@@ -3,8 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, ScrollView 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { axiosInstance } from '../../utils/axiosInstance';
-import { Picker } from '@react-native-picker/picker'; 
+import { axiosInstance } from '../../utils/axiosInstance'; 
 
 const DEFAULT = "---";
 
@@ -14,8 +13,9 @@ export default function AssetDetails({ user, assets , fetchUser, token }) {
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [currentAssetIndex, setCurrentAssetIndex] = useState(null); 
   const [error,setError]= useState(""); 
+  const [editError,setEditError]= useState(""); 
   const [currentFieldForDatePicker,setCurrentFieldForDatePicker] = useState("givenOn")
-  const role = useSelector((state) => state.auth.data?.data.role);
+  const role = useSelector((state) => state.auth.data?.data.role);  
 
   const [fields, setFields] = useState({
     type: DEFAULT,
@@ -37,45 +37,46 @@ export default function AssetDetails({ user, assets , fetchUser, token }) {
   };
 
   const handleSave = () => {
-    if (currentAssetIndex !== null) {
-      let update = {
-        id:assets[currentAssetIndex].id,
+    setEditError('');
+    if (currentAssetIndex !== null) { 
+      if(fields.name==''||fields.type==''){
+        setEditError('*Please enter all details');
+        return;
+      }
+      let update = { 
         assetName:fields.name,
         assetType:fields.type,
         givenOn:fields.givenOn
-      };      
-
-      if (fields.returnDate !== DEFAULT && fields.returnDate !== assets[currentAssetIndex]?.returnDate) {
-        update.returnDate = fields.returnDate;
-      }
+      };           
+      
+        if (fields.returnDate !== DEFAULT && fields.returnDate !== assets[currentAssetIndex]?.returnDate) {
+        if(new Date(fields.returnDate)<new Date(assets[currentAssetIndex]?.givenOn)){
+          setEditError('Enter valid return date');
+          return;
+        }
+        update.returnedOn = fields.returnDate;
+      } 
 
       if (Object.keys(update).length > 0) {
-
         handleSubmit(update,currentAssetIndex);
       }
     }
   };
 
   const handleSubmit = async (update,ind) => {
-    try {
-      console.log(assets[ind].id)
-      console.log({...update})
+    try { 
       const response = await axiosInstance.patch(`/api/users/update/asset/${assets[ind].id}`, { 
         ...update,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
       });
 
       if (response) {
         fetchUser();
+        setModalVisible(false);
       }
     } catch (err) {
-      console.log(err.response.data);
-    } finally {
-      setModalVisible(false);
-    }
+      const msg = JSON.stringify(err.response.data.message)||'Asset not added';
+      setEditError(msg);
+    } 
   };
 
   const handleChange = (field, value) => {
@@ -118,22 +119,16 @@ export default function AssetDetails({ user, assets , fetchUser, token }) {
           assetType:fields.type,
           assetName:fields.name,
           givenOn:fields.givenOn
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, 
-          }
-        })
+        } )
         if(response){
           fetchUser();
+          setModalAdd(false);
         }
       }
       catch(err){
-        console.log(err.response);
-      }
-      finally{
-        setModalAdd(false);
-      }
+        const msg = JSON.stringify(err.response.data.message)||'Asset not added';
+        setError(msg);
+      } 
     }
   }
   return (
@@ -195,6 +190,7 @@ export default function AssetDetails({ user, assets , fetchUser, token }) {
           <View style={styles.modalContent}>
             <Text style={styles.modalHeading}>Edit Asset Details</Text>
             <ScrollView>
+            <Text style={{color:"red"}}>{editError}</Text>
 
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Name</Text>

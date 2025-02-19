@@ -28,7 +28,7 @@ import { useSelector } from 'react-redux';
 
 
     const handleAddMilestone = () => {
-        setValid("");
+        setValid("");         
         if (
           !newMilestone.name.trim() ||
           !newMilestone.milestoneDays.trim() ||
@@ -53,7 +53,8 @@ import { useSelector } from 'react-redux';
             }
         }
         catch(err){ 
-            setValid("Milestone not added.Please try later")
+          const msg = JSON.stringify(err.response?.data?.message)||"Milestone not added.Please try later";
+          setValid(msg);
         } 
     }
   return (
@@ -81,6 +82,7 @@ import { useSelector } from 'react-redux';
             />     
             <View style={[styles.cardInput,{padding:0}]}>       
              <Picker mode='dropdown'  selectedValue={newMilestone.mentorName} onValueChange={(text)=>setNewMilestone({ ...newMilestone,mentorName: text })}>
+                <Picker.Item   label='Select mentor' value='' enabled={false} color="gray"/>
                 {mentors.length>0&&mentors.map((mentor,id)=>(<Picker.Item key={id} label={mentor} value={mentor}/>))} 
               </Picker>
               </View>    

@@ -18,14 +18,14 @@ export default function PlanDetails({ route }) {
   const [milestones, setMilestones] = useState([]);
   const addMilestoneRef = useRef(null);
   const [loading,setLoading] = useState(false);
-  const [error,setError] = useState(false);
+  const [error,setError] = useState(false); 
 
   const fetchMilestone = async()=>{
     try{
       setError(false)
       const response = await axiosInstance.get(`/api/plans/${id}`);
       if(response){
-        const res = response.data.data.milestones; 
+        const res = response.data?.data?.milestones; 
         setMilestones(res);
       }
     }

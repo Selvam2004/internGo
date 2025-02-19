@@ -132,12 +132,22 @@ export default function TaskTable({route}) {
           err="*Please fill necessary fields to save"; 
         }
       });
+      if(err){
+        setError(err)
+        return false
+      }
       dailyTask.forEach((task) => {
         if ((Number(task.estimatedTime) && Number(task.estimatedTime) > 3) || 
             (Number(task.actualTime) && Number(task.actualTime) > 3)) {
           err = "*Time should not exceed 3 hours";
         }
       });
+      dailyTask.forEach((task) => {
+        if ((!/^(?=.*[a-zA-Z])[a-zA-Z0-9]+$/.test(task.taskName)) || 
+          (!/^(?=.*[a-zA-Z])[a-zA-Z0-9]+$/.test(task.activitiesPlanned))) {
+          err = "*Enter valid name and description";
+        }
+      });      
       
       if(err){
         setError(err)

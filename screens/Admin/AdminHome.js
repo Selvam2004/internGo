@@ -6,7 +6,7 @@ import { axiosInstance } from '../../utils/axiosInstance';
 
 export default function AdminHome() { 
   const { name  } = useSelector((state) => state.auth.data?.data); 
-  const announcement = useSelector(state=>state.notifications?.announcement)
+  const announcement = useSelector(state=>state.notifications?.announcement)||[]
   const [users,setUsers]=useState({
     total:0,
     active:0,

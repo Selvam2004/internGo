@@ -39,10 +39,10 @@ export default function AddUsersPlan({ route }) {
 
 
   const filters = useSelector(state=>state.filters?.filters);   
-  const years = filters?.years?.filter(y=>y);
-  const batches = filters?.batches?.filter(b=>b);
-  const designations = filters?.designations?.filter(d=>d);
-  const status = filters?.statuses?.filter(s=>s); 
+  const years = filters?.years?.filter(y=>y)||[];
+  const batches = filters?.batches?.filter(b=>b)||[];
+  const designations = filters?.designations?.filter(d=>d)||[];
+  const status = filters?.statuses?.filter(s=>s||[]); 
   const planStatus = ['Present','Not Present']
   const [selectAll,SetSelectAll] = useState(false);
   const [prev,SetPrev] = useState('Not Present');

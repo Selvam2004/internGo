@@ -28,9 +28,9 @@ export default function TaskTable({route}) {
 
     const isFirstLoad = useRef(true);
     const filters = useSelector(state=>state.filters?.filters);   
-    const years = filters?.years?.filter(y=>y);
-    const batches = filters?.batches?.filter(b=>b);
-    const designations = filters?.designations?.filter(d=>d); 
+    const years = filters?.years?.filter(y=>y)||[];
+    const batches = filters?.batches?.filter(b=>b)||[];
+    const designations = filters?.designations?.filter(d=>d)||[]; 
 
   const toggleSelection = (item) => {
     const { selectedFilter } = filter;
@@ -89,8 +89,7 @@ export default function TaskTable({route}) {
    
     const fetchDailyTask = async()=>{
       try{ 
-        setLoading(true);   
-        console.log(date);
+        setLoading(true);    
         
         const response = await axiosInstance.post(`/api/dailyUpdates`,{
           name:search,
@@ -112,11 +111,11 @@ export default function TaskTable({route}) {
         } 
       }
       catch(err){
-        setError(err.response.data?.message||'Tasks Not retrieved.Try again later')
-        console.log(err.response);
+        setError(err.response.data?.message||'Tasks Not retrieved.Try again later') 
       }
       finally{
         setLoading(false);
+        setModalVisible(false)
       }
     }
     useEffect(()=>{ 

@@ -1,4 +1,4 @@
-import { View, Text, TextInput, StyleSheet, Modal, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Modal, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ProfileCard from '../../components/Analytics/ProfileCard';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
@@ -12,6 +12,11 @@ export default function Analytics() {
   const [loading,setLoading] = useState(false); 
   const [search,setSearch] = useState(""); 
   const [user,setUser] = useState([]); 
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh  = async()=>{
+    setRefreshing(true);
+    fetchResource();
+  }
   const [filter, setfilter] = useState({
     year: [],
     batch: [],
@@ -25,18 +30,17 @@ export default function Analytics() {
     limit:5, 
   })
   const filters = useSelector(state=>state.filters?.filters);   
-  const years = filters?.years?.filter(y=>y);
-  const batches = filters?.batches?.filter(b=>b);
-  const designations = filters?.designations?.filter(d=>d);
-  const status = filters?.statuses?.filter(s=>s);
+  const years = filters?.years?.filter(y=>y)||[];
+  const batches = filters?.batches?.filter(b=>b)||[];
+  const designations = filters?.designations?.filter(d=>d)||[];
+  const status = filters?.statuses?.filter(s=>s||[]);
   const isFirstLoad = useRef(true);
 
 
-  useFocusEffect(
-    useCallback(() => { 
-      fetchResource();
-    }, [page.current])
-  ); 
+ useEffect(()=>{
+  setLoading(true);
+  fetchResource();
+ },[page.current])
   
   const handleSearch = (text)=>{
     setSearch(text); 
@@ -47,6 +51,7 @@ export default function Analytics() {
         isFirstLoad.current=false
         return
       }
+      setLoading(true);
       fetchResource()
     }, 1000);
     return () => {
@@ -89,8 +94,7 @@ const handlePrev = () => {
   
   const fetchResource = async()=>{
     try{
-      setError("");
-      setLoading(true);
+      setError(""); 
       setModalVisible(false);
       const response = await axiosInstance.post(
         '/api/users', 
@@ -115,19 +119,22 @@ const handlePrev = () => {
         setPage({...page,total:Math.ceil(dt.total_pages),current:page.current<=Math.ceil(dt.total_pages)?page.current:1}); 
       }
     }
-    catch(err){
-      console.log(err);
+    catch(err){ 
       setError(err);
     }
     finally{
-      setLoading(false);      
+      setLoading(false);   
+      setRefreshing(false);   
     }
   }
   return (
     
-    <ScrollView>
+    <ScrollView 
+    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+    >
 
       {error?<ErrorPage onRetry={fetchResource}/>:
+      loading?<View style={{height:600,justifyContent:'center',flexDirection:'row',alignItems:'center'}}><ActivityIndicator/><Text style={{fontWeight:'600',textAlign:'center'}}>Loading...</Text></View>:
       <View>
       <Text style={styles.header}>Analytics</Text>
       <View style={styles.container}> 
@@ -228,12 +235,7 @@ const handlePrev = () => {
           </View>
         </View>
       </Modal>
-      {loading && (
-                <View style={styles.loadingContainer}> 
-                    <ActivityIndicator size="large" color="#0000ff" />
-                    <Text style={styles.loadingText}>loading...</Text>
-                </View>
-      )}
+
     </ScrollView>
   );
 }

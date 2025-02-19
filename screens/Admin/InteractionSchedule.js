@@ -23,8 +23,8 @@ export default function InteractionSchedule() {
     interactionName:'',
     internName:'',
     internEmail:'',
-    mentorName:'Arshad',
-    interviewer:'Arshad',
+    mentorName:'',
+    interviewer:'',
     date:'',
     time:'', 
     duration:''
@@ -47,6 +47,7 @@ export default function InteractionSchedule() {
     setIsVisible({...isVisible,date:false});
   };
   const handleTimeConfirm = (time) => {
+
     const formattedTime = time.toLocaleTimeString("en-GB",{ hour: "2-digit", minute: "2-digit" }); 
     setFields({...fields,time:formattedTime});
     setIsVisible({...isVisible,time:false});
@@ -102,7 +103,7 @@ export default function InteractionSchedule() {
 
   const validate = ()=>{
     let err="";
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.internEmail)){
+    if(!/^[a-z0-9.]+@(?:finestcoder\.com)$/.test(fields.internEmail)){
       err="*Please enter valid email"
     }
     Object.keys(fields).forEach(key=>{
@@ -110,14 +111,24 @@ export default function InteractionSchedule() {
         err="*Please enter all fields to submit"
       }
     }) 
-    
+
     if(err){ 
       setError(err);
       return false
     } 
-    else{
-      return true
-    }      
+   const selectedDate = new Date(fields.date);
+   const [hour,minute] = fields.time?.split(':');
+   selectedDate.setHours(hour,minute);
+   const currentDate = new Date();
+  
+  if (selectedDate.toDateString() === currentDate.toDateString()) {
+    if (selectedDate < currentDate) {
+      setError( 'You cannot select a past time'); 
+      return false
+    }
+  }
+        
+      return true 
     
   }
 
@@ -152,6 +163,7 @@ export default function InteractionSchedule() {
             <Text style={styles.label}>Mentor:</Text>
             <View style={styles.input}>
               <Picker mode='dropdown' selectedValue={fields.mentorName} onValueChange={(text)=>handleChange('mentorName',text)}>
+              <Picker label='Select mentor' value='' enabled={false} color="gray"/>
                 {mentors.length>0&&mentors.map((mentor,id)=>(<Picker.Item key={id} label={mentor} value={mentor}/>))} 
               </Picker>
             </View>
@@ -161,6 +173,7 @@ export default function InteractionSchedule() {
             <Text style={styles.label}>interviewer:</Text>
             <View style={styles.input}>
               <Picker mode='dropdown'  selectedValue={fields.interviewer} onValueChange={(text)=>handleChange('interviewer',text)}>
+                <Picker label='Select interviewer' value='' enabled={false} color="gray"/>
                 {mentors.length>0&&mentors.map((mentor,id)=>(<Picker.Item key={id} label={mentor} value={mentor}/>))} 
               </Picker>
             </View>

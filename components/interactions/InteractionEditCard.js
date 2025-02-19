@@ -72,6 +72,17 @@ const InteractionEditCard = ({ handleSubmitChange,interaction }) => {
         showToast('error','Please enter all details')
         return;
     }
+    const selectedDate = new Date(editedDetails.date);
+    const [hour,minute] = editedDetails.time?.split(':');
+    selectedDate.setHours(hour,minute);
+    const currentDate = new Date();
+   
+   if (selectedDate.toDateString() === currentDate.toDateString()) {
+     if (selectedDate < currentDate) {
+      showToast('error', 'You cannot select a past time'); 
+       return;
+     }
+   } 
     try{
 
         setLoading(true);

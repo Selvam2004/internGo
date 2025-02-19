@@ -19,15 +19,15 @@ export default function AddressDetails({ user, edit, fetchUser, token }) {
   const role = useSelector((state) => state.auth.data?.data.role);
 
   const [fields, setFields] = useState({ 
-    currentAddress: user.currentAddress || DEFAULT,
-    permanentAddress: user.permanentAddress || DEFAULT,  
+    currentAddress: user.currentAddress ||'' ,
+    permanentAddress: user.permanentAddress ||''  ,  
   });
 
   useEffect(() => {
     if (user) {
       setFields({ 
-        currentAddress: user.currentAddress || DEFAULT,
-        permanentAddress: user.permanentAddress || DEFAULT,  
+        currentAddress: user.currentAddress  ||'' ,
+        permanentAddress: user.permanentAddress ||''  ,  
       });
     }
   }, [user]);
@@ -39,7 +39,7 @@ export default function AddressDetails({ user, edit, fetchUser, token }) {
   const handleSave = () => { 
     let update = {};
     Object.keys(fields).forEach((key) => {
-      if (fields[key] !== DEFAULT && fields[key] !== user[key]) {
+      if (fields[key] !== '' && fields[key] !== user[key]) {
         update[key] = fields[key];
       }
     });

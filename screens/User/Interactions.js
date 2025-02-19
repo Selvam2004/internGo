@@ -1,11 +1,10 @@
-import { View, Text, StyleSheet, TextInput } from 'react-native'
+import { View, Text, StyleSheet, TextInput, ActivityIndicator, RefreshControl } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react' 
 import ErrorPage from '../User/Error';
 import InteractionCard from '../../components/interactions/InteractionCard';
 import { axiosInstance } from '../../utils/axiosInstance';
 import { useSelector } from 'react-redux';
-import { ScrollView } from 'react-native-gesture-handler';
-import { useFocusEffect } from '@react-navigation/native';
+import { ScrollView } from 'react-native-gesture-handler'; 
 
 
 export default function Interactions() { 
@@ -13,10 +12,14 @@ export default function Interactions() {
   const [loading, setLoading] = useState(false); 
   const [interactions, setInteractions] = useState([]); 
   const {userId } = useSelector(state=>state.auth.data?.data); 
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh  = async()=>{
+    setRefreshing(true);
+    fetchInteractions(); 
+  }
   const fetchInteractions = async()=>{
     try{
-      setError(false);
-      setLoading(true);
+      setError(false); 
       const response = await axiosInstance.get(`/api/interactions/${userId}`);
       if(response){           
         setInteractions(response.data.data?.interactionsAttended||[]);     
@@ -27,22 +30,25 @@ export default function Interactions() {
     }
     finally{
       setLoading(false)
+      setRefreshing(false)
     }
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchInteractions();
-    }, [])
-  );
+  useEffect(()=>{
+    setLoading(true);
+    fetchInteractions()
+  },[])
+
   return (
     <View style={styles.container}>
       {error?<ErrorPage onRetry={fetchInteractions}/>:
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+      showsVerticalScrollIndicator={false}>
       <Text style={styles.header}>Interactions</Text>
  
       { 
-      loading?<View style={{justifyContent:'center',height:500}}><Text style={{textAlign:'center'}}>Loading...</Text></View>:
+      loading?<View style={{height:600,justifyContent:'center',flexDirection:'row',alignItems:'center'}}><ActivityIndicator/><Text style={{fontWeight:'600',textAlign:'center'}}>Loading...</Text></View>:
         <>
         {interactions&&interactions.length>0?
         <>{interactions.map(intr=>(

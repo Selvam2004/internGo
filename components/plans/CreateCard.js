@@ -28,11 +28,12 @@ export default function CreateCard({fetchPlans}) {
       if(fields[key].trim()!=""){
         update[key]= fields[key];
       }
-    })
+    }) 
+    
     if(Object.keys(update).length<3){
       setError("*Please fill all details");
     }
-    else if(update.planDays>180&&update.planDays<1){
+    else if(Number(update.planDays)>180||Number(pdate.planDays)<1){
       setError("*Please Enter Days between 1 to 180");
     }
     else{ 

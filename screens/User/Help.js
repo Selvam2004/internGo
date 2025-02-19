@@ -9,13 +9,12 @@ export default function Help() {
   const [formData, setFormData] = useState({
     subject: '',
     description: '',
-    priority: 'Low',
-    recipient: 'Admin',
-    selectedMentor: '',
+    priority: 'LOW',
+    recepient: 'Admins', 
   });
 
   const mentors = useSelector(state => state.mentors?.mentors)?.map(val => val.name);
-  
+  const userId = useSelector(state=>state.auth?.data?.data?.userId);
   const showToast = (type, message) => {
     Toast.show({
       type: type,
@@ -35,19 +34,28 @@ export default function Help() {
   };
 
   const handleSubmit = async () => {
-    const { subject, description ,mentor} = formData;
+    const { subject, description ,recepientId,recepient} = formData; 
     
-    if (subject === '' || description === ''||mentor=='') {
+    if (subject === '' || description === '') {
       showToast('error', 'Please fill all details');
       return;
+    }    
+    if(recepient=='Mentors'&&recepientId==''){
+      showToast('error', 'Please choose mentor');
+      return;
     }
-    
     try {
-      const response = await axiosInstance.post(``, formData);
+      const response = await axiosInstance.post(`api/helpdesk/`,{ userId:userId,...formData,resolvedStatus:'PENDING'});
       if (response) {
         showToast('success', 'Your request is submitted. Thank you!');
+        setFormData({
+          subject: '',
+          description: '',
+          priority: 'LOW',
+          recepient: 'Admins', 
+        })
       }
-    } catch (err) {
+    } catch (err) { 
       const msg = JSON.stringify(err?.response?.data?.message) || 'Help request not submitted';
       showToast('error', msg);
     }
@@ -81,32 +89,36 @@ export default function Help() {
           <Picker
             selectedValue={formData.priority}
             onValueChange={(value) => handleChange('priority', value)}
+             mode='dropdown'
           >
-            <Picker.Item label="Low" value="Low" />
-            <Picker.Item label="Medium" value="Medium" />
-            <Picker.Item label="High" value="High" />
+            <Picker.Item label="LOW" value="LOW" />
+            <Picker.Item label="MEDIUM" value="MEDIUM" />
+            <Picker.Item label="HIGH" value="HIGH" />
           </Picker>
         </View>
 
         <Text style={styles.label}>Raise Help To</Text>
         <View style={styles.pickerContainer}>
           <Picker
-            selectedValue={formData.recipient}
-            onValueChange={(value) => handleChange('recipient', value)}
+            selectedValue={formData.recepient}
+            onValueChange={(value) => handleChange('recepient', value)}
+             mode='dropdown'
           >
-            <Picker.Item label="Admin" value="Admin" />
-            <Picker.Item label="Mentor" value="Mentor" />
+            <Picker.Item label="Admin" value="Admins" />
+            <Picker.Item label="Mentor" value="Mentors" />
           </Picker>
         </View>
 
-        {formData.recipient === 'Mentor' && (
+        {formData.recepient === 'Mentors' && (
           <>
             <Text style={styles.label}>Select Mentor</Text>
             <View style={styles.pickerContainer}>
               <Picker
-                selectedValue={formData.selectedMentor}
-                onValueChange={(value) => handleChange('selectedMentor', value)}
+                selectedValue={formData.recepientId}
+                onValueChange={(value) => handleChange('recepientId', value)}
+                mode='dropdown'
               >
+                <Picker.Item  label='Select mentor' value='' enabled={false}/>
                 {mentors.map((mentor, index) => (
                   <Picker.Item key={index} label={mentor} value={mentor} />
                 ))}

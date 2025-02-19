@@ -9,7 +9,7 @@ export default function InternHome() {
     currentPlans: '',
     daysAllotted: 0,
   });
-  const announcement = useSelector(state=>state.notifications?.announcement)
+  const announcement = useSelector(state=>state.notifications?.announcement)||[]
  
 
   const { name, userId,zone } = useSelector((state) => state.auth.data?.data); 
@@ -69,10 +69,10 @@ export default function InternHome() {
             <Text style={styles.boldText}>Mentor:</Text> {mentorDetails.mentorName||"Not Assigned"}
           </Text>
           <Text style={styles.cardDescription}>
-            <Text style={styles.boldText}>Current Plans:</Text> {mentorDetails.currentPlans||"Not Assigned"}
+            <Text style={styles.boldText}>Current Training:</Text> {mentorDetails.currentPlans||"Not Assigned"}
           </Text>
           <Text style={styles.cardDescription}>
-            <Text style={styles.boldText}>Days Allotted:</Text> {mentorDetails.daysAllotted||"0"}
+            <Text style={styles.boldText}>Days Allotted:</Text> {mentorDetails.daysAllotted||"Not Alloted"}
           </Text>
         </View> 
 

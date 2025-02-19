@@ -20,8 +20,7 @@ export default function EditPlan({ id }) {
         setPlanDetails(response.data?.data);
         setFields(response.data?.data); 
       }
-    } catch (err) {
-      console.log(err.response);
+    } catch (err) { 
       setError("something went wrong");
     }
   };
@@ -40,9 +39,9 @@ export default function EditPlan({ id }) {
   }
   const handleSave = () => {
     let isValid = true;  
-    if(fields.planDays>180&&fields.planDays<1){
+    if(Number(fields.planDays)>180||Number(fields.planDays)<1){
       setValid("*Please Enter Days between 1 to 180");
-      return
+      return;
     }
     Object.keys(fields).forEach((key) => {
         if(key!='count'){
@@ -64,6 +63,7 @@ export default function EditPlan({ id }) {
   const handleClose = ()=>{
     setModalVisible(false)
   }
+  
   const handleSubmit = async()=>{
     try{
         setValid("");
@@ -243,8 +243,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgb(217, 217, 217)',
     borderRadius: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    padding:10,
     fontSize: 14,
     color: '#333',
   },

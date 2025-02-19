@@ -1,20 +1,21 @@
-import { View, Text, StyleSheet, TextInput,  ActivityIndicator , TouchableOpacity, KeyboardAvoidingView } from 'react-native'
+import { View, Text, StyleSheet, TextInput,  ActivityIndicator , TouchableOpacity, KeyboardAvoidingView, Modal, TouchableWithoutFeedback } from 'react-native'
 import React, { useState } from 'react'
 import { axiosInstance } from '../../utils/axiosInstance';
 import Icon from 'react-native-vector-icons/Feather'
-import Toast from 'react-native-toast-message';
-
+import Toast from 'react-native-toast-message'; 
+import OtpVerify from './OtpVerify';
 const SignUpCard = ({navigation}) => {
     const [loading, setLoading] = useState(false); 
     const [passwordVisible, setPasswordVisisble] = useState(false);
     const [passwordVisible2, setPasswordVisisble2] = useState(false);
+    const [visible,setVisible] = useState(false);
     const [user,setUser] = useState({
         name:"",
         email:"",
         password:"",
         confirmPassword:""
     })
-    
+    const [verifyEmail,setVerifyEmail] = useState('');
     const handleChange = (name,text)=>{
         setUser((prev)=>({
             ...prev,
@@ -33,7 +34,8 @@ const SignUpCard = ({navigation}) => {
         });
       };
 
-    const handleSubmit = ()=>{
+    const handleSubmit = ()=>{  
+        
         const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if(!user.name){
             showToast('error',"*Please enter your name");
@@ -67,17 +69,18 @@ const SignUpCard = ({navigation}) => {
     const register = async()=>{
         try{ 
             setLoading(true)
-            const response = await axiosInstance.post('/api/auth/signup',{
+            const response = await axiosInstance.post('/api/auth/send-otp',{
                 name:user.name.trim(),
                 email:user.email.trim(),
                 password:user.password
             });
             
             if(response.data){ 
-                navigation.navigate('login'); 
+                setVerifyEmail(user.email);
+                setVisible(true);
             } 
         }
-        catch(err){
+        catch(err){             
             showToast('error',JSON.stringify(err.response?.data?.message)||'User not registered'); 
         }
         finally{
@@ -97,7 +100,7 @@ const SignUpCard = ({navigation}) => {
         </View>
         <View style={Styles.userName}>
             <Text style={{fontSize:16 }}>Email:</Text>
-            <TextInput style={Styles.loginInp} placeholder='Enter your Email' value={user.email} onChangeText={(text)=>handleChange('email',text)}/>
+            <TextInput style={Styles.loginInp} placeholder='Enter your Email' autoCapitalize='none' value={user.email} onChangeText={(text)=>handleChange('email',text)}/>
         </View>
         <View style={Styles.password}>
             <Text style={{fontSize:16}}>Password:</Text>
@@ -133,6 +136,7 @@ const SignUpCard = ({navigation}) => {
 
     </KeyboardAvoidingView>
     <Toast/>
+    <OtpVerify email={verifyEmail} navigation={navigation} visible={visible} setVisible={setVisible}/>
     </>
   )
 }
@@ -204,8 +208,7 @@ const Styles = StyleSheet.create({
         padding:5,
         fontSize: 16,
         color: '#000',  
-    }
-
+    }, 
 
 })
 

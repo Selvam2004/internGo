@@ -33,7 +33,7 @@ export default function InternHome() {
   }; 
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.container} contentContainerStyle={{flex:1,justifyContent:'space-between'}} showsVerticalScrollIndicator={false}>
       <View style={styles.content}> 
         <View>
           <Text style={styles.welcomeText}>Welcome {name}</Text>
@@ -94,7 +94,7 @@ export default function InternHome() {
 
 const styles = StyleSheet.create({
   container: { 
-    backgroundColor: '#f0f4f8',
+    backgroundColor: '#f0f4f8', 
   },
   content: {
     padding: 20, 

@@ -18,7 +18,7 @@ import Toast from 'react-native-toast-message';
 
 const DEFAULT = "---";
 
-export default function PersonalDetails({ user, edit ,fetchUser,token}) {
+export default function PersonalDetails({ user, edit ,fetchUser}) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [isDatePickerVisible, setDatePickerVisible] = useState(false); 
   const [error,setError] = useState(); 
@@ -225,6 +225,7 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
                 <TextInput
                   style={[styles.modalInput,{paddingVertical:15}]}
                   value={fields.personalEmail}
+                  autoCapitalize='none'
                   placeholder='Enter personal mail'
                   onChangeText={(text) => handleChange('personalEmail', text)} 
                 /> 

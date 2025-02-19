@@ -18,14 +18,14 @@ const MentorInteractionCard = ({ interaction}) => {
         });
     };
     useEffect(()=>{
-        setDetails(interaction)
+        setDetails(interaction) 
     },[interaction])
     return (
         <View style={styles.card}> 
 
             <View style={styles.header}>
                 <Text style={styles.title}>{details.name}</Text>
-                <View style={[styles.statusDot, details.interactionStatus === 'COMPLETED' ? styles.greenDot : styles.redDot]} ></View>
+                <View style={[styles.statusDot, details.interactionStatus === 'COMPLETED' ? styles.greenDot :details.interactionStatus=='PENDING'? styles.redDot:styles.yellowDot]} ></View>
             </View>
  
             <View style={styles.namesContainer}>
@@ -61,10 +61,11 @@ const MentorInteractionCard = ({ interaction}) => {
                     <Text style={styles.detailText}>{details.duration}</Text>
                 </View>
             </View>
-            {details.interactionStatus==='COMPLETED'?
+            {details.interactionStatus==='COMPLETED'&&
             <TouchableOpacity style={styles.feedbackButton} onPress={handleEditFeedback}>
             <Text style={styles.feedbackText}>Edit Feedback</Text>
-        </TouchableOpacity>:
+        </TouchableOpacity>}
+        {details.interactionStatus==='FEEDBACK_PENDING'&&
                 <TouchableOpacity style={styles.feedbackButton} onPress={handleFeedback}>
                 <Text style={styles.feedbackText}>Give Feedback</Text>
             </TouchableOpacity>}
@@ -104,6 +105,9 @@ const styles = StyleSheet.create({
     },
     greenDot: {
         backgroundColor: 'green',
+    },
+    yellowDot:{
+        backgroundColor: 'yellow',
     },
     redDot: {
         backgroundColor: 'red',

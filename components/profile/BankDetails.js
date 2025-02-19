@@ -12,7 +12,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
 import { axiosInstance } from '../../utils/axiosInstance';
 
-const DEFAULT = "N/A";
+const DEFAULT = "---";
 
 export default function BankDetails({ user, edit, fetchUser, token }) {
   const [isModalVisible, setModalVisible] = useState(false); 
@@ -20,19 +20,19 @@ export default function BankDetails({ user, edit, fetchUser, token }) {
   const role = useSelector((state) => state.auth.data?.data.role);
 
   const [fields, setFields] = useState({ 
-    accountNumber: user.bankDetails?.accountNumber || DEFAULT,
-    branch: user.bankDetails?.branch || DEFAULT, 
-    IFSC: user.bankDetails?.IFSC || DEFAULT, 
-    bankName: user.bankDetails?.bankName || DEFAULT, 
+    accountNumber: user.bankDetails?.accountNumber||''  ,
+    branch: user.bankDetails?.branch ||'' , 
+    IFSC: user.bankDetails?.IFSC||''  , 
+    bankName: user.bankDetails?.bankName ||''  , 
   });
 
   useEffect(() => {
     if (user) {
       setFields({ 
-        accountNumber: user.bankDetails?.accountNumber || DEFAULT,
-        branch: user.bankDetails?.branch || DEFAULT, 
-        IFSC: user.bankDetails?.IFSC || DEFAULT, 
-        bankName: user.bankDetails?.bankName || DEFAULT, 
+        accountNumber: user.bankDetails?.accountNumber||''   ,
+        branch: user.bankDetails?.branch||''  , 
+        IFSC: user.bankDetails?.IFSC ||'' , 
+        bankName: user.bankDetails?.bankName ||'' , 
       });
     }
   }, [user]);
@@ -45,15 +45,23 @@ export default function BankDetails({ user, edit, fetchUser, token }) {
     let update = {};
     setError("");
     Object.keys(fields).forEach((key) => {
-      if (fields[key] !== DEFAULT ) {
+      if (fields[key] !== '' ) {
         update[key] = fields[key];
       }
-    });
-
+    }); 
     if (Object.keys(update).length <4) { 
       setError("*Please fill all details")
-    } 
-    else{
+    }  
+    else if(!/^[a-zA-Z]+$/.test(update.bankName)){
+      setError("*Enter valid Bank name")
+    }
+    else if(!/^[a-zA-Z]+$/.test(update.branch)){
+      setError("*Enter valid branch name")
+    }
+    else if(update.accountNumber.length<8){
+      setError("*Enter valid account name")
+    }
+    else{ 
         handleSubmit(update);
     }
 

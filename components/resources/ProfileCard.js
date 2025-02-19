@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import FA from 'react-native-vector-icons/EvilIcons';
 
 
-const ProfileCard = ({user}) => {  
+const ProfileCard = ({user}) => {   
   const navigation = useNavigation();
   const handleNavigate = ()=>{
     navigation.navigate('User Profile',{
@@ -22,9 +22,8 @@ const ProfileCard = ({user}) => {
         <Text style={[styles.badge,{backgroundColor:user.status=="ACTIVE"?"green":"gray"}]}>{user.status||"IDLE"}</Text>
         </View>
         <Text style={[styles.detailText,{fontWeight:'bold'}]}>Employee ID: {user.employeeId||" N/A"}</Text>
-        <Text style={styles.detailText}>{user.email}</Text>
-        <Text style={styles.detailText}>{user.designation||"Designation N/A"}</Text>
-        <Text style={styles.detailText}>{user.batch || "Batch N/A"} {user.phase || "Phase N/A"}</Text>
+        <Text style={styles.detailText}>{user.email}</Text> 
+        <Text style={styles.detailText}> {user.designation||"Designation N/A"} {user.batch || "Batch N/A"}</Text>
       </View>
     </View>
     </TouchableHighlight>

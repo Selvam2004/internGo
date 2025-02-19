@@ -13,16 +13,31 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.selvam2004.internGo"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.selvam2004.internGo"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4968fee5-3027-4804-9bfe-51fb07236841"
+      }
+    },
+    "runtimeVersion": "1.0.0",
+"updates": {
+  "enabled": true,
+  "url": "https://u.expo.dev/4968fee5-3027-4804-9bfe-51fb07236841",
+  "checkAutomatically": "ON_LOAD",
+  "fallbackToCacheTimeout": 0
+}
+
   }
 }

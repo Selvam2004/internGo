@@ -24,21 +24,13 @@ export default function SpecificProfile({route}) {
   const fetchUser = async()=>{
     try{
       
-      setError(false);
-      console.log(token);
-      const response = await axiosInstance.get(`/api/users/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, 
-          },
-        }
-      ); 
+      setError(false); 
+      const response = await axiosInstance.get(`/api/users/${userId}`); 
        if(response.data.data){
         setCurrentUser(response.data.data); 
        }
     }
-    catch(error){
-      console.log(error);
+    catch(error){ 
       setError(true)
     }
     finally{

@@ -4,6 +4,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Picker } from '@react-native-picker/picker';
 import { axiosInstance } from '../../utils/axiosInstance'
 import { useSelector } from 'react-redux';
+import Toast from 'react-native-toast-message';
+import { ActivityIndicator } from 'react-native-paper';
 
  
 
@@ -14,7 +16,7 @@ export default function TaskTable({route}) {
     const [dailyTask, setDailyTask] = useState([]); 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-
+    const [initial,setInitial] = useState(false);
    
 
     const today = new Date();
@@ -43,6 +45,18 @@ export default function TaskTable({route}) {
         )
       );
     };
+
+    const showToast = (state,message) => {     
+      Toast.show({
+        type: state,  
+        text1: "Daily update",
+        text2: message,
+        position: "top",  
+        swipeable:true,
+        visibilityTime:1500, 
+      });
+    }; 
+  
     
     const handleAddRow = () => {
       setDailyTask(  [
@@ -52,8 +66,8 @@ export default function TaskTable({route}) {
                     taskName:'',
                     activitiesPlanned:'',
                     activitiesCompleted:'',
-                    estimatedTime:0,
-                    actualTime:0,
+                    estimatedTime:'',
+                    actualTime:'',
                     taskProgress:'PENDING' 
                   },
                 ] )
@@ -69,10 +83,7 @@ export default function TaskTable({route}) {
   
     const submitTaskDelete =  async(rowId)=>{
       try{ 
-          const response = await axiosInstance.delete(`/api/dailyUpdates/delete/${rowId}`)
-          if(response){
-            console.log("task deleted");
-          }        
+          await axiosInstance.delete(`/api/dailyUpdates/delete/${rowId}`)
       }
       catch(err){
         console.log(err.response.data)
@@ -83,20 +94,20 @@ export default function TaskTable({route}) {
       try{ 
         const response = await axiosInstance.get(`/api/dailyUpdates/${userId}?date=${date}`);
         if(response){
-          setDailyTask(response.data.data?.tasks||[]) 
-          console.log(response.data.data?.tasks)
+          setDailyTask(response.data.data?.tasks||[])  
         } 
       }
       catch(err){
-        setError(err.response.data?.message||'Error retrieving task Details.Try again later')
-        console.log(err);
+        setError(err.response.data?.message||'Error retrieving task Details.Try again later') 
       }
       finally{
         setLoading(false);
+        setInitial(false);
       }
     }
     useEffect(()=>{
       setLoading(true);
+      setInitial(true);
       fetchDailyTask()
     },[])
 
@@ -121,6 +132,23 @@ export default function TaskTable({route}) {
           err="*Please fill necessary fields to save"; 
         }
       });
+      if(err){
+        setError(err)
+        return false
+      }
+      dailyTask.forEach((task) => {
+        if ((Number(task.estimatedTime) && Number(task.estimatedTime) > 3) || 
+            (Number(task.actualTime) && Number(task.actualTime) > 3)) {
+          err = "*Time should not exceed 3 hours";
+        }
+      });
+      dailyTask.forEach((task) => {
+        if ((!/^(?=.*[a-zA-Z])[a-zA-Z0-9]+$/.test(task.taskName)) || 
+          (!/^(?=.*[a-zA-Z])[a-zA-Z0-9]+$/.test(task.activitiesPlanned))) {
+          err = "*Enter valid name and description";
+        }
+      });      
+      
       if(err){
         setError(err)
         return false
@@ -159,11 +187,12 @@ export default function TaskTable({route}) {
           tasks:tasks
         })
         if(response){
+          showToast('success','Task updated successfully!');
           fetchDailyTask();
         }
       }
       catch(err){
-        console.log(err.response.data?.message);
+        showToast('error','Task not updated'); 
       }
       finally{
         setLoading(false);
@@ -177,7 +206,7 @@ export default function TaskTable({route}) {
             {error && (
                   <Text style={{ color: "red" }}>{error}</Text>
                  )}
-           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+           <ScrollView  horizontal showsHorizontalScrollIndicator={false}>
               <View>
                 <View style={styles.headerRow}>
                   {heading.map((field) => (
@@ -188,11 +217,10 @@ export default function TaskTable({route}) {
                   {showButton&& <Text  style={styles.headerText}>
                        Delete
                     </Text>}
-                </View> 
-                
+                </View>                
 
                   { 
-                  dailyTask.length>0&&
+                 !initial&&dailyTask.length>0&&
                   dailyTask.map((row) => (
                     <View key={row.id} style={styles.row}>
                       <TextInput
@@ -245,15 +273,15 @@ export default function TaskTable({route}) {
                           )
                         }
                         editable={showButton }
-                        placeholder="0" 
-                        keyboardType="number-pad"
+                        keyboardType='number-pad'
+                        placeholder="enter estimated hour"  
                       />
                       </View>
                       <View style={styles.input}  pointerEvents={showButton ? "auto" : "none"}>
                       <TextInput
                         style={{textAlign:'center',flex:1}}
                         value={row.actualTime?.toString()}
-                        placeholder="0"
+                        placeholder="enter actual hour"
                         onChangeText={(text) =>
                           handleRowChange( 
                             row.id,
@@ -261,8 +289,8 @@ export default function TaskTable({route}) {
                             text
                           )
                         } 
-                        editable={showButton }
-                        keyboardType="number-pad"
+                        keyboardType='number-pad'
+                        editable={showButton } 
                       />
                       </View>
                       <View style={styles.input}>
@@ -302,7 +330,11 @@ export default function TaskTable({route}) {
               </View>
             </ScrollView>
 
-           {dailyTask.length==0&&<View style={{height:100,justifyContent:'center'}}><Text style={{textAlign:'center'}}>No Tasks to Display</Text></View>}
+           {initial?
+                  <View style={{flexDirection:'row',justifyContent:'center',height:'100',alignItems:'center'}}>
+                    <ActivityIndicator size={20}/>
+                    <Text style={{textAlign:'center',fontWeight:'600'}}>  Loading...</Text>
+                  </View>:dailyTask.length==0&&<View style={{height:100,justifyContent:'center'}}><Text style={{textAlign:'center'}}>No Tasks to Display</Text></View>}
           
           {showButton&& <View style={styles.footer}> 
                   <TouchableOpacity onPress={() => handleAddRow()}>
@@ -321,7 +353,7 @@ export default function TaskTable({route}) {
             </View>
             }
       </View>
-
+            <Toast/>
     </ScrollView>
   )
 }
@@ -340,7 +372,7 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 3,
+    elevation: 3, 
   },
   heading:{
     fontSize:20,

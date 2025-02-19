@@ -9,7 +9,7 @@ export default function InternHome() {
     currentPlans: '',
     daysAllotted: 0,
   });
-  const announcement = useSelector(state=>state.notifications?.announcement)
+  const announcement = useSelector(state=>state.notifications?.announcement)||[]
  
 
   const { name, userId,zone } = useSelector((state) => state.auth.data?.data); 
@@ -42,7 +42,7 @@ export default function InternHome() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Get Started!</Text>
           <Text style={styles.cardDescription}>
-            Explore your dashboard to manage your internships, track applications, and communicate with mentors.
+            Explore your dashboard to manage your internship, track your training status and daily updates.
           </Text>
         </View>
  
@@ -52,7 +52,7 @@ export default function InternHome() {
           </Text>
           {announcement.length>0?
           <View style={{ maxHeight: 300 }}>
-          <ScrollView nestedScrollEnabled={true}>
+          <ScrollView showsVerticalScrollIndicator={false} nestedScrollEnabled={true}>
             {announcement.map((data, i) => (
               <View key={i} style={styles.announcementItem}>
                 <Text style={styles.announcementText}>{data}</Text>
@@ -66,20 +66,20 @@ export default function InternHome() {
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Training Details</Text>
           <Text style={styles.cardDescription}>
-            <Text style={styles.boldText}>Mentor:</Text> {mentorDetails.mentorName||"N/A"}
+            <Text style={styles.boldText}>Mentor:</Text> {mentorDetails.mentorName||"Not Assigned"}
           </Text>
           <Text style={styles.cardDescription}>
-            <Text style={styles.boldText}>Current Plans:</Text> {mentorDetails.currentPlans||"N/A"}
+            <Text style={styles.boldText}>Current Training:</Text> {mentorDetails.currentPlans||"Not Assigned"}
           </Text>
           <Text style={styles.cardDescription}>
-            <Text style={styles.boldText}>Days Allotted:</Text> {mentorDetails.daysAllotted||"N/A"}
+            <Text style={styles.boldText}>Days Allotted:</Text> {mentorDetails.daysAllotted||"Not Alloted"}
           </Text>
         </View> 
 
         <View style={styles.performanceCard}>
           <Text style={styles.sectionTitle}>Performance</Text>
-          <Text style={[styles.zoneText, {color:zone=='GREEN ZONE'?'green':zone=='YELLOW ZONE'?'yellow':'red'}]}>
-            {zone}
+          <Text style={[styles.zoneText, {color:zone=='GREEN ZONE'?'green':zone=='YELLOW ZONE'?'yellow':zone=='RED ZONE'?'red':'gray'}]}>
+            {zone||'NOT UPDATED'}
           </Text>
         </View>
 

@@ -21,26 +21,21 @@ export default function Profile() {
   const [loading,setLoading] = useState(false); 
  
   const fetchUser = async()=>{
-    try{
-      
-      setError(false);
-      console.log(token);
-      const response = await axiosInstance.get(`/api/users/${userId}`); 
-      console.log(response.data);
+    try{      
+      setError(false); 
+      const response = await axiosInstance.get(`/api/users/${userId}`);  
        if(response.data.data){
         setCurrentUser(response.data.data);   
        }
     }
-    catch(error){
-      console.log(error);
+    catch(error){ 
       setError(true)
     }
     finally{
       setLoading(false);
     }
 
-  }
- 
+  } 
   useEffect(()=>{
     setLoading(true);
     fetchUser();
@@ -65,14 +60,14 @@ export default function Profile() {
              ):
       ( <View style={{paddingBottom:20}}>
           <Intro  {...props}/>
-          {role!='Mentors'&&<ProgressBarCard progress={currentUser.profilePercentage}/>}
-          <Skillsets {...props}/>
+          {role=='Interns'&&<ProgressBarCard progress={currentUser.profilePercentage}/>}
+          {role=='Interns'&&<Skillsets {...props}/>}
           <PersonalDetails  {...props}/>
           <AddressDetails {...props}/>
           {role!='Mentors'&&<EducationalDetails {...props}/>}
-          {role!='Mentors'&&<CompanyDetails  {...props} />}
-          {role!='Mentors'&& <BankDetails {...props}/>}
-          {role!='Mentors'&&<AssetDetails {...props} assets={currentUser.assets}/>}
+          {role=='Interns'&&<CompanyDetails  {...props} />}
+          {role=='Interns'&& <BankDetails {...props}/>}
+          {role=='Interns'&&<AssetDetails {...props} assets={currentUser.assets}/>}
         </View>
       ) : (
         <ErrorPage onRetry={fetchUser} />

@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
  const AddMilestone=forwardRef((props,ref)=>{
     const [valid, setValid] = useState("");
     const [showAddMilestoneCard, setShowAddMilestoneCard] = useState(false);
-    const mentors = useSelector(state=>state.mentors?.mentors) 
+    const mentors = useSelector(state=>state.mentors?.mentors)?.map(val=>val.name)
 
     const [newMilestone, setNewMilestone] = useState({
         name: "", 
@@ -28,7 +28,7 @@ import { useSelector } from 'react-redux';
 
 
     const handleAddMilestone = () => {
-        setValid("");
+        setValid("");         
         if (
           !newMilestone.name.trim() ||
           !newMilestone.milestoneDays.trim() ||
@@ -52,9 +52,9 @@ import { useSelector } from 'react-redux';
                 props.fetchMilestone();
             }
         }
-        catch(err){
-            console.log(err.response?.data?.message);
-            setValid("Milestone not added.Please try later")
+        catch(err){ 
+          const msg = JSON.stringify(err.response?.data?.message)||"Milestone not added.Please try later";
+          setValid(msg);
         } 
     }
   return (
@@ -82,6 +82,7 @@ import { useSelector } from 'react-redux';
             />     
             <View style={[styles.cardInput,{padding:0}]}>       
              <Picker mode='dropdown'  selectedValue={newMilestone.mentorName} onValueChange={(text)=>setNewMilestone({ ...newMilestone,mentorName: text })}>
+                <Picker.Item   label='Select mentor' value='' enabled={false} color="gray"/>
                 {mentors.length>0&&mentors.map((mentor,id)=>(<Picker.Item key={id} label={mentor} value={mentor}/>))} 
               </Picker>
               </View>    

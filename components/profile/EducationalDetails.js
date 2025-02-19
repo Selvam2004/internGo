@@ -12,7 +12,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
 import { axiosInstance } from '../../utils/axiosInstance';
 
-const DEFAULT = "N/A";
+const DEFAULT = "---";
 
 export default function EducationalDetails({ user, edit, fetchUser, token }) {
   const [isModalVisible, setModalVisible] = useState(false); 
@@ -20,9 +20,9 @@ export default function EducationalDetails({ user, edit, fetchUser, token }) {
   const role = useSelector((state) => state.auth.data?.data.role);
 
   const [fields, setFields] = useState({ 
-    degree: user.education?.degree || DEFAULT,
-    college: user.education?.college || DEFAULT, 
-    batch: user.education?.batch || DEFAULT, 
+    degree: user.education?.degree||'' ,
+    college: user.education?.college||''  , 
+    batch: user.education?.batch||''  , 
   });
 
   useEffect(() => {
@@ -57,6 +57,9 @@ export default function EducationalDetails({ user, edit, fetchUser, token }) {
 
     if(Object.keys(update).length<3){ 
       setError("*Please fill all details")
+    }
+    else if((!/^[a-zA-Z\s]+$/.test(update.college))||(!/^[a-zA-Z.\s]+$/.test(update.degree))||(!/^[0-9-\s]+$/.test(update.batch))){
+      setError("*Please enter valid details")
     }
     else{
       handleSubmit(update);  

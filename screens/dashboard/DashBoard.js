@@ -6,48 +6,41 @@ import { logout } from '../../redux/reducers/AuthSlice';
 import Logo from '../../assets/internGo.png';
 import {createDrawerNavigator, DrawerContentScrollView, DrawerItemList} from '@react-navigation/drawer'
 import Profile from '../User/Profile';
-import DailyUpdate from '../User/DailyUpdate';
-import Roadmap from '../User/Roadmap';
-import Help from '../User/Help';
-import CreateRoadmap from '../Mentor/CreateRoadmap';
-import EditFeedback from '../Mentor/EditFeedback';
+import DailyUpdate from '../User/DailyUpdate'; 
 import Interactions from '../User/Interactions';
 import CreatePlan from '../Admin/CreatePlan';
 import InteractionSchedule from '../Admin/InteractionSchedule'
 import EditInteractions from '../Admin/EditInteraction'
-import InteractionsToTake from '../Mentor/InteractionToTake'
-import Records from '../Admin/Records'
-import CreateAnnouncement from '../Admin/CreateAnnouncement';
-import PendingTickets from '../Admin/PendingTickets';
+import InteractionsToTake from '../Mentor/InteractionToTake' 
+import CreateAnnouncement from '../Admin/CreateAnnouncement'; 
 import NoPermission from '../User/NoPermission';
 import Icon from 'react-native-vector-icons/MaterialIcons';  
 import Resources from '../Admin/Resources'; 
 import FA from 'react-native-vector-icons/FontAwesome5'; 
 import EP from 'react-native-vector-icons/Entypo';
 import MI from 'react-native-vector-icons/MaterialIcons';
-import AD from 'react-native-vector-icons/AntDesign';
-import OI from 'react-native-vector-icons/Octicons';
+import AD from 'react-native-vector-icons/AntDesign'; 
 import InternHome from '../User/InternHome'; 
 import { axiosInstance } from '../../utils/axiosInstance';
 import ViewDailyUpdates from '../Admin/ViewDailyUpdates';
 import { useNavigation } from '@react-navigation/native';
 import socket from '../../utils/socket';
-import { addNotification, setNotifications,markAsRead, setAnnouncement, addAnnouncement } from '../../redux/reducers/NotificationSlice';
-import AddUsers from '../Admin/AddUsers';
-import ViewFeedback from '../Admin/ViewFeedback';
+import { addNotification, setNotifications,markAsRead, setAnnouncement, addAnnouncement, fetchNotifications, fetchAnnouncements } from '../../redux/reducers/NotificationSlice';
+import AddUsers from '../Admin/AddUsers'; 
 import Toast from 'react-native-toast-message';
 import Analytics from '../Admin/Analytics';
-import { setMentors } from '../../redux/reducers/MentorSlice';
-import { setFilters } from '../../redux/reducers/FilterSlice';
+import { fetchMentors, setMentors } from '../../redux/reducers/MentorSlice';
+import { fetchFilters, setFilters } from '../../redux/reducers/FilterSlice';
 import MentorHome from '../Mentor/MentorHome';
 import AdminHome from '../Admin/AdminHome';
+import Help from '../User/Help';
+import PendingTickets from '../Admin/PendingTickets';
  
 
 export default function DashBoard( ) {
   const dispatch = useDispatch();   
   const datas= useSelector(state=>state.auth.data?.data?.permissions);  
-  const id= useSelector(state=>state.auth.data?.data?.userId);  
-  const token= useSelector(state=>state.auth.data?.data?.token);  
+  const id= useSelector(state=>state.auth.data?.data?.userId);   
   const role= useSelector(state=>state.auth.data?.data?.role);  
   const permission = datas || null;
   const navigation = useNavigation(); 
@@ -56,15 +49,11 @@ export default function DashBoard( ) {
   }
   const Drawer = createDrawerNavigator()
   const [badgeCount, setBadgeCount] = useState(0);  
-
-
-  useEffect(()=>{
-    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  },[])
+ 
 
   useEffect(() => {   
-    socket.on("connect", () => {
-      console.log("Socket connected:", socket.id); 
+    socket.connect();
+    socket.on("connect", () => { 
       socket.emit("join", {userId:id});
     });
 
@@ -81,8 +70,7 @@ export default function DashBoard( ) {
     
     socket.on("announcement",(data)=>{
       const msg = data?.createdNotification?.message;
-      showToast('Announcement',msg) 
-      
+      showToast('Announcement',msg)       
       dispatch(addAnnouncement(msg));
     })
 
@@ -95,6 +83,7 @@ export default function DashBoard( ) {
       socket.off("notification");
       socket.off("disconnect");    
       socket.off('announcement')
+      socket.disconnect()
     };
   }, [id]); 
  
@@ -111,89 +100,18 @@ export default function DashBoard( ) {
   
 
   useEffect(()=>{  
-    fetchNotification(); 
-    fetchAnnouncement()
-    fetchMentors();
+    dispatch(fetchNotifications(id)); 
+    dispatch(fetchAnnouncements());
+    dispatch(fetchMentors());
     if(role=='Admins'){
-      fetchFilters();
+      dispatch(fetchFilters());
     }
   },[])
- 
-  const fetchNotification = async()=>{  
-    try{
-      const response = await axiosInstance.get(`/api/notifications/${id}`);
-      if(response){ 
-        
-        let notification = response.data.data||[];
-        if(notification.length>0){
-          notification=notification.map((dt)=>({
-            id:dt.id,message:dt.message,type:dt.type,timestamp:new Date(dt.createdAt).toLocaleString("en-US", { 
-              year: "numeric", month: "long", day: "numeric", 
-              hour: "2-digit", minute: "2-digit"
-          }),isRead:dt.isRead})
-          )
-        }          
-        const count =notification.filter(n=>!n.isRead);
-        setBadgeCount(count.length);
-        dispatch(setNotifications(notification));
-      }
-    }
-    catch(err){
-      dispatch(setNotifications([]));
-      console.log(err.response.data?.message);      
-    }
-  }
-
-  const fetchMentors = async()=>{
-    try{
-      const response = await axiosInstance.get(`api/users/role/fetch`,{
-        params:{roleName:['Mentors']}
-      });
-      if(response){
-        const mentors = response.data?.data 
-        
-        dispatch(setMentors(mentors));
-      }
-    }
-    catch(err){
-      console.log(err?.response?.data?.message);      
-    }
-  }
-
-  const fetchFilters = async()=>{
-    try{
-      const response = await axiosInstance.get(`api/users/distinct/filters`);
-      if(response){
-        const filters = response.data?.data
-        dispatch(setFilters(filters));       
-      }
-    }
-    catch(err){
-      console.log(err?.response?.data?.message);      
-    }
-  }
-  
   const handleNotification = ()=>{ 
     setBadgeCount(0);
     navigation.navigate('Notifications')
   }
-
-  const fetchAnnouncement =  async()=>{
-    try{
-      const response = await axiosInstance.get(`/api/notifications/get/announcements`);
-      if(response){         
-        let announcement = response.data.data||[];
-        if(announcement.length>0){
-          announcement=announcement.map((dt)=>(dt.message))
-        }           
-        dispatch(setAnnouncement(announcement));
-      }
-    }
-    catch(err){
-      dispatch(setAnnouncement([]));
-      console.log(err?.response?.data?.message);      
-    }
-  }
+ 
 
   const tabs = [
     {
@@ -235,16 +153,7 @@ export default function DashBoard( ) {
       component: DailyUpdate,
       icon:FA,
       iconlabel:'list-ul'
-    },
-    // {
-    //   label: 'RoadMap',
-    //   name: 'RoadMap',
-    //   permission: 'RoadMap',
-    //   component: Roadmap,
-    //   icon:FA,
-    //   label:'map-marked-alt'
-    // },
-
+    }, 
     {
       label: 'Create Plan',
       name: 'Create Plan',
@@ -284,16 +193,7 @@ export default function DashBoard( ) {
       component: InteractionSchedule,
       icon:MI,
       iconlabel:'pending-actions'
-    },
-
-    // {
-    //   label: 'Create RoadMap',
-    //   name: 'Create RoadMap',
-    //   permission: 'roadmaps.view',
-    //   component: CreateRoadmap,
-    //   icon:FA,
-    //   label:'map-marked-alt'
-    // },
+    }, 
     {
       label: 'Interactions',
       name: 'Interactions',
@@ -325,39 +225,7 @@ export default function DashBoard( ) {
       component: Analytics,
       icon:EP,
       iconlabel:'bar-graph'
-    },
-    // {
-    //   label: 'FeedBack',
-    //   name: 'View FeedBack',
-    //   permission: 'feedback.view',
-    //   component: ViewFeedback,
-    //   icon:EP,
-    //   iconlabel:'chat'
-    // },
-    // {
-    //   label: 'FeedBack',
-    //   name: 'edit FeedBack',
-    //   permission: 'feedback.create',
-    //   component: EditFeedback,
-    //   icon:EP,
-    //   iconlabel:'chat'
-    // },
-
-    // {
-    //   name: 'Records',
-    //   permission: 'users.view',
-    //   component: Records,
-    //   icon:AD,
-    //   label:'folderopen'
-    // },
-    {
-      label: 'Help',
-      name: 'Help',
-      permission: 'tasks.update',
-      component: Help,
-      icon:MI,
-      iconlabel:'contact-support'
-    },
+    }, 
     {
       label: 'Create Announcement',
       name: 'Create Announcement',
@@ -365,19 +233,32 @@ export default function DashBoard( ) {
       component: CreateAnnouncement,
       icon:AD,
       iconlabel:'notification'
-    },
+    }, 
     {
-      label: 'Pending Tickets',
-      name: 'Pending Tickets',
-      permission: 'plans.create',
+      label: 'Help',
+      name: 'Help',
+      permission: 'tasks.update',
+      component: Help,
+      icon:MI,
+      iconlabel:'help'
+    }, 
+    {
+      label: 'Pending Requests',
+      name: 'Pending tickets',
+      permission: 'users.manage',
       component: PendingTickets,
       icon:MI,
-      iconlabel:'pending-actions'
-    },    
-
-
+      iconlabel:'pending'
+    }, 
+    {
+      label: 'Pending Requests',
+      name: 'Pending tickets for mentor',
+      permission: 'feedback.create',
+      component: PendingTickets,
+      icon:MI,
+      iconlabel:'pending'
+    }, 
   ] 
-
 
   return (
     <>
@@ -387,6 +268,7 @@ export default function DashBoard( ) {
       <Image
         source={Logo}
         style={{ width: 120, height: 120 }} 
+        resizeMode='contain'
       />
        
     ) , 

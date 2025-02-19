@@ -14,8 +14,9 @@ import { Picker } from '@react-native-picker/picker';
 import { useSelector } from 'react-redux';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { axiosInstance } from '../../utils/axiosInstance';
+import Toast from 'react-native-toast-message';
 
-const DEFAULT = "N/A";
+const DEFAULT = "---";
 
 export default function PersonalDetails({ user, edit ,fetchUser,token}) {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -24,20 +25,31 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
   const role = useSelector((state) => state.auth.data?.data.role);
   const maxDate = new Date();
   maxDate.setFullYear(maxDate.getFullYear() - 15);
- 
+  const showToast = (state, message) => {
+    Toast.show({
+      type: state,
+      text1: 'Profile update',
+      text2: message,
+      position: 'top',
+      swipeable: true,
+      visibilityTime: 1500,
+    });
+  };
   const [fields, setFields] = useState({ 
-    dob: user.dateOfBirth?.split('T')[0] || DEFAULT,
-    personalEmail:user.personalEmail||DEFAULT,
-    contact: user.phone_no || DEFAULT, 
+    name:user.name||'' ,
+    dob: user.dateOfBirth?.split('T')[0]||''   ,
+    personalEmail:user.personalEmail ||'' ,
+    contact: user.phone_no ||''  , 
     gender: user.gender || "Select Gender",
     bloodGroup: user.bloodGroup || "Select Blood Group",
   });
   useEffect(()=>{
     if(user){
       setFields({ 
-        dob: user.dateOfBirth?.split('T')[0] || DEFAULT,
-        personalEmail:user.personalEmail||DEFAULT,
-        contact: user.phone_no || DEFAULT, 
+        name:user.name||'' ,
+        dob: user.dateOfBirth?.split('T')[0]||''   ,
+        personalEmail:user.personalEmail ||'' ,
+        contact: user.phone_no ||'' , 
         gender: user.gender || "Select Gender",
         bloodGroup: user.bloodGroup || "Select Blood Group",
       })
@@ -53,18 +65,27 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
     let err = "";
     let update ={}
     setError('');
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fields.personalEmail)){
-      setError("*Please enter valid email");
-      return
+    if(!/^[a-z0-9.]+@[a-z.]+\.[a-z]{2,}$/.test(fields.personalEmail)){
+      err="*Please enter valid email"; 
     }
-    if(fields.dob!=DEFAULT&&fields.dob!=user.dateOfBirth){
+    if(fields.name?.trim()==''){
+      err='*Please enter your name' 
+    }
+    if((fields.name.length<4)||(!/^[a-zA-Z\s]+$/.test(fields.name))){
+      err='*Please enter valid name' 
+    }
+    if(fields.personalEmail!=''&&fields.personalEmail!=user.personalEmail){
       update.personalEmail=fields.personalEmail;
+    }    
+    if(fields.name!=''&&fields.name!=user.name){
+      update.name=fields.name.trim();
     }
-    if(fields.dob!=DEFAULT&&fields.dob!=user.dateOfBirth){
+    if(fields.dob!=''&&fields.dob!=user.dateOfBirth){
       update.dateOfBirth=fields.dob;
-    }
-    if(fields.contact!=DEFAULT&&fields.contact!=user.phone_no){
-      if(fields.contact.length!=10){
+    } 
+
+    if(fields.contact!=''&&fields.contact!=user.phone_no){
+      if(fields.contact.length!=10||Number(fields.contact[0])<6){
         err  = "*Enter valid contact number"
       }
       else{
@@ -88,23 +109,19 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
 
   const handleSubmit = async(update)=>{
     try{ 
-      const response = await axiosInstance.patch(`/api/users/update/${user.id}`,{...update},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, 
-          }
-        }
-      );
+      const response = await axiosInstance.patch(`/api/users/update/${user.id}`,{...update});
       if(response){
+        showToast('success','Profile Updated successfully!');
         fetchUser();
+        setTimeout(()=>{
+          setModalVisible(false); 
+        },1000) 
       }
     }
     catch(err){
-      console.log(err.response.data);
-    }
-    finally{ 
-      setModalVisible(false);  
-    }
+      const msg = err?.response?.data?.message||'Profile not updated';
+      showToast('error',JSON.stringify(msg));
+    } 
   }
 
   const handleChange = (field, value) => {
@@ -127,6 +144,7 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
   
   const handleClose = ()=>{
     setModalVisible(false);
+    setError('')
   }
   return (
     <View style={styles.container}>
@@ -151,7 +169,7 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Personal Email</Text>
-          <Text style={styles.value}>{user.personalEmail|| DEFAULT}</Text>
+          <Text style={[styles.value ]}>{user.personalEmail|| DEFAULT}</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>DOB</Text>
@@ -177,14 +195,26 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
         visible={isModalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
+        
         <View style={styles.modalOverlay}>
+        
           <View style={styles.modalContent}>
+          
             <Text style={styles.modalHeading}>Edit Personal Details</Text>
             <Text style={[styles.error,{display:error?'':'none'}]}>{error}</Text>
             <ScrollView> 
+            <View style={styles.modalField}>
+                <Text style={styles.modalLabel}>Personal Name</Text>
+                <TextInput
+                  style={[styles.modalInput,{paddingVertical:15}]}
+                  value={fields.name}
+                  placeholder='Enter Name'
+                  onChangeText={(text) => handleChange('name', text)} 
+                /> 
+              </View>
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>DOB</Text>
-                <TouchableOpacity onPress={showDatePicker} style={styles.modalInput}>
+                <TouchableOpacity onPress={showDatePicker} style={[styles.modalInput,{paddingVertical:15}]}>
                   <Text style={{ color: fields.dob === DEFAULT ? '#aaa' : '#333' }}>
                     {fields.dob === DEFAULT ? 'Select Date' : fields.dob}
                   </Text>
@@ -193,7 +223,7 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Personal Email</Text>
                 <TextInput
-                  style={styles.modalInput}
+                  style={[styles.modalInput,{paddingVertical:15}]}
                   value={fields.personalEmail}
                   placeholder='Enter personal mail'
                   onChangeText={(text) => handleChange('personalEmail', text)} 
@@ -202,7 +232,7 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
               <View style={styles.modalField}>
                 <Text style={styles.modalLabel}>Contact</Text>
                 <TextInput
-                  style={styles.modalInput}
+                  style={[styles.modalInput,{paddingVertical:15}]}
                   value={fields.contact}
                   onChangeText={(text) => handleChange('contact', text)}
                   keyboardType="phone-pad"
@@ -250,6 +280,7 @@ export default function PersonalDetails({ user, edit ,fetchUser,token}) {
             <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
+            <Toast/>
           </View>
         </View>
       </Modal>
@@ -304,21 +335,24 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: 'row', 
     alignItems: 'center',
     marginBottom: 20,
     borderBottomWidth: 1,
     borderColor: 'rgb(217, 217, 217)',
+    flexWrap:'wrap'
   },
   label: {
     fontSize: 16,
     fontWeight: '600',
     color: '#555',
+    flex:15
   },
   value: {
     fontSize: 16,
     color: '#333',
+    flex:28, 
+    textAlign:'right'
   },
   modalOverlay: {
     flex: 1,

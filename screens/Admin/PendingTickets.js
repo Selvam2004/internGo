@@ -1,77 +1,124 @@
-import { View, Text, StyleSheet, Switch, ScrollView } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, StyleSheet, Switch, ScrollView ,ActivityIndicator} from 'react-native';
+import React, { useCallback, useState } from 'react';
+import ErrorPage from '../../components/error/Error'; 
+import { axiosInstance } from '../../utils/axiosInstance';
+import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 
-export default function HelpRequests() { 
-  const [helpRequests, setHelpRequests] = useState([
-    {
-      id: 1,
-      subject: 'Login Issue',
-      description: 'Unable to log into my account with correct credentials.',
-      priority: 'High',
-      recipient: 'Admin',
-      mentor: null,
-      isResolved: false,
-    },
-    {
-      id: 2,
-      subject: 'Mentor Not Responding',
-      description: 'My mentor has not responded to my messages for a week.',
-      priority: 'Medium',
-      recipient: 'Mentor',
-      mentor: 'John Doe',
-      isResolved: false,
-    },
-    {
-      id: 3,
-      subject: 'Course Material Missing',
-      description: 'The backend development module is missing study materials.',
-      priority: 'Low',
-      recipient: 'Admin',
-      mentor: null,
-      isResolved: true,
-    },
-  ]);
+export default function PendingTickets() { 
+  const [loading,setLoading] = useState(false);
+  const [error,setError] = useState(false);
+  const [helpRequests, setHelpRequests] = useState([]);
+  const userId = useSelector(state=>state.auth?.data?.data?.userId);
+  const mentors = useSelector(state=>state.mentors?.mentors);
+
+  const showToast = (state,message) => {     
+    Toast.show({
+      type: state,  
+      text1: "Help Request",
+      text2: message,
+      position: "top",   
+      swipeable:true,
+      visibilityTime:1500, 
+    });
+  };
  
-  const toggleResolved = (id) => {
-    setHelpRequests((prevRequests) =>
-      prevRequests.map((request) =>
-        request.id === id ? { ...request, isResolved: !request.isResolved } : request
-      )
-    );
+  const toggleResolved = async(id) => {
+    const change = helpRequests.filter(i=>i.id==id)[0]?.resolvedStatus=='PENDING'?'RESOLVED':'PENDING';
+    try{ 
+      setHelpRequests((prevRequests) =>
+        prevRequests.map((request) =>
+          request.id === id ? { ...request, resolvedStatus: request.resolvedStatus=='PENDING'?'RESOLVED':'PENDING' } : request
+        )
+      );
+      
+      const response = await axiosInstance.patch(`api/helpdesk/${id}`,{
+        resolvedStatus:change
+      })
+      if(response){
+        showToast('success','Help request toggled successfully');  
+      }
+    }
+    catch(err){
+      const msg = JSON.stringify(err.response?.data?.message)||'Help request toggle failed';      
+      showToast('error',msg)
+      setHelpRequests((prevRequests) =>
+        prevRequests.map((request) =>
+          request.id === id ? { ...request, resolvedStatus: request.resolvedStatus=='PENDING'?'RESOLVED':'PENDING' } : request
+        )
+      );
+    }
   };
 
-  return (
+  const fetchRequests = async()=>{
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(`api/helpdesk/${userId}`);
+      if(response){
+        const data = response.data.data;
+        setHelpRequests(data)    
+      }
+    } catch (error) { 
+      setError(false)
+    }
+    finally{
+      setLoading(false);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(()=>{
+      fetchRequests();
+    },[])
+  )
+
+  return ( 
     <ScrollView style={styles.container}>
+      <>
+      {error?<ErrorPage onRetry={fetchRequests}/>:
+      <>
+      { 
+      loading?<View style={{justifyContent:'center',flexDirection:'row',alignItems:'center',height:600}}><ActivityIndicator/><Text style={{textAlign:'center',fontWeight:'600'}}>Loading...</Text></View>:
+      <View>
       <Text style={styles.header}>Help Requests</Text>
       <View style={{marginBottom:20}}>
-      {helpRequests.map((request) => (
+      {helpRequests.length>0?helpRequests.map((request) => (
         <View key={request.id} style={styles.card}>
           <Text style={styles.subject}>{request.subject}</Text>
           <Text style={styles.description}>{request.description}</Text>
           <Text style={styles.details}>
+            <Text style={styles.boldText}>Received From:</Text> {request.senderName}
+          </Text>         
+           <Text style={styles.details}>
             <Text style={styles.boldText}>Priority:</Text> {request.priority}
           </Text>
           <Text style={styles.details}>
-            <Text style={styles.boldText}>Raised To:</Text> {request.recipient}
+            <Text style={styles.boldText}>Raised To:</Text> {request.recepient=='Admins'?'Admin':'Mentor'}
           </Text>
-          {request.recipient === 'Mentor' && (
+          {request.recepient === 'Mentors' && (
             <Text style={styles.details}>
-              <Text style={styles.boldText}>Mentor:</Text> {request.mentor}
+              <Text style={styles.boldText}>Mentor:</Text> {mentors.filter(m=>m.id==request.recepientId)[0].name||'Not available'}
             </Text>
           )}
 
           <View style={styles.switchContainer}>
             <Text style={styles.statusText}>
-              Status: {request.isResolved ? 'Resolved' : 'Pending'}
+              Status: {request.resolvedStatus=='RESOLVED' ? 'Resolved' : 'Pending'}
             </Text>
             <Switch
-              value={request.isResolved}
+              value={request.resolvedStatus=='PENDING'?false:true}
               onValueChange={() => toggleResolved(request.id)}
             />
           </View>
         </View>
-      ))}
+      )):<View style={{justifyContent:'center',height:500}}><Text style={{fontWeight:'500',textAlign:'center'}}>No Requests available</Text></View>}
       </View>
+      </View>
+      }
+      </>}
+      </>
+      <Toast/>
     </ScrollView>
   );
 }

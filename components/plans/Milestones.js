@@ -31,8 +31,7 @@ export default function Milestones(props) {
     "Name",
     "Description",
     "Days",
-    "Interactions",
-    "RoadmapType",
+    "Interactions", 
   ];
 
   const handleFill = (milestone) => {
@@ -123,10 +122,7 @@ export default function Milestones(props) {
 
   const submitDeleteObjective =  async(rowId)=>{
     try{
-        const response = await axiosInstance.delete(`/api/plans/delete/objective/${rowId}`)
-        if(response){
-          console.log(rowId ,"deleted");
-        }        
+        const response = await axiosInstance.delete(`/api/plans/delete/objective/${rowId}`)  
     }
     catch(err){
       console.log(err.respone)
@@ -172,8 +168,7 @@ export default function Milestones(props) {
       }
       if(update.length>0){
         apiCalls.push(axiosInstance.patch(`/api/plans/${props.id}/update/objectives`,{objectiveDatas:update}))
-      }
-      console.log(apiCalls.length);
+      } 
       if(apiCalls.length>0){
         handleSubmitUpdate(apiCalls);
       }
@@ -185,27 +180,28 @@ export default function Milestones(props) {
 
   };
 
-  const handleSubmitUpdate = async(apiCalls)=>{
-    try{ 
-      const response =await Promise.allSettled(apiCalls);
-      response.forEach((result, index) => {
-        if (result.status === "fulfilled") {
-          setEditable(null);
-          console.log(`Request ${index + 1} succeeded:`, result.value.data);
-        } else {
-          console.log(`Request ${index + 1} failed:`, result.reason);
-        }
-      });       
+  const handleSubmitUpdate = async (apiCalls) => {
+    setLoading(true);  
+  
+    const responses = await Promise.allSettled(apiCalls);
+    let err=false;
+    let errmsg=''
+    responses.forEach((result, index) => {
+      if (result.status === "rejected")  {
+        err=true;
+        errmsg=JSON.stringify(result.reason?.response?.data?.message);  
+      }
+    });  
+    setLoading(false); 
+    if(!err){
+      setEditable(null);
+    }else{
+      setError(errmsg);
     }
-    catch(err){
-      console.log(err); 
-    } 
-    finally{
-      setLoading(false);
-    }
-  }
-
+  };
+  
   const validation = (id)=>{  
+    
     let updated = milestones.filter((m) => m.id == id)[0];
     if (
       updated.name?.trim() == "" ||
@@ -216,30 +212,52 @@ export default function Milestones(props) {
       setError("*Please fill milestone details");
       return false;
     }
+    if(Number(updated.milestoneDays>180)){
+      setError("*Please enter valid milestone days");
+      return false;
+    }
     if(mentors.length>0&&(!mentors.includes(updated.mentorName))){
       setError("*Please provide valid mentor name");
       return false;
     }
+    let err='';
     updated.objectives?.forEach((field) => {
       if (
         field.name?.trim() == "" ||
         field.description?.trim() == "" ||
-        field.noOfInteractions == ""||
+        field.noOfInteractions == ''||
         field.objectiveDays == ""||
         field.noOfInteractions == "0"||
         field.objectiveDays == "0"
-      ) {
-        
-        setError("*Please fill all fields with valid data");
-        return false;
+      ) {         
+        err="*Please fill all fields with valid data"; 
       }
     });
+    if(err){
+      setError(err);
+      return false;
+    }
+    updated.objectives?.forEach((field) => {
+      if (
+        (!/^(?=.*[a-zA-Z])[a-zA-Z0-9]+$/.test(field.name)) ||
+        (!/^(?=.*[a-zA-Z])[a-zA-Z0-9]+$/.test(field.description))  
+      ) {        
+        err="*Please enter valid name and description"; 
+      }
+    });
+    if(err){
+      setError(err);
+      return false;
+    }
     const total = updated.objectives?.reduce((acc,curr)=>acc+Number(curr.objectiveDays),0);
-    if(total>updated.milestoneDays){ 
+    if(total>Number(updated.milestoneDays)){ 
       setError("*No of days should not exceed total milestone Days");
       return false;
     } 
-    return true;
+    else{
+      return true;
+    }
+    
   }
 
   const updateMilestone = (id,original,updated)=>{   
@@ -250,7 +268,7 @@ export default function Milestones(props) {
   ){ 
       return {
         milestoneId:id,
-        objectiveData:{
+        milestoneData:{
           name:updated.name,
           mentorName:updated.mentorName,
           milestoneDays:Number(updated.milestoneDays)
@@ -277,8 +295,7 @@ export default function Milestones(props) {
           }
          );
       } 
-    });  
-    console.log(create);
+    });   
   }
 
   const updateObjective = (original,updated,update)=>{
@@ -386,11 +403,9 @@ export default function Milestones(props) {
                       {field}
                     </Text>
                   ))}
-                  {editable == milestone.id && (
-                    <Text style={[styles.headerText, { width: 70 }]}>
-                      Delete
-                    </Text>
-                  )}
+{editable == milestone.id ? (
+  <Text style={[styles.headerText, { width: 70 }]}>Delete</Text>
+) : null}
                 </View>
 
                 {milestone.objectives &&
@@ -450,26 +465,8 @@ export default function Milestones(props) {
                         }
                         editable={editable == milestone.id}
                         keyboardType="number-pad"
-                      />
-                      <View style={styles.input}>
-                        <Picker
-                          enabled={editable == milestone.id}
-                          selectedValue={row.roadmapType}
-                          onValueChange={(text) =>
-                            handleRowChange(
-                              milestone.id,
-                              row.id,
-                              "roadmapType",
-                              text
-                            )
-                          }
-                           style={{ flex: 1, height: "100%" }}
-                        >
-                          <Picker.Item label="DEFAULT" value="DEFAULT" />
-                          <Picker.Item label="CUSTOM" value="CUSTOM" />
-                        </Picker>
-                      </View>
-                      {editable == milestone.id && (
+                      /> 
+                      {editable == milestone.id ? (
                         <TouchableOpacity
                           style={styles.delete}
                           onPress={() => handleDeleteRow(milestone.id, row.id)}
@@ -480,7 +477,7 @@ export default function Milestones(props) {
                             </Text>
                           </View>
                         </TouchableOpacity>
-                      )}
+                      ):null}
                     </View>
                   ))}
               </View>
@@ -578,6 +575,8 @@ const styles = StyleSheet.create({
     borderColor: "#ccc", 
     textAlign: "center", 
     backgroundColor: "#fff",
+    padding:5,
+    paddingVertical:10
   },
   addButton: {
     backgroundColor: "#007bff",

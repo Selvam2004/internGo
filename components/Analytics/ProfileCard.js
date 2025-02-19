@@ -5,10 +5,11 @@ import FA from 'react-native-vector-icons/EvilIcons';
 
 
 const ProfileCard = ({user}) => {  
-  const navigation = useNavigation();
+  const navigation = useNavigation(); 
+  
   const handleNavigate = ()=>{
     navigation.navigate('Analytics',{
-      userId:user.id
+      user:user
     })
   }
   return (
@@ -23,8 +24,7 @@ const ProfileCard = ({user}) => {
         </View>
         <Text style={[styles.detailText,{fontWeight:'bold'}]}>Employee ID: {user.employeeId||" N/A"}</Text>
         <Text style={styles.detailText}>{user.email}</Text>
-        <Text style={styles.detailText}>{user.designation||"Designation N/A"}</Text>
-        <Text style={styles.detailText}>{user.batch || "Batch N/A"} {user.phase || "Phase N/A"}</Text>
+        <Text style={styles.detailText}> {user.designation||"Designation N/A"} {user.batch || "Batch N/A"}</Text>
       </View>
     </View>
     </TouchableHighlight>

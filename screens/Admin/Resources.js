@@ -1,13 +1,12 @@
-import { View, Text, TextInput, StyleSheet, Modal, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { View, Text, TextInput, StyleSheet, Modal, TouchableOpacity, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
+import React, {   useEffect, useRef, useState } from 'react';
 import ProfileCard from '../../components/resources/ProfileCard';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
 import ErrorPage from '../User/Error';
 import { axiosInstance } from '../../utils/axiosInstance'; 
 import { useSelector } from 'react-redux'; 
 export default function Resources() {
-  const [modalVisible, setModalVisible] = useState(false);
-  const {token} = useSelector((state)=> state.auth.data?.data);   
+  const [modalVisible, setModalVisible] = useState(false); 
   const [error,setError] = useState(false); 
   const [loading,setLoading] = useState(false); 
   const [search,setSearch] = useState(""); 
@@ -25,13 +24,18 @@ export default function Resources() {
     limit:5, 
   })
   const filters = useSelector(state=>state.filters?.filters);   
-  const years = filters?.years?.filter(y=>y);
-  const batches = filters?.batches?.filter(b=>b);
-  const designations = filters?.designations?.filter(d=>d);
-  const status = filters?.statuses?.filter(s=>s); 
+  const years = filters?.years?.filter(y=>y)||[];
+  const batches = filters?.batches?.filter(b=>b)||[];
+  const designations = filters?.designations?.filter(d=>d)||[];
+  const status = filters?.statuses?.filter(s=>s)||[]; 
   const isFirstLoad = useRef(true);
-
-  useEffect(()=>{
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefresh  = async()=>{
+    setRefreshing(true);
+    fetchResource();
+  }
+  useEffect(()=>{   
+    setLoading(true);
     fetchResource();
   },[page.current])
   
@@ -44,6 +48,7 @@ export default function Resources() {
         isFirstLoad.current=false
         return
       }
+      setLoading(true);
       fetchResource()
     }, 1000);
     return () => {
@@ -86,8 +91,7 @@ const handlePrev = () => {
   
   const fetchResource = async()=>{
     try{
-      setError("");
-      setLoading(true);
+      setError(""); 
       setModalVisible(false);
       const response = await axiosInstance.post(
         '/api/users', 
@@ -102,33 +106,32 @@ const handlePrev = () => {
           params: {
             limit: page.limit,
             offset: (page.limit*(page.current-1))
-          },
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          } 
         }
       )
       
-      if(response){
-        console.log(response.data.data); 
+      if(response){ 
         const dt = response.data.data;
         setUser(dt.data);
         setPage({...page,total:Math.ceil(dt.total_pages),current:page.current<=Math.ceil(dt.total_pages)?page.current:1}); 
       }
     }
-    catch(err){
-      console.log(err);
+    catch(err){ 
       setError(err);
     }
     finally{
-      setLoading(false);      
+      setLoading(false);   
+      setRefreshing(false);   
     }
   }
   return (
     
-    <ScrollView>
+    <ScrollView
+    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+    >
 
       {error?<ErrorPage onRetry={fetchResource}/>:
+        loading?<View style={{height:600,justifyContent:'center',flexDirection:'row',alignItems:'center'}}><ActivityIndicator/><Text style={{fontWeight:'600',textAlign:'center'}}>Loading...</Text></View>:
       <View>
       <Text style={styles.header}>Resources</Text>
       <View style={styles.container}> 
@@ -228,13 +231,7 @@ const handlePrev = () => {
             </View>
           </View>
         </View>
-      </Modal>
-      {loading && (
-                <View style={styles.loadingContainer}> 
-                    <ActivityIndicator size="large" color="#0000ff" />
-                    <Text style={styles.loadingText}>loading...</Text>
-                </View>
-      )}
+      </Modal> 
     </ScrollView>
   );
 }

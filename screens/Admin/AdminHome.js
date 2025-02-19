@@ -6,7 +6,7 @@ import { axiosInstance } from '../../utils/axiosInstance';
 
 export default function AdminHome() { 
   const { name  } = useSelector((state) => state.auth.data?.data); 
-  const announcement = useSelector(state=>state.notifications?.announcement)
+  const announcement = useSelector(state=>state.notifications?.announcement)||[]
   const [users,setUsers]=useState({
     total:0,
     active:0,
@@ -52,7 +52,7 @@ export default function AdminHome() {
           </Text>
           {announcement.length>0?
           <View style={{ maxHeight: 300 }}>
-          <ScrollView nestedScrollEnabled={true}>
+          <ScrollView  showsVerticalScrollIndicator={false} nestedScrollEnabled={true}>
             {announcement.map((data, i) => (
               <View key={i} style={styles.announcementItem}>
                 <Text style={styles.announcementText}>{data}</Text>
@@ -83,7 +83,7 @@ export default function AdminHome() {
 
         <View style={styles.statCard}>
           <Icon name="users" size={32} color="gray" />
-          <Text style={styles.statTitle}>Deployed</Text>
+          <Text style={styles.statTitle}>Deployed Interns</Text>
           <Text style={styles.statValue}>{users.deployed}</Text>
         </View>
 

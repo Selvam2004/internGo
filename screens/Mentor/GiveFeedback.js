@@ -122,8 +122,7 @@ export default function GiveFeedback({route}) {
       }
     }
     catch(err){
-      const message = err?.response?.data?.message||'Feedback not submitted';
-      console.log(message);
+      const message = JSON.stringify(err?.response?.data?.message)||'Feedback not submitted'; 
       showToast('error',message);         
     }
   }

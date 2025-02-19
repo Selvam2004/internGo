@@ -39,10 +39,10 @@ export default function AddUsersPlan({ route }) {
 
 
   const filters = useSelector(state=>state.filters?.filters);   
-  const years = filters?.years?.filter(y=>y);
-  const batches = filters?.batches?.filter(b=>b);
-  const designations = filters?.designations?.filter(d=>d);
-  const status = filters?.statuses?.filter(s=>s); 
+  const years = filters?.years?.filter(y=>y)||[];
+  const batches = filters?.batches?.filter(b=>b)||[];
+  const designations = filters?.designations?.filter(d=>d)||[];
+  const status = filters?.statuses?.filter(s=>s||[]); 
   const planStatus = ['Present','Not Present']
   const [selectAll,SetSelectAll] = useState(false);
   const [prev,SetPrev] = useState('Not Present');
@@ -105,8 +105,7 @@ export default function AddUsersPlan({ route }) {
           current: page.current <= Math.ceil(dt.total_pages) ? page.current : 1,
         });
       }
-    } catch (err) {
-      console.log(err);
+    } catch (err) { 
       setError(err);
     } finally {
       setLoading(false);
